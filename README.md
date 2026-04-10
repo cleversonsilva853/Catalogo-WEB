@@ -1,2 +1,0 @@
-# Catalogo-WEB
-Catalogo Infornexa
