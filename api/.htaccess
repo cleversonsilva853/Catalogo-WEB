@@ -1,0 +1,22 @@
+Options -Indexes
+
+# Garante que index.php seja o arquivo padrão
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# ESSENCIAL para o subdomínio: define a raiz como base real
+RewriteBase /
+
+# Não redirecionar arquivos ou pastas existentes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Todas as outras requisições vão para index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Bloquear acesso direto a arquivos sensíveis
+<FilesMatch "^(config\.php|jwt\.php)$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>

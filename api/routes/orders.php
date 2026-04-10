@@ -1,0 +1,149 @@
+<?php
+// ============================================================
+// routes/orders.php — Pedidos de delivery
+// ============================================================
+$db = getDB();
+
+// GET /orders  |  GET /orders/{id}
+if ($method === 'GET') {
+    if ($id) {
+        // Suporte a busca pública por telefone (substitui RPC get_order_with_items_public)
+        $phone = $_GET['phone'] ?? null;
+        $stmt  = $db->prepare('SELECT * FROM orders WHERE id = ?');
+        $stmt->execute([$id]);
+        $order = $stmt->fetch();
+
+        if (!$order) respond_error('Pedido não encontrado', 404);
+
+        // Se vier telefone, valida que pertence ao cliente
+        if ($phone && $order['customer_phone'] !== $phone) {
+            respond_error('Acesso negado', 403);
+        }
+
+        $stmtItems = $db->prepare('SELECT * FROM order_items WHERE order_id = ?');
+        $stmtItems->execute([$id]);
+        $items = $stmtItems->fetchAll();
+
+        respond(['order' => $order, 'items' => $items]);
+    }
+
+    // Admin: listar pedidos (todos ou só ativos + últimas 24h)
+    require_auth();
+    $last24h = date('Y-m-d H:i:s', strtotime('-24 hours'));
+    $stmt = $db->prepare('
+        SELECT * FROM orders
+        WHERE status NOT IN ("completed","cancelled")
+           OR created_at >= ?
+        ORDER BY created_at DESC
+    ');
+    $stmt->execute([$last24h]);
+    respond($stmt->fetchAll());
+}
+
+// POST /orders — Criar pedido (substitui RPC create_order_with_items)
+if ($method === 'POST' && !$id) {
+    $b = get_body();
+
+    $required = ['customer_name','customer_phone','address_street','address_number','address_neighborhood','payment_method','items'];
+    foreach ($required as $f) {
+        if (empty($b[$f])) respond_error("Campo obrigatório: $f", 422);
+    }
+
+    $db->beginTransaction();
+    try {
+        $db->prepare('
+            INSERT INTO orders
+                (customer_name, customer_phone, address_street, address_number,
+                 address_neighborhood, address_complement, address_reference,
+                 total_amount, payment_method, change_for,
+                 latitude, longitude, delivery_zone_id, delivery_fee,
+                 coupon_code, discount_amount, status)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+        ')->execute([
+            $b['customer_name'],
+            $b['customer_phone'],
+            $b['address_street'],
+            $b['address_number'],
+            $b['address_neighborhood'],
+            $b['address_complement']  ?? null,
+            $b['address_reference']   ?? null,
+            $b['total_amount']        ?? 0,
+            $b['payment_method'],
+            $b['change_for']          ?? null,
+            $b['latitude']            ?? null,
+            $b['longitude']           ?? null,
+            $b['delivery_zone_id']    ?? null,
+            $b['delivery_fee']        ?? 0,
+            $b['coupon_code']         ?? null,
+            $b['discount_amount']     ?? 0,
+            'pending',
+        ]);
+
+        $orderId = (int)$db->lastInsertId();
+
+        $stmtItem = $db->prepare('
+            INSERT INTO order_items (id, order_id, product_id, product_name, quantity, unit_price, observation, addons)
+            VALUES (?,?,?,?,?,?,?,?)
+        ');
+
+        foreach ($b['items'] as $item) {
+            $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0,0xffff),mt_rand(0,0xffff),mt_rand(0,0xffff),
+                mt_rand(0,0x0fff)|0x4000,mt_rand(0,0x3fff)|0x8000,
+                mt_rand(0,0xffff),mt_rand(0,0xffff),mt_rand(0,0xffff));
+
+            $stmtItem->execute([
+                $uuid,
+                $orderId,
+                $item['product_id']  ?? null,
+                $item['product_name'],
+                $item['quantity']    ?? 1,
+                $item['unit_price']  ?? 0,
+                $item['observation'] ?? null,
+                isset($item['addons']) ? json_encode($item['addons']) : null,
+            ]);
+        }
+
+        // Incrementar uso do cupom se houver
+        if (!empty($b['coupon_code'])) {
+            $db->prepare('UPDATE coupons SET current_uses = current_uses + 1 WHERE code = ?')
+               ->execute([$b['coupon_code']]);
+        }
+
+        $db->commit();
+        respond(['id' => $orderId], 201);
+    } catch (Exception $e) {
+        $db->rollBack();
+        respond_error('Erro ao criar pedido: ' . $e->getMessage(), 500);
+    }
+}
+
+// PUT /orders/{id} — Atualizar status ou dados
+if ($method === 'PUT' && $id) {
+    // Status pode ser atualizado sem auth (cozinha, entregador)
+    // Dados sensíveis exigem auth
+    $b = get_body();
+
+    $fields = []; $params = [];
+    $allowed = ['status','driver_id','driver_name','payment_method','total_amount'];
+    foreach ($allowed as $f) {
+        if (array_key_exists($f, $b)) { $fields[] = "$f = ?"; $params[] = $b[$f]; }
+    }
+    if (!$fields) respond_error('Nenhum campo para atualizar', 422);
+
+    $params[] = $id;
+    $db->prepare('UPDATE orders SET ' . implode(', ', $fields) . ' WHERE id = ?')->execute($params);
+
+    $stmt = $db->prepare('SELECT * FROM orders WHERE id = ?');
+    $stmt->execute([$id]);
+    respond($stmt->fetch());
+}
+
+// DELETE /orders/{id}
+if ($method === 'DELETE' && $id) {
+    require_auth();
+    $db->prepare('DELETE FROM orders WHERE id = ?')->execute([$id]);
+    respond(['message' => 'Pedido removido']);
+}
+
+respond_error('Método não permitido', 405);

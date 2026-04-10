@@ -1,0 +1,16 @@
+Options -MultiViews
+RewriteEngine On
+
+# ─────────────────────────────────────────────────
+# CRÍTICO: Não interferir na pasta /api/ do PHP
+# Isso permite que o .htaccess da pasta api/ funcione
+# ─────────────────────────────────────────────────
+RewriteRule ^api(/.*)?$ - [L]
+
+# ─────────────────────────────────────────────────
+# React SPA: redireciona tudo para index.html
+# (exceto arquivos e pastas que existem de verdade)
+# ─────────────────────────────────────────────────
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
