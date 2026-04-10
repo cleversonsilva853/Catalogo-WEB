@@ -14,4 +14,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1500, // Aumenta o limite para omitir o aviso na Vercel
+  },
 }));
