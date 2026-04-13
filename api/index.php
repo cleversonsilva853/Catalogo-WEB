@@ -3,8 +3,12 @@
 // index.php — Roteador principal da API
 // ============================================================
 
-// Headers CORS (deve ser o primeiro a executar)
-header('Access-Control-Allow-Origin: ' . (defined('ALLOWED_ORIGIN') ? ALLOWED_ORIGIN : '*'));
+// Carregar configurações ANTES dos headers (ALLOWED_ORIGIN precisa estar definido)
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/jwt.php';
+
+// Headers CORS
+header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGIN);
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Content-Type: application/json; charset=utf-8');
@@ -15,8 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/jwt.php';
 
 // Ativar exibição de erros críticos em JSON no PHP
 set_error_handler(function($errno, $errstr, $errfile, $errline) {

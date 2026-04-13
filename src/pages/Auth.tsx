@@ -42,8 +42,7 @@ const Auth = () => {
         setIsLoading(false);
         return;
       }
-      
-      // API integration for forgot password
+
       await api.post('/auth/forgot-password', { email: formData.email });
       toast({ title: 'Email enviado!', description: 'Se o email existir, você receberá um link de recuperação.' });
       setMode('login');
@@ -69,10 +68,11 @@ const Auth = () => {
 
       await login(formData.usuario.trim(), formData.senha);
       toast({ title: 'Bem-vindo!', description: 'Login realizado com sucesso' });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Usuário ou senha incorretos';
       toast({
         title: 'Erro ao entrar',
-        description: error?.message || 'Usuário ou senha incorretos',
+        description: msg,
         variant: 'destructive',
       });
       setIsLoading(false);
@@ -137,6 +137,8 @@ const Auth = () => {
                         value={formData.usuario}
                         onChange={(e) => setFormData({ ...formData, usuario: e.target.value })}
                         className="pl-10 h-12 bg-muted/50 border-0 rounded-xl"
+                        autoComplete="username"
+                        autoFocus
                       />
                     </div>
                     <div className="relative">
@@ -147,6 +149,7 @@ const Auth = () => {
                         value={formData.senha}
                         onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
                         className="pl-10 pr-10 h-12 bg-muted/50 border-0 rounded-xl"
+                        autoComplete="current-password"
                       />
                       <button
                         type="button"
@@ -172,24 +175,14 @@ const Auth = () => {
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input
-                      type="text"
+                      type="email"
                       placeholder="seu@email.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="pl-10 h-12 bg-muted/50 border-0 rounded-xl"
+                      autoComplete="email"
+                      autoFocus
                     />
-                  </div>
-                )}
-
-                {mode === 'login' && (
-                  <div className="text-right">
-                    <button
-                      type="button"
-                      onClick={() => setMode('forgot')}
-                      className="text-primary hover:underline text-sm"
-                    >
-                      Esqueci minha senha
-                    </button>
                   </div>
                 )}
 

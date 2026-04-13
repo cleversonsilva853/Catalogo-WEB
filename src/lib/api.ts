@@ -39,7 +39,16 @@ async function request<T = unknown>(
   }
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: unknown = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // O servidor retornou algo que não é JSON (ex: PHP Warning/Error)
+      if (!res.ok) throw new Error(`Erro ${res.status}: resposta inválida do servidor`);
+      throw new Error(`Resposta inesperada do servidor: ${text.slice(0, 200)}`);
+    }
+  }
 
   if (!res.ok) {
     const msg = (data as { error?: string })?.error || `Erro ${res.status}`;
