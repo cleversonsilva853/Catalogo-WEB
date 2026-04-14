@@ -37,8 +37,8 @@ if ($method === 'POST' && $action === 'login') {
 
 if ($method === 'POST' && ($action === 'register' || $action === 'signup')) {
     $body     = get_body();
-    // Suporta tanto o padrão auth antigo do site quanto o novo
-    $usuario  = trim($body['email'] ?? $body['usuario'] ?? '');
+    // Suporta tanto usuario quanto email como campo de login
+    $usuario  = trim($body['usuario'] ?? $body['email'] ?? '');
     $senha    = $body['password'] ?? $body['senha'] ?? '';
 
     if (!$usuario || !$senha) {

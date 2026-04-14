@@ -10,7 +10,7 @@ function gen_uuid(): string {
 
 if ($method === 'GET') {
     require_auth();
-    $stmt = $db->query('SELECT id,usuario,login_email,acesso_gestao,acesso_operacoes,acesso_sistema,
+    $stmt = $db->query('SELECT id,usuario,acesso_gestao,acesso_operacoes,acesso_sistema,
         perm_dashboard,perm_pedidos,perm_produtos,perm_categorias,perm_acrescimos,perm_configuracoes,
         perm_relatorios,perm_usuarios,perm_horarios,perm_taxas_entrega,perm_cupons,perm_entregadores,
         perm_qrcode,perm_cozinha,perm_pdv,perm_backup,perm_consumir_local,created_at,updated_at
@@ -23,9 +23,9 @@ if ($method === 'POST') {
     if(empty($b['usuario'])||empty($b['senha'])) respond_error('Usuário e senha são obrigatórios',422);
     $uuid = gen_uuid();
     $hash = password_hash($b['senha'], PASSWORD_BCRYPT);
-    $db->prepare('INSERT INTO admin_users (id,usuario,senha,login_email) VALUES (?,?,?,?)')
-       ->execute([$uuid,$b['usuario'],$hash,$b['login_email']??null]);
-    $stmt=$db->prepare('SELECT id,usuario,login_email FROM admin_users WHERE id=?');$stmt->execute([$uuid]);
+    $db->prepare('INSERT INTO admin_users (id,usuario,senha) VALUES (?,?,?)')
+       ->execute([$uuid,$b['usuario'],$hash]);
+    $stmt=$db->prepare('SELECT id,usuario FROM admin_users WHERE id=?');$stmt->execute([$uuid]);
     respond($stmt->fetch(),201);
 }
 
@@ -41,7 +41,7 @@ if ($method === 'PUT' && $id) {
     if(!$fields) respond_error('Nenhum campo para atualizar',422);
     $params[]=$id;
     $db->prepare('UPDATE admin_users SET '.implode(',',$fields).' WHERE id=?')->execute($params);
-    $stmt=$db->prepare('SELECT id,usuario,login_email FROM admin_users WHERE id=?');$stmt->execute([$id]);
+    $stmt=$db->prepare('SELECT id,usuario FROM admin_users WHERE id=?');$stmt->execute([$id]);
     respond($stmt->fetch());
 }
 

@@ -44,8 +44,6 @@ CREATE TABLE IF NOT EXISTS admin_users (
   id           CHAR(36)      NOT NULL DEFAULT (UUID()),
   usuario      VARCHAR(100)  NOT NULL,
   senha        VARCHAR(255)  NOT NULL,
-  login_email  VARCHAR(255)  DEFAULT NULL,
-  auth_user_id VARCHAR(255)  DEFAULT NULL,
   acesso_gestao    TINYINT(1) NOT NULL DEFAULT 1,
   acesso_operacoes TINYINT(1) NOT NULL DEFAULT 1,
   acesso_sistema   TINYINT(1) NOT NULL DEFAULT 1,
@@ -72,8 +70,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Usuário admin padrão (senha: admin123 — troque após o primeiro acesso!)
-INSERT IGNORE INTO admin_users (id, usuario, senha, login_email)
-VALUES (UUID(), 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@admin.com');
+INSERT IGNORE INTO admin_users (id, usuario, senha)
+VALUES (UUID(), 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
 -- ============================================================
 -- 3. CATEGORIAS
