@@ -47,7 +47,7 @@ try {
     $result['admin_users_count'] = (int)$row['total'];
 
     // 6. Listar usuários (sem senha)
-    $stmt3 = $pdo->query("SELECT id, usuario, login_email, created_at FROM admin_users LIMIT 5");
+    $stmt3 = $pdo->query("SELECT id, usuario, created_at FROM admin_users LIMIT 5");
     $result['admin_users_list'] = $stmt3->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
