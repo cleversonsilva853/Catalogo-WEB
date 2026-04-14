@@ -5,9 +5,9 @@
 // Configure as variáveis de ambiente no painel da HostGator.
 // ============================================================
 
-define('DB_HOST',    getenv('DB_HOST')    ?: 'localhost:3306');
+define('DB_HOST',    getenv('DB_HOST')    ?: 'localhost');
 define('DB_NAME',    getenv('DB_NAME')    ?: 'clev2092_catalogo_db');
-define('DB_USER',    getenv('DB_USER')    ?: 'catalogcleve');
+define('DB_USER',    getenv('DB_USER')    ?: 'clev2092_catalogcleve');
 define('DB_PASS',    getenv('DB_PASS')    ?: 'Ferreira1998@');
 define('DB_CHARSET', 'utf8mb4');
 
