@@ -18,10 +18,18 @@ foreach ($exts as $ext) {
 }
 
 // 3. Teste de conexão MySQL
-$host = 'localhost';
-$dbname = 'clev2092_catalogo_db';
-$user   = 'catalogcleve';
-$pass   = 'Ferreira1998@';
+// Usa as mesmas credenciais do config.php da API
+require_once __DIR__ . '/config.php';
+
+$host   = DB_HOST;
+$dbname = DB_NAME;
+$user   = DB_USER;
+$pass   = DB_PASS;
+
+$result['db_user_sendo_usado'] = $user;
+$result['db_name_sendo_usado'] = $dbname;
+$result['db_host_sendo_usado'] = $host;
+
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $user, $pass, [
