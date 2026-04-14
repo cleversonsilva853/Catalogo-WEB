@@ -4,11 +4,12 @@
 // ============================================================
 $db = getDB();
 
-function comanda_uuid(): string {
+function comanda_uuid(): string
+{
     return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-        mt_rand(0,0xffff),mt_rand(0,0xffff),mt_rand(0,0xffff),
-        mt_rand(0,0x0fff)|0x4000,mt_rand(0,0x3fff)|0x8000,
-        mt_rand(0,0xffff),mt_rand(0,0xffff),mt_rand(0,0xffff));
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
 }
 
 // GET /comandas ou GET /comandas/{id}
@@ -19,7 +20,8 @@ if ($method === 'GET') {
         $stmt = $db->prepare('SELECT * FROM comandas WHERE id = ?');
         $stmt->execute([$id]);
         $comanda = $stmt->fetch();
-        if (!$comanda) respond_error('Comanda não encontrada', 404);
+        if (!$comanda)
+            respond_error('Comanda não encontrada', 404);
 
         // Pedidos vinculados
         $stmtP = $db->prepare('
@@ -51,11 +53,12 @@ if ($method === 'POST') {
     require_auth();
     $b = get_body();
 
-    if (empty($b['numero_comanda'])) respond_error('numero_comanda é obrigatório', 422);
+    if (empty($b['numero_comanda']))
+        respond_error('numero_comanda é obrigatório', 422);
 
     $uuid = comanda_uuid();
     $db->prepare("INSERT INTO comandas (id, numero_comanda, status) VALUES (?, ?, 'open')")
-       ->execute([$uuid, (int)$b['numero_comanda']]);
+        ->execute([$uuid, (int)$b['numero_comanda']]);
 
     $stmt = $db->prepare('SELECT * FROM comandas WHERE id = ?');
     $stmt->execute([$uuid]);
@@ -71,7 +74,7 @@ if ($method === 'PUT' && $id) {
     if (!empty($b['pedido_id'])) {
         $uuid = comanda_uuid();
         $db->prepare('INSERT IGNORE INTO comanda_pedidos (id, comanda_id, pedido_id) VALUES (?,?,?)')
-           ->execute([$uuid, $id, (int)$b['pedido_id']]);
+            ->execute([$uuid, $id, (int)$b['pedido_id']]);
         respond(['message' => 'Pedido vinculado à comanda']);
     }
 
@@ -79,9 +82,9 @@ if ($method === 'PUT' && $id) {
     if (!empty($b['forma_pagamento'])) {
         $vId = comanda_uuid();
         $db->prepare("INSERT INTO comanda_vendas (id, comanda_id, forma_pagamento, valor_total, data_venda) VALUES (?,?,?,?,CURDATE())")
-           ->execute([$vId, $id, $b['forma_pagamento'], $b['valor_total'] ?? 0]);
+            ->execute([$vId, $id, $b['forma_pagamento'], $b['valor_total'] ?? 0]);
         $db->prepare("UPDATE comandas SET status = 'closed' WHERE id = ?")
-           ->execute([$id]);
+            ->execute([$id]);
         respond(['message' => 'Comanda fechada com sucesso']);
     }
 

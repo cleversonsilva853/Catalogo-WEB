@@ -34,14 +34,14 @@ set_exception_handler(function($e) {
 });
 
 // Utilitário: resposta JSON padronizada
-function respond(mixed $data, int $status = 200): never
+function respond($data, int $status = 200): void
 {
     http_response_code($status);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }
 
-function respond_error(string $msg, int $status = 400): never
+function respond_error(string $msg, int $status = 400): void
 {
     respond(['error' => $msg], $status);
 }

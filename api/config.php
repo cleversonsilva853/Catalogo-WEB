@@ -13,7 +13,9 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Chave secreta para assinar os tokens JWT.
 // IMPORTANTE: Defina JWT_SECRET como variável de ambiente no servidor antes do deploy!
-define('JWT_SECRET', getenv('JWT_SECRET') ?: '');
+// IMPORTANTE: Configure JWT_SECRET no servidor para produção!
+// A chave abaixo é um fallback — idealmente use variável de ambiente.
+define('JWT_SECRET', getenv('JWT_SECRET') ?: 'catalogo_web_jwt_secret_hostgator_2024_k9x7');
 define('JWT_EXPIRY', 60 * 60 * 8); // 8 horas
 
 // URL base da API (sem barra final)
