@@ -4,6 +4,13 @@
 // ============================================================
 $db = getDB();
 
+// GET /orders/all — todos os pedidos (unificado para Dashboard)
+if ($method === 'GET' && $id === 'all') {
+    require_auth();
+    $stmt = $db->query('SELECT * FROM orders ORDER BY created_at DESC LIMIT 500');
+    respond($stmt->fetchAll());
+}
+
 // GET /orders  |  GET /orders/{id}
 if ($method === 'GET') {
     if ($id) {
@@ -39,6 +46,7 @@ if ($method === 'GET') {
     $stmt->execute([$last24h]);
     respond($stmt->fetchAll());
 }
+
 
 // POST /orders — Criar pedido (substitui RPC create_order_with_items)
 if ($method === 'POST' && !$id) {

@@ -117,7 +117,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       items: group.items.filter(item => {
         if (!item.permKey) return true; // e.g. "Ver Cardápio"
         if (!adminUserPerms) return true; // no record = show all
-        return (adminUserPerms as any)[item.permKey] === true;
+        return !!(adminUserPerms as any)[item.permKey];
       }),
     }))
     .filter(group => group.items.length > 0);

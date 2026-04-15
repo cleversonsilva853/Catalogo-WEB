@@ -142,6 +142,17 @@ switch ($resource) {
     case 'push':
         require __DIR__ . '/routes/push.php';
         break;
+    case 'table-orders':
+    case 'table_orders':
+        require __DIR__ . '/routes/table_orders.php';
+        break;
+    case 'table-order-items':
+    case 'table_order_items':
+        require __DIR__ . '/routes/table_order_items.php';
+        break;
+    case 'tables':
+        require __DIR__ . '/routes/tables.php';
+        break;
 
     case '':
     case 'health':
