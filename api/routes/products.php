@@ -118,4 +118,59 @@ if ($method === 'DELETE' && $id) {
     respond(['message' => 'Produto removido']);
 }
 
-respond_error('Método não permitido', 405);
+// GET /products/{id}/ingredients
+if ($method === 'GET' && $id && $sub === 'ingredients') {
+    require_auth();
+    $stmt = $db->prepare('
+        SELECT pi.*, i.name as ingredient_name, i.unit as ingredient_unit
+        FROM product_ingredients pi
+        JOIN ingredients i ON i.id = pi.ingredient_id
+        WHERE pi.product_id = ?
+    ');
+    $stmt->execute([$id]);
+    respond($stmt->fetchAll());
+}
+
+// PUT /products/{id}/ingredients — Sincronizar composição
+if ($method === 'PUT' && $id && $sub === 'ingredients') {
+    require_auth();
+    $b = get_body();
+    $ingredients = $b['ingredients'] ?? null;
+    
+    if ($ingredients === null) respond_error('Campo ingredients é obrigatório', 422);
+
+    $db->beginTransaction();
+    try {
+        // Remover atuais
+        $db->prepare('DELETE FROM product_ingredients WHERE product_id = ?')->execute([$id]);
+
+        // Inserir novos
+        $stmt = $db->prepare('
+            INSERT INTO product_ingredients (id, product_id, ingredient_id, quantity_used, unit)
+            VALUES (?, ?, ?, ?, ?)
+        ');
+
+        foreach ($ingredients as $ing) {
+            $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+                mt_rand(0, 0x0fff) | 0x4000, mt_rand(0, 0x3fff) | 0x8000,
+                mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
+            
+            $stmt->execute([
+                $uuid,
+                $id,
+                $ing['ingredient_id'],
+                $ing['quantity_used'],
+                $ing['unit'] ?? 'un'
+            ]);
+        }
+
+        $db->commit();
+        respond(['message' => 'Composição atualizada com sucesso']);
+    } catch (Exception $e) {
+        $db->rollBack();
+        respond_error('Erro ao salvar composição: ' . $e->getMessage(), 500);
+    }
+}
+
+respond_error('Método não permitido ou rota inválida', 405);

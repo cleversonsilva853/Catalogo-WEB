@@ -146,4 +146,44 @@ if ($method === 'DELETE' && $id && $sub) {
     respond(['message' => 'Removido com sucesso']);
 }
 
+// ─── PRODUCT GROUPS (Vínculos Produto-Acréscimo) ────────────
+// GET /addons/product-groups?product_id=...
+if ($method === 'GET' && $id === 'product-groups') {
+    $productId = $_GET['product_id'] ?? null;
+    if (!$productId) respond_error('product_id é obrigatório', 422);
+    
+    $stmt = $db->prepare('SELECT * FROM product_addon_groups WHERE product_id = ?');
+    $stmt->execute([$productId]);
+    respond($stmt->fetchAll());
+}
+
+// POST /addons/product-groups
+if ($method === 'POST' && $id === 'product-groups') {
+    require_auth();
+    $b = get_body();
+    if (empty($b['product_id']) || empty($b['addon_group_id'])) {
+        respond_error('product_id e addon_group_id são obrigatórios', 422);
+    }
+
+    $uuid = gen_uuid();
+    $db->prepare('INSERT IGNORE INTO product_addon_groups (id, product_id, addon_group_id) VALUES (?, ?, ?)')
+       ->execute([$uuid, $b['product_id'], $b['addon_group_id']]);
+    
+    respond(['message' => 'Vínculo criado'], 201);
+}
+
+// DELETE /addons/product-groups
+if ($method === 'DELETE' && $id === 'product-groups') {
+    require_auth();
+    $b = get_body();
+    if (empty($b['product_id']) || empty($b['addon_group_id'])) {
+        respond_error('product_id e addon_group_id são obrigatórios', 422);
+    }
+
+    $db->prepare('DELETE FROM product_addon_groups WHERE product_id = ? AND addon_group_id = ?')
+       ->execute([$b['product_id'], $b['addon_group_id']]);
+    
+    respond(['message' => 'Vínculo removido']);
+}
+
 respond_error('Método não permitido ou rota inválida', 405);
