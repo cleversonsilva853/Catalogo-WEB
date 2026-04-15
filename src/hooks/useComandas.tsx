@@ -47,7 +47,7 @@ export function useComandaOrderDetails(comandaId?: string) {
 export function useCreateComanda() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (numeroComanda: number) => api.post<Comanda>('/comandas', { numero_comanda, status: 'livre' }),
+    mutationFn: (numeroComanda: number) => api.post<Comanda>('/comandas', { numero_comanda: numeroComanda, status: 'livre' }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['comandas'] }),
   });
 }
