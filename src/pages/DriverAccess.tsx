@@ -8,42 +8,18 @@ import { PWAInstallButton } from '@/components/pwa/PWAInstallButton';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Driver {
-  id: string;
-  name: string;
-  phone: string | null;
-  is_active: boolean;
-}
+import { useDrivers } from '@/hooks/useDrivers';
 
 export default function DriverAccess() {
   const navigate = useNavigate();
   const { data: store } = useStore();
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: drivers = [], isLoading } = useDrivers();
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
 
   useTheme();
   usePWAConfig();
 
-  useEffect(() => {
-    loadDrivers();
-  }, []);
-
-  const loadDrivers = async () => {
-    setIsLoading(true);
-    const { data, error } = await supabase
-      .from('drivers')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
-
-    if (!error && data) {
-      setDrivers(data);
-    }
-    setIsLoading(false);
-  };
+  const activeDrivers = drivers.filter(d => d.is_active);
 
   const handleSelectDriver = (driverId: string, driverName: string) => {
     setSelectedDriver(driverId);
@@ -81,16 +57,16 @@ export default function DriverAccess() {
               <div className="flex justify-center py-8">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-            ) : drivers.length === 0 ? (
+            ) : activeDrivers.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-muted-foreground mb-4">Nenhum entregador cadastrado ainda.</p>
+                <p className="text-muted-foreground mb-4">Nenhum entregador ativo no momento.</p>
                 <Button variant="outline" onClick={() => navigate('/')}>
                   Voltar ao cardápio
                 </Button>
               </div>
             ) : (
               <div className="grid gap-3">
-                {drivers.map((driver) => (
+                {activeDrivers.map((driver) => (
                   <Button
                     key={driver.id}
                     variant={selectedDriver === driver.id ? 'default' : 'outline'}

@@ -9,11 +9,10 @@ import { PushNotificationToggle } from '@/components/admin/PushNotificationToggl
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
-import { useDriverOrders, useDriverOrderItems } from '@/hooks/useDrivers';
+import { useDriverOrders, useDriverOrderItems, useUpdateDriverOrderStatus } from '@/hooks/useDrivers';
 import { useDriverNotifications } from '@/hooks/useDriverNotifications';
 import { useServiceWorkerPush } from '@/hooks/useServiceWorkerPush';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: boolean; onAcknowledge: (id: number) => void }) {
@@ -31,21 +30,19 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
     debit: '💳 Débito',
   };
 
+  const updateStatus = useUpdateDriverOrderStatus();
   const driverId = localStorage.getItem('driver_id');
 
   const handleStartDelivery = async () => {
     setIsUpdating(true);
     try {
-      const { error } = await supabase.rpc('driver_update_order_status', {
-        _order_id: order.id,
-        _driver_id: driverId,
-        _new_status: 'delivery',
+      await updateStatus.mutateAsync({ 
+        orderId: order.id, 
+        status: 'delivery' 
       });
-      if (error) throw error;
       onAcknowledge(order.id);
       toast.success('Entrega iniciada!');
     } catch (err: any) {
-      console.error('Start delivery error:', err);
       toast.error('Erro ao iniciar entrega');
     } finally {
       setIsUpdating(false);
@@ -55,15 +52,12 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
   const handleFinishDelivery = async () => {
     setIsUpdating(true);
     try {
-      const { error } = await supabase.rpc('driver_update_order_status', {
-        _order_id: order.id,
-        _driver_id: driverId,
-        _new_status: 'completed',
+      await updateStatus.mutateAsync({ 
+        orderId: order.id, 
+        status: 'completed' 
       });
-      if (error) throw error;
       toast.success('Entrega finalizada!');
     } catch (err: any) {
-      console.error('Finish delivery error:', err);
       toast.error('Erro ao finalizar entrega');
     } finally {
       setIsUpdating(false);
@@ -207,17 +201,7 @@ export default function DriverDashboard() {
     }
   }, [driverId, driverName, navigate]);
 
-  // Subscribe to realtime changes
-  useEffect(() => {
-    if (!driverId) return;
-    const channel = supabase
-      .channel('driver-orders-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
-        // React Query will refetch via refetchInterval
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [driverId]);
+  // Web Push and notifications are handled via hooks already
 
   const handleLogout = () => {
     localStorage.removeItem('driver_id');

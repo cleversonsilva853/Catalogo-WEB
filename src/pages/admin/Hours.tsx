@@ -7,7 +7,6 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useBusinessHours, useUpdateBusinessHour, useCreateBusinessHours, useCreateBusinessHour, useDeleteBusinessHour, getDayName, BusinessHour } from '@/hooks/useBusinessHours';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 
 const AdminHours = () => {

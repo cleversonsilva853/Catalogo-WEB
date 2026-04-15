@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,7 +28,6 @@ import { useIngredients } from '@/hooks/useIngredients';
 import { useSystemSettings } from '@/hooks/useSystemSettings';
 import { useAddonGroups, useAddProductAddonGroup, useRemoveProductAddonGroup } from '@/hooks/useAddons';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 const AdminProducts = () => {
   const { data: products, isLoading } = useProducts();
@@ -111,24 +111,13 @@ const AdminProducts = () => {
     setLoadingComposition(true);
     try {
       // Addons
-      const { data: addonsData, error: addonsError } = await supabase
-        .from('product_addon_groups')
-        .select('addon_group_id')
-        .eq('product_id', product.id);
-      
-      if (addonsError) throw addonsError;
-      
+      const addonsData = await api.get<any[]>('/addons/product-groups', { product_id: product.id });
       const groupIds = addonsData?.map(pag => pag.addon_group_id) || [];
       setSelectedAddonGroups(groupIds);
       setInitialAddonGroups(groupIds);
 
       // Composition
-      const { data: compData, error: compError } = await supabase
-        .from('product_ingredients')
-        .select('ingredient_id, quantity_used, unit')
-        .eq('product_id', product.id);
-      
-      if (compError) throw compError;
+      const compData = await api.get<any[]>(`/products/${product.id}/ingredients`);
       setComposition(compData?.map(c => ({ 
         ingredient_id: c.ingredient_id, 
         quantity_used: c.quantity_used.toString(),

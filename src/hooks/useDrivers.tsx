@@ -64,16 +64,30 @@ export function useAssignDriver() {
   });
 }
 
+export function useUpdateDriverOrderStatus() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, status }: { orderId: number; status: 'ready' | 'delivery' | 'completed' }) => 
+      api.put(`/orders/${orderId}`, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['driver-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['all-orders'] });
+    },
+  });
+}
+
 export function useDriverOrders(driverId: string | null) {
   return useQuery({
     queryKey: ['driver-orders', driverId],
     queryFn: async () => {
       if (!driverId) return [];
-      // The backend orders.php needs support for filtering by driver_id, we will do client side filtering or update backend. 
-      // For now let's just fetch all and filter client-side as fallback, or pass driver_id.
-      // Wait, let's fetch all active orders from /orders and filter them
       const res: any = await api.get('/orders');
-      return res.filter((o: any) => o.driver_id === driverId && (o.status === 'ready' || o.status === 'delivery'));
+      // Filtramos pedidos que estão prontos para retirada ou em entrega pelo entregador específico
+      return res.filter((o: any) => 
+        (o.driver_id === driverId || !o.driver_id) && 
+        (o.status === 'ready' || o.status === 'delivery')
+      );
     },
     enabled: !!driverId,
     refetchInterval: 5000,

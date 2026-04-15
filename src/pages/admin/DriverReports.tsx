@@ -9,8 +9,8 @@ import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useDrivers } from '@/hooks/useDrivers';
+import { useAllOrders } from '@/hooks/useAllOrders';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import * as XLSX from 'xlsx';
@@ -44,21 +44,21 @@ const AdminDriverReports = () => {
     [drivers, selectedDriverId]
   );
 
-  const { data: deliveries, isLoading: isLoadingDeliveries } = useQuery({
-    queryKey: ['driver-report', selectedDriverId, startDate, endDate],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('driver_id', selectedDriverId)
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString())
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return (data || []) as DriverDelivery[];
-    },
-    enabled: !!selectedDriverId,
-  });
+  const { data: allOrders } = useAllOrders();
+
+  const deliveries = useMemo(() => {
+    if (!allOrders || !selectedDriverId) return [];
+    
+    return (allOrders as any[]).filter(order => {
+      const orderDate = new Date(order.created_at);
+      const isCorrectDriver = order.driver_id === selectedDriverId;
+      const isInDateRange = orderDate >= startDate && orderDate <= endDate;
+      // Consideramos apenas pedidos de delivery que têm entregador
+      return isCorrectDriver && isInDateRange && order.type === 'delivery';
+    }) as DriverDelivery[];
+  }, [allOrders, selectedDriverId, startDate, endDate]);
+
+  const isLoadingDeliveries = false; // useAllOrders handles loading via its state if needed, but here we use memo
 
   const isLoading = isLoadingDrivers || isLoadingDeliveries;
 
