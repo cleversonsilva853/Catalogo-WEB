@@ -22,12 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Ativar exibição de erros críticos em JSON no PHP
 set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    if (defined('ALLOWED_ORIGIN')) {
+        header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGIN);
+    }
     http_response_code(500);
     echo json_encode(["error" => "PHP Error: $errstr in $errfile:$errline"]);
     exit;
 });
 
 set_exception_handler(function($e) {
+    if (defined('ALLOWED_ORIGIN')) {
+        header('Access-Control-Allow-Origin: ' . ALLOWED_ORIGIN);
+    }
     http_response_code(500);
     echo json_encode(["error" => "Exception: " . $e->getMessage(), "trace" => $e->getTraceAsString()]);
     exit;
