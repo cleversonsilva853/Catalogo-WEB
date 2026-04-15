@@ -40,7 +40,7 @@ export function useProducts(filters?: { category_id?: string; is_available?: boo
 export function useCreateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ product, imageFile }: { product: Omit<Product, 'id'>; imageFile?: File }) => {
+    mutationFn: async ({ imageFile, ...product }: Omit<Product, 'id'> & { imageFile?: File }) => {
       let image_url = product.image_url;
       if (imageFile) image_url = await uploadFile(imageFile);
       return api.post<Product>('/products', { ...product, image_url });
