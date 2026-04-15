@@ -230,6 +230,7 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
 
 // Utility function to group items by order
 export function groupItemsByOrder(items: KitchenItem[]): GroupedKitchenOrder[] {
+  if (!items || !items.length) return [];
   const grouped = new Map<string, GroupedKitchenOrder>();
 
   items.forEach(item => {

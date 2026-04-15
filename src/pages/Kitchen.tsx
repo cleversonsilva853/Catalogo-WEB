@@ -24,7 +24,7 @@ import { usePWAConfig } from '@/hooks/usePWAConfig';
 export default function Kitchen() {
   const navigate = useNavigate();
   const { data: store } = useStore();
-  const { items, isLoading, error } = useKitchenItems();
+  const { data: items = [], isLoading, error } = useKitchenItems();
   const [activeTab, setActiveTab] = useState<'pending' | 'preparing' | 'ready'>('pending');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastItemCount, setLastItemCount] = useState(0);
