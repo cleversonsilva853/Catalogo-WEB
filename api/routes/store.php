@@ -25,12 +25,14 @@ if ($method === 'PUT') {
                 'address','is_open','delivery_fee','min_order_value','delivery_time_min',
                 'delivery_time_max','primary_color','secondary_color','accent_color',
                 'pwa_name','pwa_short_name','pix_message','delivery_fee_mode',
-                'checkout_whatsapp_message','consume_on_site_enabled','pdv_password'];
+                'checkout_whatsapp_message','consume_on_site_enabled','pdv_password',
+                'stock_enabled','product_stock_enabled'];
     $fields = []; $params = [];
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) {
             $fields[] = "$f = ?";
-            $params[] = in_array($f,['is_open','consume_on_site_enabled']) ? (int)(bool)$b[$f] : $b[$f];
+            $bool_fields = ['is_open','consume_on_site_enabled','stock_enabled','product_stock_enabled'];
+            $params[] = in_array($f, $bool_fields) ? (int)(bool)$b[$f] : $b[$f];
         }
     }
     if (!$fields) respond_error('Nenhum campo para atualizar', 422);

@@ -14,18 +14,13 @@ export function useSystemSettings() {
   return useQuery({
     queryKey: ['system-settings'],
     queryFn: async () => {
-      // Usando uma rota fictícia /system_settings. Se não existir no backend ainda, vai retornar fallback.
-      try {
-        const res = await api.get<SystemSettings>('/system-settings');
-        return res;
-      } catch (e) {
-        return {
-          id: 1,
-          stock_enabled: true,
-          product_stock_enabled: true,
-          consume_on_site_enabled: true,
-        } as SystemSettings;
-      }
+      const res = await api.get<any>('/store');
+      return {
+        id: 1,
+        stock_enabled: res.stock_enabled === true || res.stock_enabled == 1,
+        product_stock_enabled: res.product_stock_enabled === true || res.product_stock_enabled == 1,
+        consume_on_site_enabled: res.consume_on_site_enabled === true || res.consume_on_site_enabled == 1,
+      } as SystemSettings;
     },
   });
 }
@@ -35,9 +30,10 @@ export function useUpdateSystemSettings() {
   
   return useMutation({
     mutationFn: (update: Partial<Omit<SystemSettings, 'id' | 'created_at' | 'updated_at'>>) => 
-      api.put('/system-settings', update),
+      api.put('/store', update),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['system-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['store'] });
     },
   });
 }

@@ -31,14 +31,14 @@ try {
         echo "Coluna status já existe em order_items.\n";
     }
 
-    // 4. Adicionar user_type e user_identifier em push_subscriptions
-    if (!columnExists($db, 'push_subscriptions', 'user_type')) {
-        $db->exec("ALTER TABLE push_subscriptions ADD user_type VARCHAR(20) DEFAULT 'admin'");
-        echo "Coluna user_type adicionada em push_subscriptions.\n";
+    // 5. Adicionar stock_enabled e product_stock_enabled em store_config
+    if (!columnExists($db, 'store_config', 'stock_enabled')) {
+        $db->exec("ALTER TABLE store_config ADD stock_enabled TINYINT(1) DEFAULT 1");
+        echo "Coluna stock_enabled adicionada em store_config.\n";
     }
-    if (!columnExists($db, 'push_subscriptions', 'user_identifier')) {
-        $db->exec("ALTER TABLE push_subscriptions ADD user_identifier VARCHAR(100) DEFAULT NULL");
-        echo "Coluna user_identifier adicionada em push_subscriptions.\n";
+    if (!columnExists($db, 'store_config', 'product_stock_enabled')) {
+        $db->exec("ALTER TABLE store_config ADD product_stock_enabled TINYINT(1) DEFAULT 1");
+        echo "Coluna product_stock_enabled adicionada em store_config.\n";
     }
 
     echo "\nAtualização concluída com sucesso!";

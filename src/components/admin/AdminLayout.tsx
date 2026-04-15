@@ -44,6 +44,7 @@ import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { cn } from '@/lib/utils';
 import { GlobalOrderNotification } from './GlobalOrderNotification';
 import { InfornexaHeader } from './InfornexaHeader';
+import { useSystemSettings } from '@/hooks/useSystemSettings';
 import type { PermKey } from '@/hooks/useAdminUsers';
 
 interface AdminLayoutProps {
@@ -100,6 +101,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
   const { user, isLoading, isAdmin, signOut } = useAuth();
   const { toast } = useToast();
   const { data: store } = useStore();
+  const { data: systemSettings } = useSystemSettings();
   const storeStatus = useStoreStatus();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -115,6 +117,9 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     .map(group => ({
       ...group,
       items: group.items.filter(item => {
+        // Hide "Estoque" (ingredients) if stock control is disabled
+        if (item.id === 'ingredients' && systemSettings && !systemSettings.stock_enabled) return false;
+        
         if (!item.permKey) return true; // e.g. "Ver Cardápio"
         if (!adminUserPerms) return true; // no record = show all
         return !!(adminUserPerms as any)[item.permKey];

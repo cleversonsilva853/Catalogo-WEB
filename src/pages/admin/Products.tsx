@@ -195,7 +195,7 @@ const AdminProducts = () => {
         category_id: formData.category_id || null,
         image_url: formData.image_url || null,
         is_available: formData.is_available,
-        stock_type: (systemSettings && !systemSettings.product_stock_enabled) ? 'ingredient' : formData.stock_type,
+        stock_type: (systemSettings && !systemSettings.product_stock_enabled) ? 'unit' : formData.stock_type,
         stock_quantity: parseFloat(formData.stock_quantity.replace(',', '.')) || 0,
         unit: formData.stock_type === 'unit' ? formData.unit : 'un',
         min_stock: parseFloat(formData.min_stock.replace(',', '.')) || 0,
