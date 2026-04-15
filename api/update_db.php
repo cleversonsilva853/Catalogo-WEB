@@ -5,19 +5,44 @@ $db = getDB();
 try {
     echo "Iniciando atualização do banco de dados...\n";
 
+    // Função auxiliar para verificar se coluna existe
+    function columnExists($db, $table, $column)
+    {
+        $stmt = $db->query("DESCRIBE $table");
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return in_array($column, $columns);
+    }
+
     // 1. Adicionar pdv_password em store_config
-    $db->exec("ALTER TABLE store_config ADD COLUMN IF NOT EXISTS pdv_password VARCHAR(100) DEFAULT NULL");
-    echo "Coluna pdv_password verificada/adicionada em store_config.\n";
+    if (!columnExists($db, 'store_config', 'pdv_password')) {
+        $db->exec("ALTER TABLE store_config ADD pdv_password VARCHAR(100) DEFAULT NULL");
+        echo "Coluna pdv_password adicionada em store_config.\n";
+    }
+    else {
+        echo "Coluna pdv_password já existe em store_config.\n";
+    }
 
     // 2. Adicionar status em order_items
-    $db->exec("ALTER TABLE order_items ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'pending'");
-    echo "Coluna status verificada/adicionada em order_items.\n";
+    if (!columnExists($db, 'order_items', 'status')) {
+        $db->exec("ALTER TABLE order_items ADD status VARCHAR(20) NOT NULL DEFAULT 'pending'");
+        echo "Coluna status adicionada em order_items.\n";
+    }
+    else {
+        echo "Coluna status já existe em order_items.\n";
+    }
 
     // 3. Adicionar índice para performance na cozinha
-    $db->exec("CREATE INDEX IF NOT EXISTS idx_oi_status ON order_items(status)");
-    echo "Índice idx_oi_status verificado/criado.\n";
+    try {
+        $db->exec("CREATE INDEX idx_oi_status ON order_items(status)");
+        echo "Índice idx_oi_status criado.\n";
+    }
+    catch (Exception $e) {
+        echo "Aviso: Índice idx_oi_status pode já existir ou erro ao criar: " . $e->getMessage() . "\n";
+    }
 
     echo "\nAtualização concluída com sucesso!";
-} catch (Exception $e) {
+}
+catch (Exception $e) {
+
     echo "\nERRO na atualização: " . $e->getMessage();
 }
