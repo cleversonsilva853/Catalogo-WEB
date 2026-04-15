@@ -11,8 +11,12 @@ function push_uuid(): string {
         mt_rand(0,0xffff),mt_rand(0,0xffff),mt_rand(0,0xffff));
 }
 
-// GET /push — listar subscriptions (admin)
+// GET /push — listar subscriptions ou pegar vapid-key
 if ($method === 'GET') {
+    if ($id === 'vapid-key') {
+        respond(['publicKey' => VAPID_PUBLIC_KEY]);
+    }
+
     require_auth();
     $stmt = $db->query('SELECT id, endpoint, created_at FROM push_subscriptions ORDER BY created_at DESC');
     respond($stmt->fetchAll());
@@ -33,8 +37,9 @@ if ($method === 'POST' && ($id === 'subscribe' || $id === null)) {
     }
 
     $uuid = push_uuid();
-    $db->prepare('INSERT INTO push_subscriptions (id, endpoint, p256dh, auth_key) VALUES (?,?,?,?)')
-       ->execute([$uuid, $b['endpoint'], $b['p256dh'], $b['auth']]);
+    $db->prepare('INSERT INTO push_subscriptions (id, endpoint, p256dh, auth_key, user_type, user_identifier) VALUES (?,?,?,?,?,?)')
+       ->execute([$uuid, $b['endpoint'], $b['p256dh'], $b['auth'], 
+                  $b['user_type'] ?? 'admin', $b['user_identifier'] ?? null]);
 
     respond(['message' => 'Subscription registrada com sucesso', 'id' => $uuid], 201);
 }

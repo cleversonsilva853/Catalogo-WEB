@@ -38,8 +38,7 @@ import {
 
 const AdminAddons = () => {
   const { toast } = useToast();
-  const { data: groups, isLoading: groupsLoading } = useAddonGroups();
-  const { data: allOptions, isLoading: optionsLoading } = useAddonOptions();
+  const { data: groups, isLoading, refetch } = useAddonGroups();
   
   const createGroup = useCreateAddonGroup();
   const updateGroup = useUpdateAddonGroup();
@@ -72,7 +71,6 @@ const AdminAddons = () => {
     is_available: true,
   });
   
-  const isLoading = groupsLoading || optionsLoading;
   
   const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => {
@@ -181,7 +179,8 @@ const AdminAddons = () => {
         });
         toast({ title: 'Opção atualizada!' });
       } else {
-        const groupOptions = allOptions?.filter(o => o.group_id === currentGroupId) || [];
+        const group = groups?.find(g => g.id === currentGroupId);
+        const groupOptions = group?.options || [];
         await createOption.mutateAsync({
           group_id: currentGroupId,
           name: optionForm.name,
@@ -252,7 +251,7 @@ const AdminAddons = () => {
         <div className="space-y-2 sm:space-y-3">
           {groups?.map((group) => {
             const isExpanded = expandedGroups.has(group.id);
-            const groupOptions = allOptions?.filter(o => o.group_id === group.id) || [];
+            const groupOptions = group.options || [];
             
             return (
               <div key={group.id} className="bg-card rounded-xl shadow-card overflow-hidden">

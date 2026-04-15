@@ -31,13 +31,14 @@ try {
         echo "Coluna status já existe em order_items.\n";
     }
 
-    // 3. Adicionar índice para performance na cozinha
-    try {
-        $db->exec("CREATE INDEX idx_oi_status ON order_items(status)");
-        echo "Índice idx_oi_status criado.\n";
+    // 4. Adicionar user_type e user_identifier em push_subscriptions
+    if (!columnExists($db, 'push_subscriptions', 'user_type')) {
+        $db->exec("ALTER TABLE push_subscriptions ADD user_type VARCHAR(20) DEFAULT 'admin'");
+        echo "Coluna user_type adicionada em push_subscriptions.\n";
     }
-    catch (Exception $e) {
-        echo "Aviso: Índice idx_oi_status pode já existir ou erro ao criar: " . $e->getMessage() . "\n";
+    if (!columnExists($db, 'push_subscriptions', 'user_identifier')) {
+        $db->exec("ALTER TABLE push_subscriptions ADD user_identifier VARCHAR(100) DEFAULT NULL");
+        echo "Coluna user_identifier adicionada em push_subscriptions.\n";
     }
 
     echo "\nAtualização concluída com sucesso!";

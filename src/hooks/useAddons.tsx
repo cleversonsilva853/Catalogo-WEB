@@ -10,6 +10,7 @@ export interface AddonGroup {
   is_required: boolean;
   max_selections: number;
   sort_order: number;
+  options?: AddonOption[];
 }
 
 export interface AddonOption {
@@ -76,7 +77,10 @@ export function useCreateAddonOption() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (option: Omit<AddonOption, 'id'>) => api.post<AddonOption>('/addons/options', option),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['addon-options'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['addon-options'] });
+      queryClient.invalidateQueries({ queryKey: ['addon-groups'] });
+    },
   });
 }
 
@@ -85,7 +89,10 @@ export function useUpdateAddonOption() {
   return useMutation({
     mutationFn: ({ id, ...update }: Partial<AddonOption> & { id: string }) => 
       api.put<AddonOption>(`/addons/options/${id}`, update),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['addon-options'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['addon-options'] });
+      queryClient.invalidateQueries({ queryKey: ['addon-groups'] });
+    },
   });
 }
 
@@ -93,7 +100,10 @@ export function useDeleteAddonOption() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.delete(`/addons/options/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['addon-options'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['addon-options'] });
+      queryClient.invalidateQueries({ queryKey: ['addon-groups'] });
+    },
   });
 }
 
