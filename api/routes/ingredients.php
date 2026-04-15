@@ -18,6 +18,11 @@ if ($method === 'POST') {
     $uuid = gen_uuid();
     $db->prepare('INSERT INTO ingredients (id,name,stock_quantity,min_stock,unit) VALUES (?,?,?,?,?)')
        ->execute([$uuid,$b['name'],$b['stock_quantity']??0,$b['min_stock']??0,$b['unit']??'un']);
+    
+    // Alerta de estoque
+    require_once __DIR__ . '/../push_helper.php';
+    check_ingredient_alert($uuid);
+
     $stmt=$db->prepare('SELECT * FROM ingredients WHERE id=?');$stmt->execute([$uuid]);
     respond($stmt->fetch(),201);
 }
@@ -27,6 +32,11 @@ if ($method === 'PUT' && $id) {
         if(array_key_exists($f,$b)){$fields[]="$f=?";$params[]=$b[$f];}
     $params[]=$id;
     $db->prepare('UPDATE ingredients SET '.implode(',',$fields).' WHERE id=?')->execute($params);
+    
+    // Alerta de estoque
+    require_once __DIR__ . '/../push_helper.php';
+    check_ingredient_alert($id);
+
     $stmt=$db->prepare('SELECT * FROM ingredients WHERE id=?');$stmt->execute([$id]);respond($stmt->fetch());
 }
 if ($method === 'DELETE' && $id) {

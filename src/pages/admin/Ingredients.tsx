@@ -39,7 +39,7 @@ const AdminIngredients = () => {
   ) || [];
 
   const criticalIngredients = ingredients?.filter(ing => 
-    ing.stock_quantity <= ing.min_stock
+    ing.min_stock > 0 && ing.stock_quantity <= (ing.min_stock * 0.5)
   ) || [];
 
   const openCreateModal = () => {
@@ -201,9 +201,9 @@ const AdminIngredients = () => {
                 <div key={`critical-${ing.id}`} className="bg-destructive/10 border-l-4 border-destructive p-3 rounded-r-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
                   <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-destructive text-sm leading-none">⚠️ Estoque no mínimo</h4>
+                    <h4 className="font-semibold text-destructive text-sm leading-none">⚠️ Estoque Crítico (Abaixo de 50%)</h4>
                     <p className="text-sm text-destructive/90 mt-1">
-                      O ingrediente <span className="font-bold">{ing.name}</span> atingiu o estoque mínimo. Quantidade atual: {ing.stock_quantity} {ing.unit}
+                      O ingrediente <span className="font-bold">{ing.name}</span> está com menos de metade do estoque mínimo. Quantidade atual: {ing.stock_quantity} {ing.unit}
                     </p>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ const AdminIngredients = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filteredIngredients.map((ingredient) => {
-              const isCritical = ingredient.stock_quantity <= ingredient.min_stock;
+              const isCritical = ingredient.min_stock > 0 && ingredient.stock_quantity <= (ingredient.min_stock * 0.5);
               return (
                 <div 
                   key={ingredient.id} 

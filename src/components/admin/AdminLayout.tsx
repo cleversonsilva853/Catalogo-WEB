@@ -43,6 +43,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
 import { cn } from '@/lib/utils';
 import { GlobalOrderNotification } from './GlobalOrderNotification';
+import { GlobalStockNotification } from './GlobalStockNotification';
 import { InfornexaHeader } from './InfornexaHeader';
 import { useSystemSettings } from '@/hooks/useSystemSettings';
 import type { PermKey } from '@/hooks/useAdminUsers';
@@ -190,6 +191,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
       </Helmet>
 
       <GlobalOrderNotification />
+      <GlobalStockNotification />
       <InfornexaHeader />
 
       <div className="min-h-screen flex" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>

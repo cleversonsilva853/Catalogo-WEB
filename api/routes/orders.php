@@ -144,6 +144,42 @@ if ($method === 'POST' && !$id) {
                 $item['observation'] ?? null,
                 isset($item['addons']) ? json_encode($item['addons']) : null,
             ]);
+
+            // --- Gerenciamento de Estoque ---
+            if (!empty($item['product_id'])) {
+                // 1. Verificar tipo de estoque do produto
+                $stmtProd = $db->prepare('SELECT stock_type, stock_quantity FROM products WHERE id = ?');
+                $stmtProd->execute([$item['product_id']]);
+                $prod = $stmtProd->fetch();
+
+                if ($prod) {
+                    $qty = $item['quantity'] ?? 1;
+                    
+                    if ($prod['stock_type'] === 'unit') {
+                        // Baixa de estoque simples (unidade)
+                        $db->prepare('UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?')
+                           ->execute([$qty, $item['product_id']]);
+                        
+                        // Nota: Alerta de produto unitário (opcional, foco em ingredientes conforme pedido)
+                    } else {
+                        // Baixa de ingredientes (composição)
+                        $stmtPI = $db->prepare('SELECT ingredient_id, quantity_used FROM product_ingredients WHERE product_id = ?');
+                        $stmtPI->execute([$item['product_id']]);
+                        $ingredients = $stmtPI->fetchAll();
+
+                        require_once __DIR__ . '/../push_helper.php';
+                        foreach ($ingredients as $ing) {
+                            $totalUsed = $ing['quantity_used'] * $qty;
+                            $db->prepare('UPDATE ingredients SET stock_quantity = stock_quantity - ? WHERE id = ?')
+                               ->execute([$totalUsed, $ing['ingredient_id']]);
+                            
+                            // Verificar alerta crítico (50%)
+                            check_ingredient_alert($ing['ingredient_id']);
+                        }
+                    }
+                }
+            }
+            // --------------------------------
         }
 
         // Incrementar uso do cupom se houver
