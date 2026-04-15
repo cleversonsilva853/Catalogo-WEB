@@ -115,132 +115,142 @@ export default function Dashboard() {
   };
 
   const dateRange = getDateRange(period);
-  const previousDateRange = getPreviousDateRange(period);
 
-  // Fetch delivery orders
-  const { data: deliveryOrders = [], isLoading: loadingDelivery, refetch: refetchDelivery } = useQuery({
-    queryKey: ['dashboard-delivery-orders', period],
+  // Fetch all dashboard stats in a single request
+  const { data: dashboardData, isLoading, refetch } = useQuery({
+    queryKey: ['dashboard-stats', period],
     queryFn: async () => {
-      const data = await api.get<OrderData[]>('/orders');
-      
-      return data.filter(o => 
-        new Date(o.created_at) >= dateRange.start &&
-        new Date(o.created_at) <= dateRange.end
-      );
+      return api.get<any>(`/dashboard/stats?start=${format(dateRange.start, 'yyyy-MM-dd HH:mm:ss')}&end=${format(dateRange.end, 'yyyy-MM-dd HH:mm:ss')}`);
     },
+    refetchInterval: autoRefresh ? AUTO_REFRESH_INTERVAL : false,
   });
 
-  // Check for new orders and manage looping sound
-  const pendingCount = useMemo(() => 
-    deliveryOrders.filter(o => o.status === 'pending').length,
-    [deliveryOrders]
-  );
+  // Reusing existing refetch for compatibility
+  const refetchDelivery = refetch;
+  const refetchPDV = refetch;
+  const refetchKitchen = refetch;
+  const refetchTables = refetch;
 
-  // Title notification for pending orders
-  useTitleNotification(pendingCount, 'Dashboard');
+  const handleRefresh = useCallback(() => {
+    refetch();
+    setLastRefresh(new Date());
+    setCountdown(30);
+  }, [refetch]);
+
+  // Combined stats from the unified endpoint
+  const stats = useMemo(() => {
+    if (!dashboardData) return null;
+
+    const { stats: s, top_products, hourly_data, payment_methods } = dashboardData;
+
+    // Calculate growth percentages
+    const revenueGrowth = s.prev_revenue > 0 
+      ? (( (s.delivery_revenue + s.pdv_revenue) - s.prev_revenue) / s.prev_revenue) * 100 
+      : (s.delivery_revenue + s.pdv_revenue) > 0 ? 100 : 0;
+
+    const currentTotalOrders = s.delivery_count + s.pdv_count;
+    const ordersGrowth = s.prev_orders > 0
+      ? ((currentTotalOrders - s.prev_orders) / s.prev_orders) * 100
+      : currentTotalOrders > 0 ? 100 : 0;
+
+    const avgTicket = currentTotalOrders > 0 ? (s.delivery_revenue + s.pdv_revenue) / currentTotalOrders : 0;
+    const prevAvgTicket = s.prev_orders > 0 ? s.prev_revenue / s.prev_orders : 0;
+    const ticketGrowth = prevAvgTicket > 0
+      ? ((avgTicket - prevAvgTicket) / prevAvgTicket) * 100
+      : avgTicket > 0 ? 100 : 0;
+
+    // Process hourly data
+    const hourMap = new Map<number, { count: number; revenue: number }>();
+    hourly_data.forEach((d: any) => {
+      const h = parseInt(d.hour);
+      const current = hourMap.get(h) || { count: 0, revenue: 0 };
+      hourMap.set(h, { 
+        count: current.count + parseInt(d.count), 
+        revenue: current.revenue + parseFloat(d.revenue) 
+      });
+    });
+
+    const hourlyChartData = Array.from({ length: 24 }, (_, i) => {
+      const data = hourMap.get(i) || { count: 0, revenue: 0 };
+      return {
+        hour: `${i}h`,
+        pedidos: data.count,
+        faturamento: data.revenue
+      };
+    }).filter(d => d.pedidos > 0 || d.faturamento > 0);
+
+    // Filter top products
+    const topProducts = top_products.map((p: any) => ({
+      name: p.product_name,
+      quantity: parseInt(p.quantity),
+      revenue: parseFloat(p.revenue)
+    }));
+
+    // Payment methods map
+    const payMap = new Map<string, number>();
+    payment_methods.forEach((p: any) => {
+      const name = p.name === 'pix' ? 'PIX' : p.name === 'card' ? 'Cartão' : p.name === 'money' ? 'Dinheiro' : p.name;
+      payMap.set(name, (payMap.get(name) || 0) + parseFloat(p.value));
+    });
+
+    const peakHours = Array.from(hourMap.entries())
+      .sort((a, b) => b[1].count - a[1].count)
+      .slice(0, 3)
+      .map(([hour, data]) => ({ hour: `${hour}:00`, ...data }));
+
+    return {
+      totalRevenue: s.delivery_revenue + s.pdv_revenue,
+      deliveryTotal: s.delivery_revenue,
+      pdvTotal: s.pdv_revenue,
+      deliveryCount: s.delivery_count,
+      pdvCount: s.pdv_count,
+      totalOrders: currentTotalOrders,
+      topProducts,
+      peakHours,
+      hourlyChartData,
+      deliveryPercentage: (s.delivery_revenue + s.pdv_revenue) > 0 ? (s.delivery_revenue / (s.delivery_revenue + s.pdv_revenue)) * 100 : 0,
+      pdvPercentage: (s.delivery_revenue + s.pdv_revenue) > 0 ? (s.pdv_revenue / (s.delivery_revenue + s.pdv_revenue)) * 100 : 0,
+      revenueGrowth,
+      ordersGrowth,
+      avgTicket,
+      ticketGrowth,
+      totalCustomers: s.pdv_count, // Fallback if customer_count not summed
+      avgTableTime: 0, // Simplified for now
+      paymentMethodsData: Array.from(payMap.entries()).map(([name, value]) => ({ name, value })),
+      orderStatusData: [
+        { status: 'Pendente', count: s.pending_delivery },
+        { status: 'Preparando', count: s.preparing_delivery },
+        { status: 'Cancelado', count: s.cancelled_delivery }
+      ],
+      cancellationRate: s.total_delivery_orders > 0 ? (s.cancelled_delivery / s.total_delivery_orders) * 100 : 0,
+      pendingOrders: s.pending_delivery,
+      kitchenPending: s.kitchen_pending,
+      occupiedTables: s.occupied_tables,
+      totalCustomersToday: s.pdv_count, // Use pdv_count as proxy for customers if not summed
+    } as any;
+  }, [dashboardData]);
 
   // Update ref for title notification tracking
   useEffect(() => {
-    lastOrderCountRef.current = pendingCount;
-  }, [pendingCount]);
+    if (stats) {
+      lastOrderCountRef.current = stats.pendingOrders;
+    }
+  }, [stats?.pendingOrders]);
 
-  // Fetch previous period delivery orders for comparison
-  const { data: previousDeliveryOrders = [] } = useQuery({
-    queryKey: ['dashboard-prev-delivery-orders', period],
-    queryFn: async () => {
-      const data = await api.get<OrderData[]>('/orders');
-      
-      return data.filter(o => 
-        new Date(o.created_at) >= previousDateRange.start &&
-        new Date(o.created_at) <= previousDateRange.end
-      );
-    },
-  });
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  };
 
-  // Fetch PDV orders
-  const { data: pdvOrders = [], isLoading: loadingPDV, refetch: refetchPDV } = useQuery({
-    queryKey: ['dashboard-pdv-orders', period],
-    queryFn: async () => {
-      const data = await api.get<TableOrderData[]>('/table_orders');
-      
-      return data.filter(o => 
-        o.status === 'paid' &&
-        o.closed_at &&
-        new Date(o.closed_at) >= dateRange.start &&
-        new Date(o.closed_at) <= dateRange.end
-      );
-    },
-  });
+  const periodLabels = {
+    today: 'Hoje',
+    week: 'Esta Semana',
+    month: 'Este Mês'
+  };
 
-  // Fetch previous period PDV orders
-  const { data: previousPdvOrders = [] } = useQuery({
-    queryKey: ['dashboard-prev-pdv-orders', period],
-    queryFn: async () => {
-      const data = await api.get<TableOrderData[]>('/table_orders');
-      
-      return data.filter(o => 
-        o.status === 'paid' &&
-        o.closed_at &&
-        new Date(o.closed_at) >= previousDateRange.start &&
-        new Date(o.closed_at) <= previousDateRange.end
-      );
-    },
-  });
-
-  // Fetch delivery order items for product stats
-  const { data: deliveryItems = [] } = useQuery({
-    queryKey: ['dashboard-delivery-items', period],
-    queryFn: async () => {
-      const orderIds = deliveryOrders.map(o => o.id);
-      if (orderIds.length === 0) return [];
-      
-      const allData = await api.get<OrderItemData[]>('/order_items');
-      return allData.filter((item: any) => orderIds.includes(item.order_id));
-    },
-    enabled: deliveryOrders.length > 0,
-  });
-
-  // Fetch PDV order items for product stats
-  const { data: pdvItems = [] } = useQuery({
-    queryKey: ['dashboard-pdv-items', period],
-    queryFn: async () => {
-      const orderIds = pdvOrders.map(o => o.id);
-      if (orderIds.length === 0) return [];
-      
-      const allData = await api.get<TableOrderItemData[]>('/table_order_items');
-      return allData.filter((item: any) => orderIds.includes(item.table_order_id));
-    },
-    enabled: pdvOrders.length > 0,
-  });
-
-  // Fetch pending kitchen items
-  const { data: pendingKitchenItems = [], refetch: refetchKitchen } = useQuery({
-    queryKey: ['dashboard-kitchen-pending'],
-    queryFn: async () => {
-      const data = await api.get<any[]>('/table_order_items');
-      return data.filter(item => item.status === 'pending' || item.status === 'preparing');
-    },
-  });
-
-  // Fetch open tables
-  const { data: openTables = [], refetch: refetchTables } = useQuery({
-    queryKey: ['dashboard-open-tables'],
-    queryFn: async () => {
-      const data = await api.get<any[]>('/tables');
-      return data.filter(t => t.status === 'occupied');
-    },
-  });
+  // Title notification for pending orders
+  useTitleNotification(stats?.pendingOrders || 0, 'Dashboard');
 
   // Auto-refresh logic
-  const handleRefresh = useCallback(() => {
-    refetchDelivery();
-    refetchPDV();
-    refetchKitchen();
-    refetchTables();
-    setLastRefresh(new Date());
-    setCountdown(30);
-  }, [refetchDelivery, refetchPDV, refetchKitchen, refetchTables]);
-
   useEffect(() => {
     if (!autoRefresh) return;
 
@@ -271,187 +281,19 @@ export default function Dashboard() {
     }
   };
 
-  // Sound toggle is handled by <SoundNotificationToggle />
-
-  // Calculate stats
-  const stats = useMemo(() => {
-    const deliveryTotal = deliveryOrders
-      .filter(o => o.status === 'completed')
-      .reduce((sum, o) => sum + o.total_amount, 0);
-    
-    const pdvTotal = pdvOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
-    
-    const totalRevenue = deliveryTotal + pdvTotal;
-
-    // Previous period totals
-    const prevDeliveryTotal = previousDeliveryOrders
-      .filter(o => o.status === 'completed')
-      .reduce((sum, o) => sum + o.total_amount, 0);
-    
-    const prevPdvTotal = previousPdvOrders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
-    const prevTotalRevenue = prevDeliveryTotal + prevPdvTotal;
-
-    // Growth percentage
-    const revenueGrowth = prevTotalRevenue > 0 
-      ? ((totalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100 
-      : totalRevenue > 0 ? 100 : 0;
-
-    // Order counts
-    const completedDeliveryCount = deliveryOrders.filter(o => o.status === 'completed').length;
-    const prevCompletedDeliveryCount = previousDeliveryOrders.filter(o => o.status === 'completed').length;
-    const totalOrders = completedDeliveryCount + pdvOrders.length;
-    const prevTotalOrders = prevCompletedDeliveryCount + previousPdvOrders.length;
-    const ordersGrowth = prevTotalOrders > 0
-      ? ((totalOrders - prevTotalOrders) / prevTotalOrders) * 100
-      : totalOrders > 0 ? 100 : 0;
-
-    // Average ticket
-    const avgTicket = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-    const prevAvgTicket = prevTotalOrders > 0 ? prevTotalRevenue / prevTotalOrders : 0;
-    const ticketGrowth = prevAvgTicket > 0
-      ? ((avgTicket - prevAvgTicket) / prevAvgTicket) * 100
-      : avgTicket > 0 ? 100 : 0;
-
-    // Customer count (PDV)
-    const totalCustomers = pdvOrders.reduce((sum, o) => sum + (o.customer_count || 1), 0);
-
-    // Average time per table
-    const avgTableTime = pdvOrders.length > 0
-      ? pdvOrders.reduce((sum, o) => {
-          if (o.opened_at && o.closed_at) {
-            return sum + differenceInMinutes(parseISO(o.closed_at), parseISO(o.opened_at));
-          }
-          return sum;
-        }, 0) / pdvOrders.length
-      : 0;
-    
-    // Top products
-    const productMap = new Map<string, { quantity: number; revenue: number }>();
-    [...deliveryItems, ...pdvItems].forEach(item => {
-      const current = productMap.get(item.product_name) || { quantity: 0, revenue: 0 };
-      productMap.set(item.product_name, {
-        quantity: current.quantity + item.quantity,
-        revenue: current.revenue + (item.quantity * item.unit_price)
-      });
-    });
-    
-    const topProducts = Array.from(productMap.entries())
-      .sort((a, b) => b[1].quantity - a[1].quantity)
-      .slice(0, 5)
-      .map(([name, data]) => ({ name, ...data }));
-
-    // Peak hours with revenue
-    const hourMap = new Map<number, { count: number; revenue: number }>();
-    deliveryOrders.filter(o => o.status === 'completed').forEach(order => {
-      const hour = new Date(order.created_at).getHours();
-      const current = hourMap.get(hour) || { count: 0, revenue: 0 };
-      hourMap.set(hour, { 
-        count: current.count + 1, 
-        revenue: current.revenue + order.total_amount 
-      });
-    });
-    
-    // Add PDV orders to peak hours
-    pdvOrders.forEach(order => {
-      if (order.closed_at) {
-        const hour = new Date(order.closed_at).getHours();
-        const current = hourMap.get(hour) || { count: 0, revenue: 0 };
-        hourMap.set(hour, { 
-          count: current.count + 1, 
-          revenue: current.revenue + (order.total_amount || 0)
-        });
-      }
-    });
-
-    // Create hourly chart data
-    const hourlyChartData = Array.from({ length: 24 }, (_, i) => {
-      const data = hourMap.get(i) || { count: 0, revenue: 0 };
-      return {
-        hour: `${i}h`,
-        pedidos: data.count,
-        faturamento: data.revenue
-      };
-    }).filter(d => d.pedidos > 0 || d.faturamento > 0);
-
-    const peakHours = Array.from(hourMap.entries())
-      .sort((a, b) => b[1].count - a[1].count)
-      .slice(0, 3)
-      .map(([hour, data]) => ({ hour: `${hour}:00`, ...data }));
-
-    // Payment methods distribution
-    const paymentMethods = new Map<string, number>();
-    deliveryOrders.filter(o => o.status === 'completed').forEach(o => {
-      const method = o.payment_method || 'outros';
-      paymentMethods.set(method, (paymentMethods.get(method) || 0) + o.total_amount);
-    });
-    pdvOrders.forEach(o => {
-      const method = o.payment_method || 'outros';
-      paymentMethods.set(method, (paymentMethods.get(method) || 0) + (o.total_amount || 0));
-    });
-
-    const paymentMethodsData = Array.from(paymentMethods.entries()).map(([name, value]) => ({
-      name: name === 'pix' ? 'PIX' : name === 'card' ? 'Cartão' : name === 'money' ? 'Dinheiro' : name,
-      value
-    }));
-
-    // Order status distribution
-    const statusMap = new Map<string, number>();
-    deliveryOrders.forEach(o => {
-      statusMap.set(o.status, (statusMap.get(o.status) || 0) + 1);
-    });
-    const orderStatusData = Array.from(statusMap.entries()).map(([status, count]) => ({
-      status: status === 'pending' ? 'Pendente' 
-        : status === 'preparing' ? 'Preparando'
-        : status === 'delivery' ? 'Entrega'
-        : status === 'completed' ? 'Concluído'
-        : status === 'cancelled' ? 'Cancelado'
-        : status,
-      count
-    }));
-
-    // Cancellation rate
-    const cancelledCount = deliveryOrders.filter(o => o.status === 'cancelled').length;
-    const cancellationRate = deliveryOrders.length > 0 
-      ? (cancelledCount / deliveryOrders.length) * 100 
-      : 0;
-
-    return {
-      totalRevenue,
-      deliveryTotal,
-      pdvTotal,
-      deliveryCount: completedDeliveryCount,
-      pdvCount: pdvOrders.length,
-      totalOrders,
-      topProducts,
-      peakHours,
-      hourlyChartData,
-      deliveryPercentage: totalRevenue > 0 ? (deliveryTotal / totalRevenue) * 100 : 0,
-      pdvPercentage: totalRevenue > 0 ? (pdvTotal / totalRevenue) * 100 : 0,
-      revenueGrowth,
-      ordersGrowth,
-      avgTicket,
-      ticketGrowth,
-      totalCustomers,
-      avgTableTime,
-      paymentMethodsData,
-      orderStatusData,
-      cancellationRate,
-      pendingOrders: deliveryOrders.filter(o => o.status === 'pending').length,
-      preparingOrders: deliveryOrders.filter(o => o.status === 'preparing').length,
-    };
-  }, [deliveryOrders, pdvOrders, deliveryItems, pdvItems, previousDeliveryOrders, previousPdvOrders]);
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  };
-
-  const isLoading = loadingDelivery || loadingPDV;
-
-  const periodLabels = {
-    today: 'Hoje',
-    week: 'Esta Semana',
-    month: 'Este Mês'
-  };
+  if (isLoading || !stats) {
+    return (
+      <AdminLayout title="Dashboard">
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-primary/20 animate-pulse" />
+            <Loader2 className="w-8 h-8 animate-spin text-primary absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          </div>
+          <p className="text-muted-foreground">Carregando dados otimizados...</p>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout title="Dashboard">
@@ -560,7 +402,7 @@ export default function Dashboard() {
                     <ChefHat className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-foreground">{pendingKitchenItems.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{stats.kitchenPending}</p>
                     <p className="text-xs text-muted-foreground">Na Cozinha</p>
                   </div>
                 </CardContent>
@@ -572,7 +414,7 @@ export default function Dashboard() {
                     <Utensils className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-foreground">{openTables.length}</p>
+                    <p className="text-2xl font-bold text-foreground">{stats.occupiedTables}</p>
                     <p className="text-xs text-muted-foreground">Mesas Abertas</p>
                   </div>
                 </CardContent>

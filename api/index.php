@@ -88,6 +88,9 @@ switch ($resource) {
     case 'auth':
         require __DIR__ . '/routes/auth.php';
         break;
+    case 'dashboard':
+        require __DIR__ . '/routes/dashboard.php';
+        break;
     case 'products':
         require __DIR__ . '/routes/products.php';
         break;
