@@ -25,7 +25,7 @@ if ($method === 'PUT') {
                 'address','is_open','delivery_fee','min_order_value','delivery_time_min',
                 'delivery_time_max','primary_color','secondary_color','accent_color',
                 'pwa_name','pwa_short_name','pix_message','delivery_fee_mode',
-                'checkout_whatsapp_message','consume_on_site_enabled'];
+                'checkout_whatsapp_message','consume_on_site_enabled','pdv_password'];
     $fields = []; $params = [];
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) {

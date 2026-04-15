@@ -11,6 +11,40 @@ if ($method === 'GET' && $id === 'all') {
     respond($stmt->fetchAll());
 }
 
+// GET /orders/kitchen — Itens para a cozinha
+if ($method === 'GET' && $id === 'kitchen') {
+    require_auth();
+    $stmt = $db->prepare("
+        SELECT 
+            oi.*, 
+            o.customer_name, 
+            o.created_at as ordered_at,
+            c.numero_comanda,
+            (CASE WHEN c.id IS NOT NULL THEN 'table' ELSE 'delivery' END) as order_type
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        LEFT JOIN comanda_pedidos cp ON o.id = cp.pedido_id
+        LEFT JOIN comandas c ON cp.comanda_id = c.id
+        WHERE oi.status IN ('pending', 'preparing', 'ready')
+          AND o.status != 'cancelled'
+        ORDER BY oi.created_at ASC
+    ");
+    $stmt->execute();
+    respond($stmt->fetchAll());
+}
+
+// PUT /orders/kitchen/{itemId} — Atualizar status do item na cozinha
+if ($method === 'PUT' && $id === 'kitchen' && $sub) {
+    require_auth();
+    $b = get_body();
+    if (empty($b['status'])) respond_error('Status obrigatório', 422);
+
+    $stmt = $db->prepare("UPDATE order_items SET status = ? WHERE id = ?");
+    $stmt->execute([$b['status'], $sub]);
+
+    respond(['message' => 'Status atualizado', 'id' => $sub, 'status' => $b['status']]);
+}
+
 // GET /orders  |  GET /orders/{id}
 if ($method === 'GET') {
     if ($id) {
