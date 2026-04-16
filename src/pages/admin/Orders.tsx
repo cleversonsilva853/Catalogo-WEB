@@ -183,7 +183,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
   const formatCurrency = (value: number) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-  const isComanda = order.type === 'delivery' && order.customer_name?.startsWith('Comanda #');
+  const isComanda = order.type === 'delivery' && (order.customer_name?.startsWith('Comanda #') || order.customer_name === 'Comanda Local');
   const isDineIn = order.address_street === 'Consumir no Local';
 
   const getPaymentLabel = (method: string | null) => {
@@ -208,7 +208,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
       return order.waiter_name ? `\uD83C\uDF7D\uFE0F ${order.waiter_name}` : '\uD83C\uDF7D\uFE0F Mesa';
     }
     if (isComanda) {
-      return `\uD83E\uDDFE ${order.customer_name}`;
+      return `🍽️ Local`;
     }
     if (order.address_street === 'Consumir no Local') {
       return `\uD83C\uDF7D\uFE0F Mesa ${order.address_number}`;
