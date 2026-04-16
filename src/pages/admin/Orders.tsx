@@ -461,23 +461,65 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
         {!isCompleted && (
           <div className="space-y-2">
-            {/* Driver selector for delivery orders with status "ready" or "delivery" */}
-            {order.type === 'delivery' && !isComanda && (order.status === 'ready' || order.status === 'delivery') && !order.driver_id && (
-              <div onClick={(e) => e.stopPropagation()}>
+            {/* Large "Enviar Entregador" button for delivery orders with status "ready" */}
+            {order.type === 'delivery' && !isComanda && order.status === 'ready' && !order.driver_id && (
+              <div onClick={(e) => e.stopPropagation()} className="mt-2">
                 <Select
                   onValueChange={(value) => {
                     const driver = activeDrivers?.find((d) => d.id === value);
                     if (driver) {
                       assignDriver.mutate(
                         { orderId: order.id, driverId: driver.id, driverName: driver.name },
-                        { onSuccess: () => toast.success(`Pedido atribuído a ${driver.name}`) }
+                        { 
+                          onSuccess: () => {
+                            toast.success(`Pedido enviado para ${driver.name}`);
+                            // Automatically move to delivery status when driver is assigned
+                            updateStatusMutation.mutate({ 
+                              orderId: order.id, 
+                              status: 'delivery', 
+                              orderType: 'delivery' 
+                            });
+                          } 
+                        }
                       );
                     }
                   }}
                 >
-                  <SelectTrigger className="h-8 text-xs">
-                    <Truck className="h-3 w-3 mr-1" />
-                    <SelectValue placeholder="Atribuir entregador (opcional)" />
+                  <SelectTrigger className="h-14 sm:h-16 w-full bg-orange-500 hover:bg-orange-600 text-white border-none text-base sm:text-xl font-bold uppercase shadow-lg">
+                    <Truck className="h-6 w-6 mr-2" />
+                    <SelectValue placeholder="Enviar Entregador" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeDrivers?.map((d) => (
+                      <SelectItem key={d.id} value={d.id} className="text-lg py-3">
+                        {d.name}
+                      </SelectItem>
+                    ))}
+                    {(!activeDrivers || activeDrivers.length === 0) && (
+                      <SelectItem value="__none" disabled>Nenhum entregador ativo</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Minor driver selector for "delivery" status if not yet assigned */}
+            {order.type === 'delivery' && !isComanda && order.status === 'delivery' && !order.driver_id && (
+              <div onClick={(e) => e.stopPropagation()} className="mt-2">
+                <Select
+                  onValueChange={(value) => {
+                    const driver = activeDrivers?.find((d) => d.id === value);
+                    if (driver) {
+                      assignDriver.mutate(
+                        { orderId: order.id, driverId: driver.id, driverName: driver.name },
+                        { onSuccess: () => toast.success(`Entregador ${driver.name} atribuído`) }
+                      );
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-10 text-sm">
+                    <Truck className="h-4 w-4 mr-1" />
+                    <SelectValue placeholder="Atribuir entregador" />
                   </SelectTrigger>
                   <SelectContent>
                     {activeDrivers?.map((d) => (
@@ -485,9 +527,6 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                         {d.name}
                       </SelectItem>
                     ))}
-                    {(!activeDrivers || activeDrivers.length === 0) && (
-                      <SelectItem value="__none" disabled>Nenhum entregador ativo</SelectItem>
-                    )}
                   </SelectContent>
                 </Select>
               </div>
