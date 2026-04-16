@@ -12,7 +12,7 @@ export interface UnifiedOrder {
   address_complement: string | null;
   address_reference: string | null;
   total_amount: number;
-  status: 'pending' | 'preparing' | 'ready' | 'delivery' | 'completed' | 'cancelled';
+  status: 'pending' | 'accepted' | 'preparing' | 'ready' | 'delivery' | 'completed' | 'cancelled';
   payment_method: string | null;
   change_for: number | null;
   created_at: string;

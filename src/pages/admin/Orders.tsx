@@ -34,10 +34,11 @@ import {
 } from '@dnd-kit/core';
 
 type DateFilter = 'today' | 'week' | 'month' | 'all';
-type OrderStatus = 'pending' | 'preparing' | 'ready' | 'delivery' | 'completed';
+type OrderStatus = 'pending' | 'accepted' | 'preparing' | 'ready' | 'delivery' | 'completed';
 
 const columns: { id: OrderStatus; label: string; color: string }[] = [
-  { id: 'pending', label: 'Pendentes', color: 'bg-warning/10' },
+  { id: 'pending', label: 'Novos Pedidos', color: 'bg-warning/10' },
+  { id: 'accepted', label: 'Pedidos Aceitos', color: 'bg-blue-500/10 text-blue-900 dark:text-blue-200' },
   { id: 'preparing', label: 'Em Preparo', color: 'bg-primary/10' },
   { id: 'ready', label: 'Prontos na Cozinha', color: 'bg-orange-500/10' },
   { id: 'delivery', label: 'Saiu p/ Entrega', color: 'bg-secondary/10' },
@@ -271,7 +272,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     // For table orders, comanda orders, or dine-in orders, skip 'delivery' step
     if (order.type === 'table' || isComanda || isDineIn) {
       const flow: Record<string, UnifiedOrder['status']> = {
-        pending: 'preparing',
+        pending: 'accepted',
+        accepted: 'preparing',
         preparing: 'ready',
         ready: 'completed',
       };
@@ -280,7 +282,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
     // For delivery orders
     const flow: Record<string, UnifiedOrder['status']> = {
-      pending: 'preparing',
+      pending: 'accepted',
+      accepted: 'preparing',
       preparing: 'ready',
       ready: 'delivery',
       delivery: 'completed',
@@ -292,6 +295,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     if (order.type === 'table' || isComanda || isDineIn) {
       const labels: Record<string, string> = {
         pending: 'Aceitar',
+        accepted: 'Preparar',
         preparing: 'Pronto',
         ready: 'Finalizar',
       };
@@ -300,6 +304,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
     const labels: Record<string, string> = {
       pending: 'Aceitar',
+      accepted: 'Preparar',
       preparing: 'Pronto',
       ready: 'Enviar p/ Entrega',
       delivery: 'Finalizar',
