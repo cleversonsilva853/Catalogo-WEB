@@ -143,7 +143,7 @@ switch ($resource) {
         require __DIR__ . '/routes/customer_addresses.php';
         break;
     case 'upload':
-        require __DIR__ . '/routes/uploads.php';
+        require __DIR__ . '/routes/upload.php';
         break;
     case 'backup':
         require __DIR__ . '/routes/backup.php';
