@@ -446,17 +446,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                   Envio WhatsApp
                 </Button>
               )}
-              {/* Details Button */}
-              <Button 
-                variant="secondary" 
-                className="w-full mt-4"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenDetails({ ...order, type: orderType });
-                }}
-              >
-                Ver Detalhes
-              </Button>
+
               <Button
                 size="lg"
                 className="w-full h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight"

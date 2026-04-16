@@ -93,7 +93,7 @@ export function GeolocationButton({ onAddressFound }: GeolocationButtonProps) {
       maxZoom: 18, // Limit zoom to avoid gray tiles
     }).setView([coords.lat, coords.lng], 17);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
     }).addTo(map);
 
