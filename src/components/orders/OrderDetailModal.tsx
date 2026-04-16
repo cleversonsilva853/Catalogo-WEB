@@ -160,7 +160,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
             </div>
           </div>
 
-          {/* Delivery Address - Only for delivery orders (exclude Consumir no Local) */}
+          {/* Delivery Address - Shown for all delivery types with an address, except explicit Dine-in */}
           {order.type === 'delivery' && order.address_street && order.address_street !== 'Consumir no Local' && (
             <>
               <Separator />
