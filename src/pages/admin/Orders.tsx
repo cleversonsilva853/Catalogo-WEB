@@ -339,7 +339,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     const next = getNextStatus(order.status);
     if (next) {
       // Start timer when accepting
-      if (order.status === 'pending' && next === 'preparing') {
+      if (order.status === 'pending' && next === 'accepted') {
         startTimer(orderTimerKey);
       }
       // Stop timer when completing

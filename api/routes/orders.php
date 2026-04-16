@@ -82,6 +82,28 @@ if ($method === 'GET') {
 }
 
 
+// PUT /orders/unified-status/{id} — Atualização unificada (delivery ou mesa)
+if ($method === 'PUT' && $id === 'unified-status' && $sub) {
+    require_auth();
+    $b = get_body();
+    $status = $b['status'] ?? null;
+    $orderType = $b['order_type'] ?? 'delivery';
+
+    if (!$status) respond_error('Status obrigatório', 422);
+
+    if ($orderType === 'table') {
+        // Para mesas, atualizamos comanda_pedidos ou mesa direta dependendo da arquitetura
+        // No momento usamos a tabela 'orders' para o Kanban unificado
+        $stmt = $db->prepare("UPDATE orders SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $sub]);
+    } else {
+        $stmt = $db->prepare("UPDATE orders SET status = ? WHERE id = ?");
+        $stmt->execute([$status, $sub]);
+    }
+
+    respond(['message' => 'Status unificado atualizado', 'id' => $sub, 'status' => $status]);
+}
+
 // POST /orders — Criar pedido (substitui RPC create_order_with_items)
 if ($method === 'POST' && !$id) {
     $b = get_body();
