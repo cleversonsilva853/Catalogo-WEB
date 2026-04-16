@@ -185,16 +185,16 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
                 </div>
 
                 {/* Coordinates + Google Maps */}
-                {order.latitude && order.longitude && (
+                {(order.latitude !== undefined && order.latitude !== null) && (order.longitude !== undefined && order.longitude !== null) && (
                   <div className="space-y-2 mt-2">
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span>Lat: {order.latitude.toFixed(6)}</span>
-                      <span>Lng: {order.longitude.toFixed(6)}</span>
+                      <span>Lat: {Number(order.latitude).toFixed(6)}</span>
+                      <span>Lng: {Number(order.longitude).toFixed(6)}</span>
                     </div>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="w-full gap-2"
+                      className="w-full gap-2 border-orange-200 hover:border-orange-500 hover:bg-orange-50"
                       onClick={() => {
                         const lat = Number(order.latitude);
                         const lng = Number(order.longitude);
@@ -204,7 +204,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
                         );
                       }}
                     >
-                      <Navigation className="h-4 w-4" />
+                      <Navigation className="h-4 w-4 text-orange-500" />
                       Abrir no Google Maps
                     </Button>
                   </div>
