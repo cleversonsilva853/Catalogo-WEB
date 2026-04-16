@@ -43,7 +43,7 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
     return 'text-red-600 bg-red-100';
   };
 
-  const handleStatusChange = async (newStatus: 'preparing' | 'ready') => {
+  const handleStatusChange = async (newStatus: 'accepted' | 'preparing' | 'ready') => {
     setIsUpdating(true);
     try {
       // Update all items in this order
@@ -63,6 +63,7 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
 
   const statusConfig = {
     pending: { label: 'Pendente', color: 'bg-amber-100 text-amber-800', icon: Clock },
+    accepted: { label: 'Aceito', color: 'bg-purple-100 text-purple-800', icon: ChefHat },
     preparing: { label: 'Preparando', color: 'bg-blue-100 text-blue-800', icon: ChefHat },
     ready: { label: 'Pronto', color: 'bg-green-100 text-green-800', icon: CheckCircle },
   };
@@ -146,6 +147,21 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
             order.status === 'pending' ? (
               <Button
                 className="flex-1 text-lg py-6"
+                onClick={() => handleStatusChange('accepted')}
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    <ChefHat className="h-5 w-5 mr-2" />
+                    Aceitar
+                  </>
+                )}
+              </Button>
+            ) : order.status === 'accepted' ? (
+              <Button
+                className="flex-1 text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={() => handleStatusChange('preparing')}
                 disabled={isUpdating}
               >
@@ -154,7 +170,7 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
                 ) : (
                   <>
                     <ChefHat className="h-5 w-5 mr-2" />
-                    Preparando
+                    Preparar
                   </>
                 )}
               </Button>
@@ -185,6 +201,22 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
               {order.status === 'pending' && (
                 <Button
                   className="flex-1 text-lg py-6"
+                  onClick={() => handleStatusChange('accepted')}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <ChefHat className="h-5 w-5 mr-2" />
+                      Aceitar
+                    </>
+                  )}
+                </Button>
+              )}
+              {order.status === 'accepted' && (
+                <Button
+                  className="flex-1 text-lg py-6 bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={() => handleStatusChange('preparing')}
                   disabled={isUpdating}
                 >
@@ -193,7 +225,7 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
                   ) : (
                     <>
                       <ChefHat className="h-5 w-5 mr-2" />
-                      Preparando
+                      Preparar
                     </>
                   )}
                 </Button>
@@ -263,8 +295,8 @@ export function groupItemsByOrder(items: KitchenItem[]): GroupedKitchenOrder[] {
       group.oldest_ordered_at = item.ordered_at;
     }
 
-    // Determine group status (pending > preparing > ready)
-    const statusPriority = { pending: 0, preparing: 1, ready: 2 };
+    // Determine group status (pending > accepted > preparing > ready)
+    const statusPriority = { pending: 0, accepted: 1, preparing: 2, ready: 3 };
     const itemPriority = statusPriority[item.status as keyof typeof statusPriority] ?? 0;
     const groupPriority = statusPriority[group.status as keyof typeof statusPriority] ?? 0;
 

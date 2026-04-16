@@ -25,7 +25,7 @@ export default function Kitchen() {
   const navigate = useNavigate();
   const { data: store } = useStore();
   const { data: items = [], isLoading, error } = useKitchenItems();
-  const [activeTab, setActiveTab] = useState<'pending' | 'preparing' | 'ready'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'preparing' | 'ready'>('pending');
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastItemCount, setLastItemCount] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -95,11 +95,14 @@ export default function Kitchen() {
 
   // Filter grouped orders by status
   const pendingOrders = groupedOrders.filter(o => o.status === 'pending');
+  const acceptedOrders = groupedOrders.filter(o => o.status === 'accepted');
   const preparingOrders = groupedOrders.filter(o => o.status === 'preparing');
   const readyOrders = groupedOrders.filter(o => o.status === 'ready');
 
   const currentOrders = activeTab === 'pending' 
     ? pendingOrders 
+    : activeTab === 'accepted'
+    ? acceptedOrders
     : activeTab === 'preparing' 
       ? preparingOrders 
       : readyOrders;
@@ -162,7 +165,7 @@ export default function Kitchen() {
         )}
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50">
+        <div className="grid grid-cols-4 gap-4 p-4 bg-muted/50">
           <div 
             className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
               activeTab === 'pending' 
@@ -174,6 +177,18 @@ export default function Kitchen() {
             <Clock className="h-8 w-8 text-amber-700 mx-auto mb-2" />
             <p className="text-3xl font-bold text-amber-800">{pendingOrders.length}</p>
             <p className="text-sm text-amber-700 font-medium">Pendentes</p>
+          </div>
+          <div 
+            className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
+              activeTab === 'accepted' 
+                ? 'bg-purple-200 ring-2 ring-purple-500' 
+                : 'bg-purple-100'
+            }`}
+            onClick={() => setActiveTab('accepted')}
+          >
+            <ChefHat className="h-8 w-8 text-purple-700 mx-auto mb-2" />
+            <p className="text-3xl font-bold text-purple-800">{acceptedOrders.length}</p>
+            <p className="text-sm text-purple-700 font-medium">Aceitos</p>
           </div>
           <div 
             className={`rounded-xl p-4 text-center cursor-pointer transition-all ${

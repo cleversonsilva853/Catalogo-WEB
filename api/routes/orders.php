@@ -25,7 +25,7 @@ if ($method === 'GET' && $id === 'kitchen') {
         JOIN orders o ON oi.order_id = o.id
         LEFT JOIN comanda_pedidos cp ON o.id = cp.pedido_id
         LEFT JOIN comandas c ON cp.comanda_id = c.id
-        WHERE oi.status IN ('pending', 'preparing', 'ready')
+        WHERE oi.status IN ('pending', 'accepted', 'preparing', 'ready')
           AND o.status != 'cancelled'
         ORDER BY oi.created_at ASC
     ");

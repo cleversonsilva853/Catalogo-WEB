@@ -8,7 +8,7 @@ export interface KitchenItem {
   product_name: string;
   quantity: number;
   observation: string | null;
-  status: 'pending' | 'preparing' | 'ready';
+  status: 'pending' | 'accepted' | 'preparing' | 'ready';
   created_at: string;
   ordered_at?: string;
   table_number?: number | null;
@@ -31,7 +31,7 @@ export function useUpdateKitchenItemStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { itemId: string; status: 'pending' | 'preparing' | 'ready'; orderType: 'delivery' | 'table' }) => 
+    mutationFn: (params: { itemId: string; status: 'pending' | 'accepted' | 'preparing' | 'ready'; orderType: 'delivery' | 'table' }) => 
       api.put(`/orders/kitchen/${params.itemId}`, { 
         status: params.status, 
         order_type: params.orderType 
