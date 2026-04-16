@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare, Timer } from 'lucide-react';
+import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare, Timer, Receipt, UtensilsCrossed, Store } from 'lucide-react';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
@@ -183,7 +183,8 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
   const formatCurrency = (value: number) => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-  const isComanda = order.type === 'delivery' && (order.customer_name?.startsWith('Comanda #') || order.customer_name === 'Comanda Local');
+  const orderType = order.type || 'delivery';
+  const isComanda = orderType === 'delivery' && (order.customer_name?.startsWith('Comanda #') || order.customer_name?.toLowerCase().includes('comanda'));
   const isDineIn = order.address_street === 'Consumir no Local';
 
   const getPaymentLabel = (method: string | null) => {
@@ -204,7 +205,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
   };
 
   const getOrderTypeLabel = () => {
-    if (order.type === 'table') {
+    if (orderType === 'table') {
       return order.waiter_name ? `\uD83C\uDF7D\uFE0F ${order.waiter_name}` : '\uD83C\uDF7D\uFE0F Mesa';
     }
     if (isComanda) {
@@ -227,9 +228,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
     const template = store?.pix_message || defaultMessage;
 
     const itemsList = items?.map(it => `${it.quantity}x ${it.product_name}`).join('\n') || '';
-    const address = order.type === 'delivery' 
+    const address = orderType === 'delivery' 
       ? `${order.address_street || ''}, ${order.address_number || ''}${order.address_neighborhood ? ` - ${order.address_neighborhood}` : ''}`
-      : (order.type === 'table' ? `Mesa #${order.table_number}` : 'Consumir no Local');
+      : (orderType === 'table' ? `Mesa #${order.table_number}` : 'Consumir no Local');
     const orderLink = `${window.location.origin}/order/${order.id}`;
 
     // Replace placeholders
@@ -270,7 +271,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
   const getNextStatus = (status: UnifiedOrder['status']): UnifiedOrder['status'] | null => {
     // For table orders, comanda orders, or dine-in orders, skip 'delivery' step
-    if (order.type === 'table' || isComanda || isDineIn) {
+    if (orderType === 'table' || isComanda || isDineIn) {
       const flow: Record<string, UnifiedOrder['status']> = {
         pending: 'accepted',
         accepted: 'preparing',
@@ -345,7 +346,7 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
       if (next === 'completed') {
         stopTimer(orderTimerKey);
       }
-      updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: order.type });
+      updateStatusMutation.mutate({ orderId: order.id, status: next, orderType: orderType });
     }
   };
 
@@ -375,7 +376,16 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
               <GripVertical className="h-4 w-4" />
             </div>
           )}
-          <p className="font-bold text-lg sm:text-2xl text-foreground">{order.type === 'table' ? `\uD83C\uDF7D\uFE0F Mesa #${order.table_number}` : `#${order.id}`}</p>
+          {isComanda ? (
+            <Receipt className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+          ) : orderType === 'table' ? (
+            <UtensilsCrossed className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
+          ) : isDineIn ? (
+            <Store className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+          ) : (
+            <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          )}
+          <p className="font-bold text-lg sm:text-2xl text-foreground">{orderType === 'table' ? `🍽️ Mesa #${order.table_number}` : `#${order.id}`}</p>
           {isTimerVisible && <PrepTimer orderKey={orderTimerKey} isRunning={isTimerRunning} />}
         </div>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">
@@ -434,6 +444,17 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                   Envio WhatsApp
                 </Button>
               )}
+              {/* Details Button */}
+              <Button 
+                variant="secondary" 
+                className="w-full mt-4"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenDetails({ ...order, type: orderType });
+                }}
+              >
+                Ver Detalhes
+              </Button>
               <Button
                 size="lg"
                 className="w-full h-12 sm:h-16 text-base sm:text-2xl font-bold uppercase tracking-tight"
@@ -566,7 +587,7 @@ const AdminOrders = () => {
   );
 
   // Realtime updates (no need to reload the page)
-  useOrdersRealtime(true);
+  useOrdersRealtime();
 
   // Calculate pending count
   const pendingCount = useMemo(() => orders?.filter((o) => o.status === 'pending').length || 0, [orders]);
