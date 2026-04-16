@@ -89,7 +89,7 @@ if ($method === 'POST') {
                 $total += $item['quantity'] * $item['unit_price'];
             }
 
-            $stmtO = $db->prepare("INSERT INTO orders (customer_name, status, total_amount, payment_method) VALUES ('Comanda Local', 'pending', ?, 'dinheiro')");
+            $stmtO = $db->prepare("INSERT INTO orders (customer_name, customer_phone, address_street, address_number, address_neighborhood, status, total_amount, payment_method) VALUES ('Comanda Local', '', '', '', '', 'pending', ?, 'dinheiro')");
             $stmtO->execute([$total]);
             $orderId = $db->lastInsertId();
 
