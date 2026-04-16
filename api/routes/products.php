@@ -6,7 +6,7 @@
 $db = getDB();
 
 // GET /products ou GET /products/{id}
-if ($method === 'GET') {
+if ($method === 'GET' && !$sub) {
     if ($id) {
         $stmt = $db->prepare('
             SELECT p.*, c.name as category_name 
@@ -86,7 +86,7 @@ if ($method === 'POST') {
 }
 
 // PUT /products/{id}
-if ($method === 'PUT' && $id) {
+if ($method === 'PUT' && $id && !$sub) {
     require_auth();
     $b = get_body();
 
@@ -112,7 +112,7 @@ if ($method === 'PUT' && $id) {
 }
 
 // DELETE /products/{id}
-if ($method === 'DELETE' && $id) {
+if ($method === 'DELETE' && $id && !$sub) {
     require_auth();
     $db->prepare('DELETE FROM products WHERE id = ?')->execute([$id]);
     respond(['message' => 'Produto removido']);
