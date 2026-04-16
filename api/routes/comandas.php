@@ -19,7 +19,8 @@ if ($method === 'GET') {
     // 1. GET /comandas/pedidos?comanda_id=...
     if ($id === 'pedidos') {
         $comandaId = $_GET['comanda_id'] ?? null;
-        if (!$comandaId) respond([]);
+        if (!$comandaId)
+            respond([]);
         $stmt = $db->prepare('SELECT * FROM comanda_pedidos WHERE comanda_id = ?');
         $stmt->execute([$comandaId]);
         respond($stmt->fetchAll());
@@ -28,7 +29,8 @@ if ($method === 'GET') {
     // 2. GET /comandas/order-details?comanda_id=...
     if ($id === 'order-details') {
         $comandaId = $_GET['comanda_id'] ?? null;
-        if (!$comandaId) respond([]);
+        if (!$comandaId)
+            respond([]);
         $stmt = $db->prepare('
             SELECT o.*, 
             (SELECT SUM(quantity * unit_price) FROM order_items WHERE order_id = o.id) as total_price
@@ -39,7 +41,7 @@ if ($method === 'GET') {
         ');
         $stmt->execute([$comandaId]);
         $orders = $stmt->fetchAll();
-        
+
         foreach ($orders as &$o) {
             $stmtI = $db->prepare('SELECT * FROM order_items WHERE order_id = ?');
             $stmtI->execute([$o['id']]);
@@ -53,7 +55,8 @@ if ($method === 'GET') {
         $stmt = $db->prepare('SELECT * FROM comandas WHERE id = ?');
         $stmt->execute([$id]);
         $comanda = $stmt->fetch();
-        if (!$comanda) respond_error('Comanda não encontrada', 404);
+        if (!$comanda)
+            respond_error('Comanda não encontrada', 404);
         respond($comanda);
     }
 
@@ -61,7 +64,8 @@ if ($method === 'GET') {
     if (isset($_GET['status'])) {
         $stmt = $db->prepare("SELECT * FROM comandas WHERE status = ? ORDER BY numero_comanda ASC");
         $stmt->execute([$_GET['status']]);
-    } else {
+    }
+    else {
         $stmt = $db->query("SELECT * FROM comandas WHERE status IN ('livre', 'ocupada') ORDER BY numero_comanda ASC");
     }
     respond($stmt->fetchAll());
@@ -75,7 +79,8 @@ if ($method === 'POST') {
     if ($id === 'orders') {
         $comandaId = $b['comanda_id'] ?? null;
         $items = $b['items'] ?? [];
-        if (!$comandaId || !$items) respond_error('Dados incompletos', 422);
+        if (!$comandaId || !$items)
+            respond_error('Dados incompletos', 422);
 
         $db->beginTransaction();
         try {
@@ -84,7 +89,7 @@ if ($method === 'POST') {
                 $total += $item['quantity'] * $item['unit_price'];
             }
 
-            $stmtO = $db->prepare("INSERT INTO orders (customer_name, status, type, total_amount, payment_method) VALUES ('Comanda Local', 'pending', 'local', ?, 'dinheiro')");
+            $stmtO = $db->prepare("INSERT INTO orders (customer_name, status, total_amount, payment_method) VALUES ('Comanda Local', 'pending', ?, 'dinheiro')");
             $stmtO->execute([$total]);
             $orderId = $db->lastInsertId();
 
@@ -102,9 +107,10 @@ if ($method === 'POST') {
 
             $db->commit();
             respond(['message' => 'Pedido adicionado']);
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             $db->rollBack();
-            respond_error('Erro: '.$e->getMessage(), 500);
+            respond_error('Erro: ' . $e->getMessage(), 500);
         }
     }
 
@@ -114,15 +120,16 @@ if ($method === 'POST') {
         $vTotal = $b['valor_total'] ?? 0;
         $formaPagamento = $b['forma_pagamento'] ?? 'dinheiro';
 
-        if (!$comandaId) respond_error('comanda_id requerido', 422);
+        if (!$comandaId)
+            respond_error('comanda_id requerido', 422);
 
         $vId = comanda_uuid();
         $db->prepare("INSERT INTO comanda_vendas (id, comanda_id, forma_pagamento, valor_total, data_venda) VALUES (?,?,?,?,CURDATE())")
             ->execute([$vId, $comandaId, $formaPagamento, $vTotal]);
-            
+
         $db->prepare("UPDATE comandas SET status = 'livre' WHERE id = ?")
             ->execute([$comandaId]);
-            
+
         $db->prepare("DELETE FROM comanda_pedidos WHERE comanda_id = ?")->execute([$comandaId]);
 
         respond(['message' => 'Comanda fechada com sucesso']);
@@ -133,7 +140,8 @@ if ($method === 'POST') {
         $source = $b['source_comanda_id'] ?? null;
         $target = $b['target_comanda_id'] ?? null;
 
-        if (!$source || !$target) respond_error('As comandas (origem e destino) são necessárias', 422);
+        if (!$source || !$target)
+            respond_error('As comandas (origem e destino) são necessárias', 422);
 
         $db->beginTransaction();
         try {
@@ -141,16 +149,18 @@ if ($method === 'POST') {
             $db->prepare("UPDATE comandas SET status = 'livre' WHERE id = ?")->execute([$source]);
             $db->prepare("UPDATE comandas SET status = 'ocupada' WHERE id = ?")->execute([$target]);
             $db->commit();
-            respond(['message'=>'Transferido com sucesso']);
-        } catch (Exception $e) {
+            respond(['message' => 'Transferido com sucesso']);
+        }
+        catch (Exception $e) {
             $db->rollBack();
-            respond_error('Erro: '.$e->getMessage(), 500);
+            respond_error('Erro: ' . $e->getMessage(), 500);
         }
     }
 
     // 4. POST /comandas (Criar Nova Comanda)
     if (!$id) {
-        if (empty($b['numero_comanda'])) respond_error('numero_comanda é obrigatório', 422);
+        if (empty($b['numero_comanda']))
+            respond_error('numero_comanda é obrigatório', 422);
 
         $uuid = comanda_uuid();
         $status = $b['status'] ?? 'livre';
