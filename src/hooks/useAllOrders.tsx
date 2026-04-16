@@ -54,7 +54,15 @@ export function useAllOrders() {
 export function useUnifiedOrderItems(orderId: number, orderType: 'delivery' | 'table') {
   return useQuery({
     queryKey: ['unified-order-items', orderId, orderType],
-    queryFn: () => api.get<UnifiedOrderItem[]>('/orders/items', { order_id: String(orderId), order_type: orderType }),
+    queryFn: async () => {
+      if (orderType === 'table') {
+        // Para mesas/comandas as rotas de itens costumam ser específicas
+        return api.get<UnifiedOrderItem[]>(`/comandas/pedidos`, { comanda_id: String(orderId) });
+      }
+      // Para delivery o endpoint /orders/{id} retorna {order, items}
+      const response = await api.get<{ order: UnifiedOrder, items: UnifiedOrderItem[] }>(`/orders/${orderId}`);
+      return response.items;
+    },
     enabled: !!orderId,
   });
 }

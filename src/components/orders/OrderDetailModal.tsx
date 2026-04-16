@@ -88,7 +88,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
   const status = statusConfig[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-800' };
   const payment = order.payment_method ? (paymentConfig[order.payment_method] || { label: order.payment_method, icon: '💰' }) : null;
 
-  const isPDVOrder = order.customer_name?.startsWith('Comanda #');
+  const isPDVOrder = order.customer_name?.startsWith('Comanda #') || order.address_street === 'Consumir no Local';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -160,8 +160,8 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
             </div>
           </div>
 
-          {/* Delivery Address - Only for delivery orders (not PDV) */}
-          {order.type === 'delivery' && order.address_street && !isPDVOrder && (
+          {/* Delivery Address - Only for delivery orders (exclude Consumir no Local) */}
+          {order.type === 'delivery' && order.address_street && order.address_street !== 'Consumir no Local' && (
             <>
               <Separator />
               <div className="space-y-3">
