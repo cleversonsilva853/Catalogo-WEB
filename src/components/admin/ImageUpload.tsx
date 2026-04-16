@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { api, getToken } from '@/lib/api';
+import { api, getToken, uploadFile } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -54,26 +54,7 @@ export function ImageUpload({
     setIsUploading(true);
 
     try {
-      // Create FormData to send as multipart/form-data
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('bucket', bucket);
-
-      // Upload via PHP endpoint usando fetch manualmente (por causa do FormData)
-      const token = getToken();
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const response = await fetch(`${apiUrl}/uploads`, {
-        method: 'POST',
-        body: formData,
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
-
-      if (!response.ok) {
-        throw new Error('Falha no upload');
-      }
-
-      const responseData = await response.json();
-      const publicUrl = responseData.url;
+      const publicUrl = await uploadFile(file);
 
       setPreviewUrl(publicUrl);
       onUpload(publicUrl);
