@@ -385,7 +385,9 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
           ) : (
             <Truck className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           )}
-          <p className="font-bold text-lg sm:text-2xl text-foreground">{orderType === 'table' ? `🍽️ Mesa #${order.table_number}` : `#${order.id}`}</p>
+          <p className="font-bold text-lg sm:text-2xl text-foreground">
+            {orderType === 'table' ? `🍽️ Mesa #${order.table_number} (#${order.id})` : `#${order.id}`}
+          </p>
           {isTimerVisible && <PrepTimer orderKey={orderTimerKey} isRunning={isTimerRunning} />}
         </div>
         <div className="flex flex-wrap items-center gap-1.5 mb-1">

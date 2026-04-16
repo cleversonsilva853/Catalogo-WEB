@@ -266,10 +266,9 @@ export function groupItemsByOrder(items: KitchenItem[]): GroupedKitchenOrder[] {
   const grouped = new Map<string, GroupedKitchenOrder>();
 
   items.forEach(item => {
-    // Create a unique key for each order
-    const orderKey = item.order_type === 'table'
-      ? `table_${item.table_order_id}`
-      : `delivery_${item.order_id}`;
+    // Create a unique key for each order - using individual order_id even for table/comanda
+    // to satisfy the requirement of having additions as separate cards/IDs.
+    const orderKey = `order_${item.order_id}`;
 
     if (!grouped.has(orderKey)) {
       grouped.set(orderKey, {
