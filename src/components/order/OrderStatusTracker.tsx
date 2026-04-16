@@ -1,4 +1,4 @@
-import { Clock, ChefHat, Bike, CheckCircle2, Package, UtensilsCrossed } from 'lucide-react';
+import { Clock, ChefHat, Bike, CheckCircle2, Package, UtensilsCrossed, ThumbsUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OrderStatusTrackerProps {
@@ -13,6 +13,12 @@ const deliverySteps = [
     label: 'Aguardando', 
     description: 'Aguardando confirmação do Comércio',
     icon: Clock 
+  },
+  { 
+    id: 'accepted', 
+    label: 'Pedido Aceito', 
+    description: 'Seu pedido foi confirmado',
+    icon: ThumbsUp 
   },
   { 
     id: 'preparing', 
@@ -42,6 +48,12 @@ const pickupSteps = [
     icon: Clock 
   },
   { 
+    id: 'accepted', 
+    label: 'Pedido Aceito', 
+    description: 'Seu pedido foi confirmado',
+    icon: ThumbsUp 
+  },
+  { 
     id: 'preparing', 
     label: 'Preparando', 
     description: 'Seu pedido está sendo preparado',
@@ -61,6 +73,12 @@ const dineInSteps = [
     label: 'Aguardando', 
     description: 'Aguardando confirmação do Comércio',
     icon: Clock 
+  },
+  { 
+    id: 'accepted', 
+    label: 'Pedido Aceito', 
+    description: 'Seu pedido foi confirmado',
+    icon: ThumbsUp 
   },
   { 
     id: 'preparing', 

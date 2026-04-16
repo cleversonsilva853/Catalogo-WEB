@@ -80,6 +80,8 @@ const OrderStatus = () => {
       switch (order.status) {
         case 'pending':
           return 'O restaurante está analisando seu pedido';
+        case 'accepted':
+          return 'Pedido aceito pelo restaurante';
         case 'preparing':
           return 'Seu pedido está sendo preparado';
         case 'ready':
@@ -95,6 +97,8 @@ const OrderStatus = () => {
       switch (order.status) {
         case 'pending':
           return 'O restaurante está analisando seu pedido';
+        case 'accepted':
+          return 'Pedido aceito pelo restaurante';
         case 'preparing':
           return 'Seu pedido está sendo preparado';
         case 'ready':
@@ -109,6 +113,8 @@ const OrderStatus = () => {
     switch (order.status) {
       case 'pending':
         return 'O restaurante está analisando seu pedido';
+      case 'accepted':
+        return 'Pedido aceito pelo restaurante';
       case 'preparing':
       case 'ready':
         return 'Seu pedido está sendo preparado';
