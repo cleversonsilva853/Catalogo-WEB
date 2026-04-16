@@ -433,6 +433,10 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
         {!isCompleted && getNextStatus(order.status) && (() => {
           const isPreparing = order.status === 'preparing';
+          const isReadyForDispatch = order.type === 'delivery' && !isComanda && order.status === 'ready';
+          
+          if (isReadyForDispatch) return null;
+
           return (
             <div className="flex flex-col gap-2">
               {isPreparing && !isComanda && (
@@ -461,37 +465,27 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
 
         {!isCompleted && (
           <div className="space-y-2">
-            {/* Large "Enviar Entregador" button for delivery orders with status "ready" */}
-            {order.type === 'delivery' && !isComanda && order.status === 'ready' && !order.driver_id && (
-              <div onClick={(e) => e.stopPropagation()} className="mt-2">
+            {/* Driver selection button for "ready" orders */}
+            {order.type === 'delivery' && !isComanda && order.status === 'ready' && (
+              <div onClick={(e) => e.stopPropagation()} className="mt-2 space-y-2">
                 <Select
                   onValueChange={(value) => {
                     const driver = activeDrivers?.find((d) => d.id === value);
                     if (driver) {
                       assignDriver.mutate(
                         { orderId: order.id, driverId: driver.id, driverName: driver.name },
-                        { 
-                          onSuccess: () => {
-                            toast.success(`Pedido enviado para ${driver.name}`);
-                            // Automatically move to delivery status when driver is assigned
-                            updateStatusMutation.mutate({ 
-                              orderId: order.id, 
-                              status: 'delivery', 
-                              orderType: 'delivery' 
-                            });
-                          } 
-                        }
+                        { onSuccess: () => toast.success(`Entregador ${driver.name} selecionado`) }
                       );
                     }
                   }}
                 >
-                  <SelectTrigger className="h-14 sm:h-16 w-full bg-orange-500 hover:bg-orange-600 text-white border-none text-base sm:text-xl font-bold uppercase shadow-lg">
-                    <Truck className="h-6 w-6 mr-2" />
-                    <SelectValue placeholder="Enviar Entregador" />
+                  <SelectTrigger className="v-full h-12 bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 text-base font-bold uppercase">
+                    <User className="h-5 w-5 mr-2" />
+                    <SelectValue placeholder={order.driver_name || "Selecionar Entregador"} />
                   </SelectTrigger>
                   <SelectContent>
                     {activeDrivers?.map((d) => (
-                      <SelectItem key={d.id} value={d.id} className="text-lg py-3">
+                      <SelectItem key={d.id} value={d.id}>
                         {d.name}
                       </SelectItem>
                     ))}
@@ -500,43 +494,21 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                     )}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
 
-            {/* Minor driver selector for "delivery" status if not yet assigned */}
-            {order.type === 'delivery' && !isComanda && order.status === 'delivery' && !order.driver_id && (
-              <div onClick={(e) => e.stopPropagation()} className="mt-2">
-                <Select
-                  onValueChange={(value) => {
-                    const driver = activeDrivers?.find((d) => d.id === value);
-                    if (driver) {
-                      assignDriver.mutate(
-                        { orderId: order.id, driverId: driver.id, driverName: driver.name },
-                        { onSuccess: () => toast.success(`Entregador ${driver.name} atribuído`) }
-                      );
+                <Button
+                  size="lg"
+                  className="w-full h-14 sm:h-16 bg-orange-500 hover:bg-orange-600 text-white border-none text-base sm:text-2xl font-bold uppercase shadow-lg"
+                  onClick={() => {
+                    if (!order.driver_id) {
+                      toast.error("Selecione um entregador primeiro!");
+                      return;
                     }
+                    handleStatusUpdate();
                   }}
+                  disabled={updateStatusMutation.isPending}
                 >
-                  <SelectTrigger className="h-10 text-sm">
-                    <Truck className="h-4 w-4 mr-1" />
-                    <SelectValue placeholder="Atribuir entregador" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeDrivers?.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Show assigned driver name */}
-            {order.type === 'delivery' && !isComanda && order.driver_name && (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Truck className="h-3 w-3" />
-                <span>{order.driver_name}</span>
+                  {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : "Enviar P/ Entrega"}
+                </Button>
               </div>
             )}
           </div>
