@@ -90,9 +90,10 @@ export function GeolocationButton({ onAddressFound }: GeolocationButtonProps) {
     const map = L.map(mapRef.current, {
       zoomControl: true,
       attributionControl: false,
+      maxZoom: 18, // Limit zoom to avoid gray tiles
     }).setView([coords.lat, coords.lng], 17);
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(map);
 
