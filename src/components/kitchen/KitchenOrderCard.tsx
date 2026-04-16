@@ -77,15 +77,15 @@ export const KitchenOrderCard = ({ order, isTable = false, statusFilter }: Kitch
       <CardContent className="p-4 space-y-3">
         {/* Header with table/delivery info and time */}
         <div className="flex items-center justify-between">
-          {order.order_type === 'table' ? (
-            <Badge variant="outline" className="text-lg font-bold px-3 py-1">
-              <UtensilsCrossed className="h-4 w-4 mr-1" />
-              Mesa {order.table_number}
-            </Badge>
-          ) : order.customer_name?.startsWith('Comanda #') ? (
+          {isComanda ? (
             <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-purple-500 text-purple-600">
               <Receipt className="h-4 w-4 mr-1" />
               {order.customer_name}
+            </Badge>
+          ) : order.order_type === 'table' ? (
+            <Badge variant="outline" className="text-lg font-bold px-3 py-1">
+              <UtensilsCrossed className="h-4 w-4 mr-1" />
+              Mesa {order.table_number}
             </Badge>
           ) : (
             <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-orange-500 text-orange-600">

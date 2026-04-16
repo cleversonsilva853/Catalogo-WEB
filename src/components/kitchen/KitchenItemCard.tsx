@@ -3,7 +3,7 @@ import { Clock, ChefHat, CheckCircle, Loader2, Truck, UtensilsCrossed } from 'lu
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { KitchenItem, useKitchenItemMutations } from '@/hooks/useKitchenItems';
+import { KitchenItem, useUpdateKitchenItemStatus } from '@/hooks/useKitchenItems';
 import { cn } from '@/lib/utils';
 
 interface KitchenItemCardProps {
@@ -11,7 +11,7 @@ interface KitchenItemCardProps {
 }
 
 export function KitchenItemCard({ item }: KitchenItemCardProps) {
-  const { updateItemStatus } = useKitchenItemMutations();
+  const updateMutation = useUpdateKitchenItemStatus();
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Calculate waiting time
@@ -29,7 +29,11 @@ export function KitchenItemCard({ item }: KitchenItemCardProps) {
   const handleStatusChange = async (newStatus: 'preparing' | 'ready') => {
     setIsUpdating(true);
     try {
-      await updateItemStatus(item.id, newStatus, item.order_type, item.order_id || undefined);
+      await updateMutation.mutateAsync({ 
+        itemId: item.id, 
+        status: newStatus, 
+        orderType: item.order_type 
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -51,7 +55,12 @@ export function KitchenItemCard({ item }: KitchenItemCardProps) {
       <CardContent className="p-4 space-y-3">
         {/* Header with table/delivery info and time */}
         <div className="flex items-center justify-between">
-          {item.order_type === 'table' ? (
+          {item.customer_name?.startsWith('Comanda #') ? (
+            <Badge variant="outline" className="text-lg font-bold px-3 py-1 border-purple-500 text-purple-600">
+              <UtensilsCrossed className="h-4 w-4 mr-1" />
+              {item.customer_name}
+            </Badge>
+          ) : item.order_type === 'table' ? (
             <Badge variant="outline" className="text-lg font-bold px-3 py-1">
               <UtensilsCrossed className="h-4 w-4 mr-1" />
               Mesa {item.table_number}
