@@ -161,7 +161,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
           </div>
 
           {/* Delivery Address - Shown for all delivery types with an address, except explicit Dine-in */}
-          {order.type === 'delivery' && order.address_street && order.address_street !== 'Consumir no Local' && (
+          {(!order.type || order.type === 'delivery') && order.address_street && order.address_street !== 'Consumir no Local' && (
             <>
               <Separator />
               <div className="space-y-3">
