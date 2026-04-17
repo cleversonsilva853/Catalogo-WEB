@@ -167,21 +167,21 @@ export function generateReceiptBytes(data: PrintOrderData): Uint8Array {
   } else if (data.orderType === 'delivery') {
     const isPDVOrder = data.customerName?.startsWith('Comanda #');
     bytes.push(...BOLD_ON);
-    addLine(bytes, data.customerName || '');
+    addLine(bytes, `Nome: ${data.customerName || ''}`);
     bytes.push(...BOLD_OFF);
     
     if (!isPDVOrder) {
-      if (data.customerPhone) {
-        addLine(bytes, `Tel: ${data.customerPhone}`);
-      }
       if (data.address) {
-        addLine(bytes, `${data.address.street}, ${data.address.number}`);
-        addLine(bytes, data.address.neighborhood);
+        addLine(bytes, `Endereço: ${data.address.street}, ${data.address.number}`);
+        addLine(bytes, `          ${data.address.neighborhood}`);
         if (data.address.complement) {
           // Wrap complement text to fit within printer width
-          const complementLines = wrapText(data.address.complement, width - 2, '  ');
+          const complementLines = wrapText(`Comp: ${data.address.complement}`, width - 2, '  ');
           complementLines.forEach(line => addLine(bytes, line));
         }
+      }
+      if (data.customerPhone) {
+        addLine(bytes, `Telefone: ${data.customerPhone}`);
       }
     }
   }
@@ -284,19 +284,19 @@ export function generateReceiptText(data: PrintOrderData): string {
   } else if (data.orderType === 'delivery') {
     const isPDVOrder = data.customerName?.startsWith('Comanda #');
     receipt += ESC_T + 'E\x01';
-    receipt += `${data.customerName}\n`;
+    receipt += `Nome: ${data.customerName}\n`;
     receipt += ESC_T + 'E\x00';
     
     if (!isPDVOrder) {
-      if (data.customerPhone) {
-        receipt += `Tel: ${data.customerPhone}\n`;
-      }
       if (data.address) {
-        receipt += `${data.address.street}, ${data.address.number}\n`;
-        receipt += `${data.address.neighborhood}\n`;
+        receipt += `Endereço: ${data.address.street}, ${data.address.number}\n`;
+        receipt += `          ${data.address.neighborhood}\n`;
         if (data.address.complement) {
-          receipt += `${data.address.complement}\n`;
+          receipt += `Comp: ${data.address.complement}\n`;
         }
+      }
+      if (data.customerPhone) {
+        receipt += `Telefone: ${data.customerPhone}\n`;
       }
     }
   }
@@ -438,14 +438,14 @@ export function printReceiptBrowser(data: PrintOrderData): void {
         ${data.waiterName ? `<div>Garçom: ${data.waiterName}</div>` : ''}
       ` : ''}
       ${data.orderType === 'delivery' ? `
-        <div class="bold">${data.customerName || ''}</div>
+        <div class="bold">Nome: ${data.customerName || ''}</div>
         ${!data.customerName?.startsWith('Comanda #') ? `
-          ${data.customerPhone ? `<div>Tel: ${data.customerPhone}</div>` : ''}
           ${data.address ? `
-            <div>${data.address.street}, ${data.address.number}</div>
-            <div>${data.address.neighborhood}</div>
-            ${data.address.complement ? `<div class="complement">${data.address.complement}</div>` : ''}
+            <div>Endereço: ${data.address.street}, ${data.address.number}</div>
+            <div>Bairro: ${data.address.neighborhood}</div>
+            ${data.address.complement ? `<div class="complement">Comp: ${data.address.complement}</div>` : ''}
           ` : ''}
+          ${data.customerPhone ? `<div>Telefone: ${data.customerPhone}</div>` : ''}
         ` : ''}
       ` : ''}
       <div>Data: ${data.createdAt.toLocaleDateString('pt-BR')} ${data.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
@@ -536,33 +536,38 @@ export function generatePrintableText(data: PrintOrderData): string {
   text += `Hora: ${timeStr}\n`;
   text += '-'.repeat(width) + '\n';
 
-  if (data.customerName) {
-    text += `${data.customerName}\n`;
-  }
-  if (data.customerPhone && !isPDVOrder) {
-    text += `Tel: ${data.customerPhone}\n`;
-  }
-  if (data.orderType === 'table' && data.waiterName) {
-    text += `Garcom: ${data.waiterName}\n`;
-  }
-  if (data.customerCount) {
-    text += `Pessoas: ${data.customerCount}\n`;
-  }
-
-  // ========== 4. DELIVERY ADDRESS ==========
-  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
-    text += '-'.repeat(width) + '\n';
-    text += 'ENDERECO DE ENTREGA\n';
-    const fullAddress = `${data.address.street}, ${data.address.number} - ${data.address.neighborhood}`;
-    const wrappedAddress = wrapText(fullAddress, width, '');
-    wrappedAddress.forEach(line => text += line + '\n');
-    if (data.address.complement) {
-      const wrappedComplement = wrapText(data.address.complement, width, '');
-      wrappedComplement.forEach(line => text += line + '\n');
+  if (data.orderType === 'table') {
+    if (data.customerName) {
+      text += `${data.customerName}\n`;
     }
-    if (data.address.reference) {
-      const wrappedRef = wrapText(`Ref: ${data.address.reference}`, width, '');
-      wrappedRef.forEach(line => text += line + '\n');
+    if (data.waiterName) {
+      text += `Garcom: ${data.waiterName}\n`;
+    }
+    if (data.customerCount) {
+      text += `Pessoas: ${data.customerCount}\n`;
+    }
+  } else {
+    if (data.customerName) {
+      text += `Nome: ${data.customerName}\n`;
+    }
+    
+    // ========== 4. DELIVERY ADDRESS ==========
+    if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
+      const fullAddress = `${data.address.street}, ${data.address.number} - ${data.address.neighborhood}`;
+      const wrappedAddress = wrapText(`Endereço: ${fullAddress}`, width, '');
+      wrappedAddress.forEach(line => text += line + '\n');
+      if (data.address.complement) {
+        const wrappedComplement = wrapText(`Comp: ${data.address.complement}`, width, '');
+        wrappedComplement.forEach(line => text += line + '\n');
+      }
+      if (data.address.reference) {
+        const wrappedRef = wrapText(`Ref: ${data.address.reference}`, width, '');
+        wrappedRef.forEach(line => text += line + '\n');
+      }
+    }
+
+    if (data.customerPhone && !isPDVOrder) {
+      text += `Telefone: ${data.customerPhone}\n`;
     }
   }
 
@@ -841,29 +846,25 @@ export function generateThermalPDF(data: PrintOrderData): void {
     }
   } else {
     if (data.customerName) {
-      addText(data.customerName, fontSize.normal, 'left');
+      addText(`Nome: ${data.customerName}`, fontSize.normal, 'left');
     }
     
-    if (!isPDVOrder) {
-      if (data.customerPhone) {
-        addText(`Tel: ${data.customerPhone}`, fontSize.normal, 'left');
+    if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
+      const fullAddress = `${data.address.street}, ${data.address.number} - ${data.address.neighborhood}`;
+      addWrappedText(`Endereço: ${fullAddress}`, fontSize.normal, 'left');
+      
+      if (data.address.complement) {
+        addWrappedText(`Comp: ${data.address.complement}`, fontSize.small, 'left');
+      }
+      if (data.address.reference) {
+        addWrappedText(`Ref: ${data.address.reference}`, fontSize.small, 'left');
       }
     }
-  }
 
-  // ========== 4. DELIVERY ADDRESS ==========
-  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
-    addSpacing(2);
-    addText('ENDERECO DE ENTREGA', fontSize.normal, 'left', true);
-    
-    const fullAddress = `${data.address.street}, ${data.address.number} - ${data.address.neighborhood}`;
-    addWrappedText(fullAddress, fontSize.normal, 'left');
-    
-    if (data.address.complement) {
-      addWrappedText(data.address.complement, fontSize.small, 'left');
-    }
-    if (data.address.reference) {
-      addWrappedText(`Ref: ${data.address.reference}`, fontSize.small, 'left');
+    if (!isPDVOrder) {
+      if (data.customerPhone) {
+        addText(`Telefone: ${data.customerPhone}`, fontSize.normal, 'left');
+      }
     }
   }
 
@@ -1101,61 +1102,51 @@ export function generateOrderPDF(data: PrintOrderData): void {
   } else {
     if (data.customerName) {
       doc.setFont('helvetica', 'bold');
-      doc.text(data.customerName, margin, y);
+      doc.text('Nome:', margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(data.customerName, margin + 15, y);
       y += 7;
     }
     
+    if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
+      const fullAddress = `${data.address.street}, ${data.address.number}` + 
+                          (data.address.neighborhood ? ` - ${data.address.neighborhood}` : '');
+      const addrLines = doc.splitTextToSize(fullAddress, contentWidth - 30);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Endereço:', margin, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(addrLines, margin + 30, y);
+      y += 6 * addrLines.length;
+
+      if (data.address.complement) {
+        doc.setFont('helvetica', 'bold');
+        doc.text('Complemento:', margin, y);
+        doc.setFont('helvetica', 'normal');
+        const complementLines = doc.splitTextToSize(data.address.complement, contentWidth - 35);
+        doc.text(complementLines, margin + 35, y);
+        y += (complementLines.length * 5) + 1;
+      }
+      
+      if (data.address.reference) {
+        doc.setFont('helvetica', 'bold');
+        doc.text('Referência:', margin, y);
+        doc.setFont('helvetica', 'normal');
+        const refLines = doc.splitTextToSize(data.address.reference, contentWidth - 30);
+        doc.text(refLines, margin + 30, y);
+        y += (refLines.length * 5) + 1;
+      }
+    }
+
     if (data.customerPhone && !isPDVOrder) {
       doc.setFont('helvetica', 'bold');
       doc.text('Telefone:', margin, y);
       doc.setFont('helvetica', 'normal');
-      doc.text(data.customerPhone, margin + 28, y);
+      doc.text(data.customerPhone, margin + 25, y);
       y += 7;
     }
   }
   
   y += 5;
-  
-  // ========== 4. DELIVERY ADDRESS (when applicable) ==========
-  if (data.orderType === 'delivery' && data.address && !isPDVOrder) {
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(80, 80, 80);
-    doc.text('ENDEREÇO DE ENTREGA', margin, y);
-    
-    y += 2;
-    doc.line(margin, y, pageWidth - margin, y);
-    y += 8;
-    
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.text(`${data.address.street}, ${data.address.number}`, margin, y);
-    y += 6;
-    doc.text(`Bairro: ${data.address.neighborhood}`, margin, y);
-    y += 6;
-    
-    if (data.address.complement) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Complemento:', margin, y);
-      doc.setFont('helvetica', 'normal');
-      const complementLines = doc.splitTextToSize(data.address.complement, contentWidth - 35);
-      doc.text(complementLines, margin + 35, y);
-      y += (complementLines.length * 5) + 2;
-    }
-    
-    if (data.address.reference) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Referência:', margin, y);
-      doc.setFont('helvetica', 'normal');
-      const refLines = doc.splitTextToSize(data.address.reference, contentWidth - 30);
-      doc.text(refLines, margin + 30, y);
-      y += (refLines.length * 5) + 2;
-    }
-    
-    y += 5;
-  }
   
   // ========== 5. ORDER ITEMS ==========
   doc.setFontSize(12);
