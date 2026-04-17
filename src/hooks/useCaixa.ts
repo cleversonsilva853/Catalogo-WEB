@@ -29,7 +29,11 @@ export function useOpenedSession() {
 export function useOpenCaixa() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (initialBalance: number) => api.post<CaixaSession>('/caixa/open', { initial_balance: initialBalance }),
+    mutationFn: (params: { initialBalance: number, openedAt: string }) => 
+      api.post<CaixaSession>('/caixa/open', { 
+        initial_balance: params.initialBalance,
+        opened_at: params.openedAt
+      }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['caixa-session-active'] }),
   });
 }

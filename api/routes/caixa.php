@@ -98,8 +98,10 @@ if ($method === 'POST') {
         }
 
         $uuid = caixa_uuid();
-        $db->prepare("INSERT INTO caixa_sessions (id, initial_balance, status, opened_at) VALUES (?,?,'open', NOW())")
-           ->execute([$uuid, $b['initial_balance'] ?? 0]);
+        $openedAt = !empty($b['opened_at']) ? $b['opened_at'] . ' ' . date('H:i:s') : date('Y-m-d H:i:s');
+        
+        $db->prepare("INSERT INTO caixa_sessions (id, initial_balance, status, opened_at) VALUES (?,?,'open', ?)")
+           ->execute([$uuid, $b['initial_balance'] ?? 0, $openedAt]);
         $stmt = $db->prepare('SELECT * FROM caixa_sessions WHERE id = ?');
         $stmt->execute([$uuid]);
         respond($stmt->fetch(), 201);
