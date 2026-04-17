@@ -34,7 +34,12 @@ export function AbrirCaixaModal({ open }: AbrirCaixaModalProps) {
 
   return (
     <Dialog open={open}>
-      <DialogContent className="sm:max-w-md" hideCloseButton>
+      <DialogContent 
+        className="sm:max-w-md" 
+        hideCloseButton
+        onInteractOutside={e => e.preventDefault()}
+        onEscapeKeyDown={e => e.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Banknote className="h-5 w-5 text-primary" />
