@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare, Timer, Receipt, UtensilsCrossed, Store } from 'lucide-react';
+import { Loader2, Calendar, TrendingUp, Package, DollarSign, CheckCircle2, GripVertical, Wifi, WifiOff, RefreshCw, Truck, MessageSquare, Timer, Receipt, UtensilsCrossed, Store, User } from 'lucide-react';
 import { useTitleNotification } from '@/hooks/useTitleNotification';
 import { useAutoPromptPush } from '@/hooks/useAutoPromptPush';
 import { PushNotificationToggle } from '@/components/admin/PushNotificationToggle';
@@ -21,6 +21,7 @@ import { ptBR } from 'date-fns/locale';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { toast } from 'sonner';
 import { useActiveDrivers, useAssignDriver } from '@/hooks/useDrivers';
+import { DriverSelectorModal } from '@/components/orders/DriverSelectorModal';
 import {
   DndContext,
   DragEndEvent,
@@ -123,7 +124,17 @@ function PrepTimer({ orderKey, isRunning }: { orderKey: string; isRunning: boole
 }
 
 // Draggable Order Card Wrapper
-function DraggableOrderCard({ order, store, onOpenDetails }: { order: UnifiedOrder; store: any; onOpenDetails: (order: UnifiedOrder) => void }) {
+function DraggableOrderCard({ 
+  order, 
+  store, 
+  onOpenDetails,
+  onOpenDriverSelector
+}: { 
+  order: UnifiedOrder; 
+  store: any; 
+  onOpenDetails: (order: UnifiedOrder) => void;
+  onOpenDriverSelector: (order: UnifiedOrder) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `${order.type}-${order.id}`,
     data: { order },
@@ -140,7 +151,13 @@ function DraggableOrderCard({ order, store, onOpenDetails }: { order: UnifiedOrd
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
-      <OrderCardContent order={order} store={store} onOpenDetails={onOpenDetails} dragListeners={listeners} />
+      <OrderCardContent 
+        order={order} 
+        store={store} 
+        onOpenDetails={onOpenDetails} 
+        onOpenDriverSelector={onOpenDriverSelector}
+        dragListeners={listeners} 
+      />
     </div>
   );
 }
@@ -175,7 +192,19 @@ function DroppableColumn({ id, children, color, label, count }: { id: string; ch
 }
 
 // Order Card Content
-function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { order: UnifiedOrder; store: any; onOpenDetails: (order: UnifiedOrder) => void; dragListeners?: any }) {
+function OrderCardContent({ 
+  order, 
+  store, 
+  onOpenDetails, 
+  onOpenDriverSelector,
+  dragListeners 
+}: { 
+  order: UnifiedOrder; 
+  store: any; 
+  onOpenDetails: (order: UnifiedOrder) => void; 
+  onOpenDriverSelector: (order: UnifiedOrder) => void;
+  dragListeners?: any 
+}) {
   const { data: items } = useUnifiedOrderItems(order.id, order.type);
   const { data: activeDrivers } = useActiveDrivers();
   const assignDriver = useAssignDriver();
@@ -509,6 +538,19 @@ function OrderCardContent({ order, store, onOpenDetails, dragListeners }: { orde
                 >
                   {updateStatusMutation.isPending ? <Loader2 className="h-6 w-6 animate-spin" /> : "Enviar P/ Entrega"}
                 </Button>
+
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 border-2 border-orange-500 text-orange-600 hover:bg-orange-50 text-base font-bold uppercase"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenDriverSelector(order);
+                  }}
+                >
+                  <User className="h-5 w-5 mr-2" />
+                  Entregador
+                </Button>
               </div>
             )}
           </div>
@@ -580,6 +622,7 @@ const AdminOrders = () => {
   const [viewMode, setViewMode] = useState<'kanban' | 'stats'>('kanban');
   const [selectedOrder, setSelectedOrder] = useState<UnifiedOrder | null>(null);
   const [activeOrder, setActiveOrder] = useState<UnifiedOrder | null>(null);
+  const [driverSelectorOrder, setDriverSelectorOrder] = useState<UnifiedOrder | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -944,6 +987,7 @@ const AdminOrders = () => {
                       order={order}
                       store={store}
                       onOpenDetails={setSelectedOrder}
+                      onOpenDriverSelector={setDriverSelectorOrder}
                     />
                   ))}
                 </DroppableColumn>
@@ -954,12 +998,23 @@ const AdminOrders = () => {
           <DragOverlay>
             {activeOrder && (
               <div className="opacity-90">
-                <OrderCardContent order={activeOrder} store={store} onOpenDetails={() => {}} />
+                <OrderCardContent 
+                  order={activeOrder} 
+                  store={store} 
+                  onOpenDetails={() => {}} 
+                  onOpenDriverSelector={() => {}} 
+                />
               </div>
             )}
           </DragOverlay>
         </DndContext>
       )}
+
+      {/* Modal de Seleção de Entregador */}
+      <DriverSelectorModal 
+        order={driverSelectorOrder} 
+        onClose={() => setDriverSelectorOrder(null)} 
+      />
 
       {/* Order Detail Modal */}
       <OrderDetailModal order={selectedOrder} open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)} />
