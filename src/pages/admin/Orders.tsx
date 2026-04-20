@@ -344,7 +344,7 @@ function OrderCardContent({
   };
 
   const orderTimerKey = `${order.type}-${order.id}`;
-  const isTimerRunning = order.status === 'preparing' || order.status === 'ready' || order.status === 'delivery';
+  const isTimerRunning = ['accepted', 'preparing', 'ready', 'delivery'].includes(order.status);
   const isTimerVisible = order.status !== 'pending';
 
   // Start/stop timer based on current status (for persistence on reload)
