@@ -17,6 +17,16 @@ import { toast } from 'sonner';
 
 function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: boolean; onAcknowledge: (id: number) => void }) {
   const { data: items } = useDriverOrderItems(order.id);
+  const aggregatedItems = items?.reduce((acc: any[], item: any) => {
+    const existing = acc.find(i => i.product_name === item.product_name && i.observation === item.observation);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      acc.push({ ...item });
+    }
+    return acc;
+  }, []);
+
   const [isUpdating, setIsUpdating] = useState(false);
 
   const formatCurrency = (value: number) =>
@@ -138,7 +148,7 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
             <FileText className="h-3 w-3" /> Itens do Pedido
           </p>
           <div className="grid grid-cols-1 gap-1">
-            {items?.map((item: any) => (
+            {aggregatedItems?.map((item: any) => (
               <div key={item.id} className="flex justify-between items-center text-sm sm:text-base">
                 <span className="text-foreground font-medium flex-1">
                   <span className="font-bold text-primary mr-2">{item.quantity}x</span>
@@ -290,26 +300,26 @@ export default function DriverDashboard() {
             </div>
           ) : (
             <>
-              {deliveryOrders.length > 0 && (
-                <div>
-                  <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-purple-600" /> Em Entrega
-                  </h2>
-                  <div className="space-y-3">
-                    {deliveryOrders.map((order: any) => (
-                      <DriverOrderCard key={order.id} order={order} isNew={false} onAcknowledge={acknowledgeOrder} />
-                    ))}
-                  </div>
-                </div>
-              )}
               {readyOrders.length > 0 && (
                 <div>
                   <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
                     <CheckCircle className="h-5 w-5 text-orange-600" /> Aguardando Retirada
                   </h2>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                     {readyOrders.map((order: any) => (
                       <DriverOrderCard key={order.id} order={order} isNew={newOrderIds.has(order.id)} onAcknowledge={acknowledgeOrder} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              {deliveryOrders.length > 0 && (
+                <div>
+                  <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-purple-600" /> Em Entrega
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {deliveryOrders.map((order: any) => (
+                      <DriverOrderCard key={order.id} order={order} isNew={false} onAcknowledge={acknowledgeOrder} />
                     ))}
                   </div>
                 </div>
