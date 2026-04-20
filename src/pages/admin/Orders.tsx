@@ -462,7 +462,7 @@ function OrderCardContent({
 
         {!isCompleted && getNextStatus(order.status) && (() => {
           const isPreparing = order.status === 'preparing';
-          const isReadyForDispatch = order.type === 'delivery' && !isComanda && order.status === 'ready';
+          const isReadyForDispatch = orderType === 'delivery' && !isComanda && order.status === 'ready';
           
           if (isReadyForDispatch) return null;
 
@@ -495,7 +495,7 @@ function OrderCardContent({
         {!isCompleted && (
           <div className="space-y-2">
             {/* Driver selection button for "ready" orders */}
-            {order.type === 'delivery' && !isComanda && order.status === 'ready' && (
+            {orderType === 'delivery' && !isComanda && order.status === 'ready' && (
               <div onClick={(e) => e.stopPropagation()} className="mt-2 space-y-2">
                 <Select
                   onValueChange={(value) => {
