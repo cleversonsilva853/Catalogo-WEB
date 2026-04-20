@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, Pencil, Trash2, Loader2, Search, ToggleLeft, ToggleRight, LayoutGrid, List } from 'lucide-react';
 import { api } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -63,6 +63,13 @@ const AdminProducts = () => {
   const [composition, setComposition] = useState<{ ingredient_id: string; quantity_used: string; unit: string }[]>([]);
   const [loadingAddons, setLoadingAddons] = useState(false);
   const [loadingComposition, setLoadingComposition] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    return (localStorage.getItem('admin-products-view') as 'grid' | 'list') || 'grid';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('admin-products-view', viewMode);
+  }, [viewMode]);
 
   const filteredProducts = products?.filter(p => 
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -307,70 +314,158 @@ const AdminProducts = () => {
             className="pl-9"
           />
         </div>
+        <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border/50">
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-8 w-8 sm:h-9 sm:w-9"
+            onClick={() => setViewMode('grid')}
+            title="Visualização em Grade"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-8 w-8 sm:h-9 sm:w-9"
+            onClick={() => setViewMode('list')}
+            title="Visualização em Lista"
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
         <Button onClick={openCreateModal} className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Novo Produto
         </Button>
       </div>
 
-      {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {filteredProducts.map((product) => (
-          <div 
-            key={product.id} 
-            className="bg-card rounded-xl p-3 sm:p-4 shadow-card"
-          >
-            <div className="flex gap-3 sm:gap-4">
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+      {/* Products Content */}
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {filteredProducts.map((product) => (
+            <div 
+              key={product.id} 
+              className="bg-card rounded-xl p-3 sm:p-4 shadow-card"
+            >
+              <div className="flex gap-3 sm:gap-4">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-xl overflow-hidden bg-muted flex-shrink-0">
+                  {product.image_url ? (
+                    <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-2xl sm:text-3xl">🍔</div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{product.name}</h3>
+                    <Badge variant={product.is_available ? 'open' : 'closed'} className="text-[10px] sm:text-xs flex-shrink-0">
+                      {product.is_available ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1 truncate">
+                    {getCategoryName(product.category_id)}
+                  </p>
+                  <p className="font-bold text-primary text-sm sm:text-base">{formatCurrency(product.price)}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 mt-3 sm:mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
+                  onClick={() => toggleAvailability(product)}
+                >
+                  {product.is_available ? (
+                    <><ToggleRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> <span className="hidden xs:inline">Desativar</span><span className="xs:hidden">Off</span></>
+                  ) : (
+                    <><ToggleLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> <span className="hidden xs:inline">Ativar</span><span className="xs:hidden">On</span></>
+                  )}
+                </Button>
+                <Button variant="action-icon" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => openEditModal(product)}>
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button variant="action-icon-destructive" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleDelete(product)}>
+                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredProducts.map((product) => (
+            <div 
+              key={product.id} 
+              className="bg-card rounded-lg p-2 sm:p-3 shadow-sm border border-border/40 flex items-center gap-3 sm:gap-4 transition-colors hover:border-border"
+            >
+              <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                 {product.image_url ? (
                   <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center text-2xl sm:text-3xl">🍔</div>
+                  <div className="h-full w-full flex items-center justify-center text-lg sm:text-xl">🍔</div>
                 )}
               </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{product.name}</h3>
-                  <Badge variant={product.is_available ? 'open' : 'closed'} className="text-[10px] sm:text-xs flex-shrink-0">
-                    {product.is_available ? 'Ativo' : 'Inativo'}
-                  </Badge>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-foreground text-sm sm:text-base truncate">{product.name}</h3>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                      {getCategoryName(product.category_id)}
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0 flex items-center gap-2 sm:gap-4">
+                    <p className="font-bold text-primary text-sm sm:text-base">{formatCurrency(product.price)}</p>
+                    <Badge variant={product.is_available ? 'open' : 'closed'} className="text-[10px] sm:text-xs hidden xs:inline-flex">
+                      {product.is_available ? 'Ativo' : 'Inativo'}
+                    </Badge>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mb-1 truncate">
-                  {getCategoryName(product.category_id)}
-                </p>
-                <p className="font-bold text-primary text-sm sm:text-base">{formatCurrency(product.price)}</p>
+              </div>
+
+              <div className="flex items-center gap-1.5 sm:gap-2 border-l border-border pl-2 sm:pl-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className={`h-8 w-8 sm:h-9 sm:w-9 ${product.is_available ? 'text-green-600' : 'text-muted-foreground'}`}
+                  onClick={() => toggleAvailability(product)}
+                  title={product.is_available ? 'Desativar' : 'Ativar'}
+                >
+                  {product.is_available ? (
+                    <ToggleRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <ToggleLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+                  )}
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 sm:h-9 sm:w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50" 
+                  onClick={() => openEditModal(product)}
+                >
+                  <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 sm:h-9 sm:w-9 text-destructive hover:text-destructive hover:bg-destructive/10" 
+                  onClick={() => handleDelete(product)}
+                >
+                  <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
               </div>
             </div>
-            
-            <div className="flex gap-2 mt-3 sm:mt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
-                onClick={() => toggleAvailability(product)}
-              >
-                {product.is_available ? (
-                  <><ToggleRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> <span className="hidden xs:inline">Desativar</span><span className="xs:hidden">Off</span></>
-                ) : (
-                  <><ToggleLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" /> <span className="hidden xs:inline">Ativar</span><span className="xs:hidden">On</span></>
-                )}
-              </Button>
-              <Button variant="action-icon" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => openEditModal(product)}>
-                <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-              <Button variant="action-icon-destructive" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => handleDelete(product)}>
-                <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+      )}
 
-        {filteredProducts.length === 0 && (
-          <div className="col-span-full py-12 text-center">
-            <p className="text-muted-foreground">Nenhum produto encontrado</p>
-          </div>
-        )}
-      </div>
+      {filteredProducts.length === 0 && (
+        <div className="py-12 text-center">
+          <p className="text-muted-foreground">Nenhum produto encontrado</p>
+        </div>
+      )}
 
       {/* Create/Edit Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
