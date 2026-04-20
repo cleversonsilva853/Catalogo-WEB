@@ -17,7 +17,7 @@ if ($method === 'GET') {
     require_auth();
 
     if ($id === 'active') {
-        $stmt = $db->prepare("SELECT * FROM caixa_sessions WHERE status = 'open' ORDER BY opened_at DESC LIMIT 1");
+        $stmt = $db->prepare("SELECT * FROM caixa_sessions WHERE status = 'open' AND DATE(opened_at) = CURDATE() ORDER BY opened_at DESC LIMIT 1");
         $stmt->execute();
         $session = $stmt->fetch();
         respond($session ?: null);
@@ -90,12 +90,9 @@ if ($method === 'POST') {
     }
 
     if ($id === 'open') {
-        // Checar se já tem um aberto
-        $stmtCheck = $db->prepare("SELECT id FROM caixa_sessions WHERE status = 'open'");
-        $stmtCheck->execute();
-        if ($stmtCheck->fetch()) {
-            respond_error('Já existe um caixa aberto', 422);
-        }
+        // Encerra qualquer caixa que tenha ficado aberto (segurança para novos dias)
+        $db->prepare("UPDATE caixa_sessions SET status = 'closed', closed_at = NOW() WHERE status = 'open'")
+           ->execute();
 
         $uuid = caixa_uuid();
         $openedAt = !empty($b['opened_at']) ? $b['opened_at'] . ' ' . date('H:i:s') : date('Y-m-d H:i:s');
