@@ -14,6 +14,11 @@ import { useSystemSettings, useUpdateSystemSettings } from '@/hooks/useSystemSet
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+const formatQuantity = (v: number | string) => {
+  const num = Number(v);
+  return isNaN(num) ? '0' : num.toString();
+};
+
 const AdminIngredients = () => {
   const { data: ingredients, isLoading } = useIngredients();
   const createIngredient = useCreateIngredient();
@@ -57,9 +62,9 @@ const AdminIngredients = () => {
     setEditingIngredient(ingredient);
     setFormData({
       name: ingredient.name,
-      stock_quantity: ingredient.stock_quantity.toString(),
+      stock_quantity: formatQuantity(ingredient.stock_quantity),
       unit: ingredient.unit,
-      min_stock: ingredient.min_stock.toString(),
+      min_stock: formatQuantity(ingredient.min_stock),
     });
     setIsModalOpen(true);
   };
@@ -203,7 +208,7 @@ const AdminIngredients = () => {
                   <div>
                     <h4 className="font-semibold text-destructive text-sm leading-none">⚠️ Estoque Crítico (Abaixo de 50%)</h4>
                     <p className="text-sm text-destructive/90 mt-1">
-                      O ingrediente <span className="font-bold">{ing.name}</span> está com menos de metade do estoque mínimo. Quantidade atual: {ing.stock_quantity} {ing.unit}
+                      O ingrediente <span className="font-bold">{ing.name}</span> está com menos de metade do estoque mínimo. Quantidade atual: {formatQuantity(ing.stock_quantity)} {ing.unit}
                     </p>
                   </div>
                 </div>
@@ -232,7 +237,7 @@ const AdminIngredients = () => {
                         <h3 className="font-semibold text-foreground">{ingredient.name}</h3>
                         <p className="text-xs text-muted-foreground">
                           Estoque: <span className={isCritical ? "text-destructive font-bold" : ""}>
-                            {ingredient.stock_quantity} {ingredient.unit}
+                            {formatQuantity(ingredient.stock_quantity)} {ingredient.unit}
                           </span>
                         </p>
                       </div>
