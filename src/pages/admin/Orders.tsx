@@ -135,8 +135,9 @@ function DraggableOrderCard({
   onOpenDetails: (order: UnifiedOrder) => void;
   onOpenDriverSelector: (order: UnifiedOrder) => void;
 }) {
+  const baseType = order.type || 'delivery';
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: `${order.type}-${order.id}`,
+    id: `${baseType}-${order.id}`,
     data: { order },
   });
 
@@ -776,10 +777,10 @@ const AdminOrders = () => {
     const activeId = active.id as string;
     const [orderType, orderId] = activeId.includes('-') ? [activeId.split('-')[0] as 'delivery' | 'table', parseInt(activeId.split('-')[1])] : ['delivery' as const, parseInt(activeId)];
     const newStatus = over.id as OrderStatus;
-    const order = filteredOrders.find((o) => o.id === orderId && o.type === orderType);
+    const order = filteredOrders.find((o) => o.id === orderId && (o.type || 'delivery') === orderType);
 
     if (order && order.status !== newStatus) {
-      updateStatus.mutate({ orderId, status: newStatus, orderType: order.type });
+      updateStatus.mutate({ orderId, status: newStatus, orderType: (order.type || 'delivery') as 'delivery' | 'table' });
     }
   };
 
