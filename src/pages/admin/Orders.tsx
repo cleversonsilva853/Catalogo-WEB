@@ -498,32 +498,7 @@ function OrderCardContent({
             {/* Driver selection button for "ready" orders */}
             {orderType === 'delivery' && !isComanda && order.status === 'ready' && (
               <div onClick={(e) => e.stopPropagation()} className="mt-2 space-y-2">
-                <Select
-                  onValueChange={(value) => {
-                    const driver = activeDrivers?.find((d) => d.id === value);
-                    if (driver) {
-                      assignDriver.mutate(
-                        { orderId: order.id, driverId: driver.id, driverName: driver.name },
-                        { onSuccess: () => toast.success(`Entregador ${driver.name} selecionado`) }
-                      );
-                    }
-                  }}
-                >
-                  <SelectTrigger className="v-full h-12 bg-white border-2 border-orange-500 text-orange-600 hover:bg-orange-50 text-base font-bold uppercase">
-                    <User className="h-5 w-5 mr-2" />
-                    <SelectValue placeholder={order.driver_name || "Selecionar Entregador"} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeDrivers?.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
-                    {(!activeDrivers || activeDrivers.length === 0) && (
-                      <SelectItem value="__none" disabled>Nenhum entregador ativo</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+
 
                 <Button
                   size="lg"
