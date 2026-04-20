@@ -64,15 +64,15 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
   };
 
   return (
-    <Card className={`rounded-2xl overflow-hidden shadow-card transition-all border-l-4 ${
+    <Card className={`rounded-2xl overflow-hidden shadow-card transition-all border-l-4 max-w-md mx-auto ${
       order.status === 'delivery' ? 'border-l-purple-600' : 'border-l-orange-500'
     } ${isNew ? 'ring-2 ring-primary ring-offset-2 animate-pulse' : 'border-border/40'}`}>
-      <CardContent className="p-5 sm:p-6 space-y-4">
+      <CardContent className="p-4 sm:p-5 space-y-3">
         {/* Order Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <Truck className={`h-5 w-5 sm:h-6 sm:w-6 ${order.status === 'delivery' ? 'text-purple-600' : 'text-orange-600'}`} />
-            <h3 className="font-bold text-lg sm:text-2xl text-foreground">Pedido #{order.id}</h3>
+            <h3 className="font-bold text-base sm:text-lg text-foreground">Pedido #{order.id}</h3>
           </div>
           <Badge 
             variant={order.status === 'ready' ? 'secondary' : 'default'} 
@@ -83,11 +83,11 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
         </div>
 
         {/* Customer & Address Section */}
-        <div className="space-y-3 bg-muted/30 p-3 rounded-xl border border-border/20">
+        <div className="space-y-2 bg-muted/30 p-2 rounded-xl border border-border/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-bold text-foreground text-sm sm:text-base">{order.customer_name}</span>
+              <span className="font-bold text-foreground text-xs sm:text-sm">{order.customer_name}</span>
             </div>
             {order.customer_phone && (
               <a 
@@ -133,7 +133,7 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
         )}
 
         {/* Items List - Compact Card Style */}
-        <div className="border-y border-border/20 py-3 my-2 space-y-1.5">
+        <div className="border-y border-border/20 py-2 my-1 space-y-1">
           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <FileText className="h-3 w-3" /> Itens do Pedido
           </p>
@@ -170,7 +170,7 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
           </div>
           <div className="text-right">
             <span className="text-[10px] font-bold text-muted-foreground uppercase block text-right opacity-70">Total</span>
-            <span className="text-xl sm:text-3xl font-black text-foreground">{formatCurrency(order.total_amount)}</span>
+            <span className="text-lg sm:text-2xl font-black text-foreground">{formatCurrency(order.total_amount)}</span>
           </div>
         </div>
 
@@ -263,7 +263,7 @@ export default function DriverDashboard() {
         </header>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 p-4">
+        <div className="grid grid-cols-2 gap-3 p-3">
           <div className="bg-orange-100 rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-orange-700">{readyOrders.length}</p>
             <p className="text-xs text-orange-600">Aguardando</p>
