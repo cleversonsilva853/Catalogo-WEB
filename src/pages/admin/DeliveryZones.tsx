@@ -10,13 +10,16 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { useDeliveryZones, DeliveryZone } from '@/hooks/useDeliveryZones';
+import { useDeliveryZones, useCreateDeliveryZone, useUpdateDeliveryZone, useDeleteDeliveryZone, DeliveryZone } from '@/hooks/useDeliveryZones';
 import { useStore, useUpdateStore } from '@/hooks/useStore';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
 
 export default function DeliveryZones() {
-  const { zones, isLoading, createZone, updateZone, deleteZone } = useDeliveryZones();
+  const { data: zones = [], isLoading } = useDeliveryZones();
+  const createZone = useCreateDeliveryZone();
+  const updateZone = useUpdateDeliveryZone();
+  const deleteZone = useDeleteDeliveryZone();
   const { data: store, isLoading: isLoadingStore } = useStore();
   const updateStore = useUpdateStore();
   const { toast } = useToast();
