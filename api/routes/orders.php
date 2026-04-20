@@ -39,8 +39,54 @@ if ($method === 'PUT' && $id === 'kitchen' && $sub) {
     $b = get_body();
     if (empty($b['status'])) respond_error('Status obrigatório', 422);
 
+    // 1. Atualizar o item
     $stmt = $db->prepare("UPDATE order_items SET status = ? WHERE id = ?");
     $stmt->execute([$b['status'], $sub]);
+
+    // 2. Buscar o order_id deste item
+    $stmt = $db->prepare("SELECT order_id FROM order_items WHERE id = ?");
+    $stmt->execute([$sub]);
+    $orderData = $stmt->fetch();
+
+    if ($orderData) {
+        $orderId = $orderData['order_id'];
+
+        // 3. Buscar status de todos os itens deste pedido
+        $stmt = $db->prepare("SELECT status FROM order_items WHERE order_id = ?");
+        $stmt->execute([$orderId]);
+        $items = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // 4. Determinar novo status do pedido mestre
+        // Regras:
+        // - Se todos 'ready' -> pronto
+        // - Se algum 'preparing' -> preparando
+        // - Se algum 'accepted' (e nenhum preparação/pronto) -> aceito
+        
+        $newOrderStatus = null;
+        $allReady = true;
+        $anyPreparing = false;
+        $anyAccepted = false;
+
+        foreach ($items as $s) {
+            if ($s !== 'ready') $allReady = false;
+            if ($s === 'preparing') $anyPreparing = true;
+            if ($s === 'accepted') $anyAccepted = true;
+        }
+
+        if ($allReady) {
+            $newOrderStatus = 'ready';
+        } elseif ($anyPreparing) {
+            $newOrderStatus = 'preparing';
+        } elseif ($anyAccepted) {
+            $newOrderStatus = 'accepted';
+        }
+
+        // 5. Atualizar o pedido mestre se necessário
+        if ($newOrderStatus) {
+            $stmt = $db->prepare("UPDATE orders SET status = ? WHERE id = ? AND status NOT IN ('delivery', 'completed', 'cancelled')");
+            $stmt->execute([$newOrderStatus, $orderId]);
+        }
+    }
 
     respond(['message' => 'Status atualizado', 'id' => $sub, 'status' => $b['status']]);
 }
