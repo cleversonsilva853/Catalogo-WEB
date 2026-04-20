@@ -31,7 +31,6 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
   };
 
   const updateStatus = useUpdateDriverOrderStatus();
-  const driverId = localStorage.getItem('driver_id');
 
   const handleStartDelivery = async () => {
     setIsUpdating(true);
@@ -65,56 +64,63 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
   };
 
   return (
-    <Card className={`border-2 ${isNew ? 'border-primary ring-2 ring-primary/30 animate-pulse' : 'border-border'}`}>
-      <CardContent className="p-4 space-y-3">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-lg text-foreground">Pedido #{order.id}</span>
-            {isNew && (
-              <Badge className="bg-primary text-primary-foreground text-xs">NOVO</Badge>
-            )}
+    <Card className={`rounded-2xl overflow-hidden shadow-card transition-all border-l-4 ${
+      order.status === 'delivery' ? 'border-l-purple-600' : 'border-l-orange-500'
+    } ${isNew ? 'ring-2 ring-primary ring-offset-2 animate-pulse' : 'border-border/40'}`}>
+      <CardContent className="p-5 sm:p-6 space-y-4">
+        {/* Order Header */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-3">
+            <Truck className={`h-5 w-5 sm:h-6 sm:w-6 ${order.status === 'delivery' ? 'text-purple-600' : 'text-orange-600'}`} />
+            <h3 className="font-bold text-lg sm:text-2xl text-foreground">Pedido #{order.id}</h3>
           </div>
-          <Badge variant={order.status === 'ready' ? 'secondary' : 'default'} className={order.status === 'delivery' ? 'bg-purple-600 text-white' : ''}>
-            {order.status === 'ready' ? '🍳 Pronto' : '🛵 Em Entrega'}
+          <Badge 
+            variant={order.status === 'ready' ? 'secondary' : 'default'} 
+            className={`text-xs px-3 py-1 font-bold ${order.status === 'delivery' ? 'bg-purple-600 text-white' : 'bg-orange-100 text-orange-700 hover:bg-orange-100'}`}
+          >
+            {order.status === 'ready' ? 'Pronto' : 'Em Entrega'}
           </Badge>
         </div>
 
-        {/* Customer */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{order.customer_name}</span>
-          </div>
-          {order.customer_phone && (
+        {/* Customer & Address Section */}
+        <div className="space-y-3 bg-muted/30 p-3 rounded-xl border border-border/20">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <a href={`tel:${order.customer_phone}`} className="text-primary underline">
-                {order.customer_phone}
-              </a>
+              <User className="h-4 w-4 text-muted-foreground" />
+              <span className="font-bold text-foreground text-sm sm:text-base">{order.customer_name}</span>
             </div>
-          )}
-        </div>
-
-        {/* Address */}
-        <div className="flex gap-2">
-          <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-medium">
-              {order.address_street}, {order.address_number}
-            </p>
-            {order.address_complement && <p className="text-sm text-muted-foreground">{order.address_complement}</p>}
-            <p className="text-sm text-muted-foreground">{order.address_neighborhood}</p>
-            {order.address_reference && <p className="text-sm text-muted-foreground italic">Ref: {order.address_reference}</p>}
+            {order.customer_phone && (
+              <a 
+                href={`tel:${order.customer_phone}`} 
+                className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200"
+              >
+                <Phone className="h-3 w-3" />
+                Ligar
+              </a>
+            )}
+          </div>
+          
+          <div className="flex gap-2 border-t border-border/10 pt-2">
+            <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <div className="min-w-0">
+              <p className="font-medium text-sm sm:text-base leading-tight break-words">
+                {order.address_street}, {order.address_number}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {[order.address_neighborhood, order.address_complement].filter(Boolean).join(' - ')}
+              </p>
+              {order.address_reference && (
+                <p className="text-xs text-warning font-medium mt-1">📍 {order.address_reference}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Google Maps */}
+        {/* Action Button: Google Maps */}
         {order.latitude && order.longitude && (
           <Button
             variant="outline"
-            size="sm"
-            className="w-full gap-2"
+            className="w-full h-10 border-2 border-primary/20 text-primary hover:bg-primary/5 text-xs font-bold uppercase gap-2 rounded-xl"
             onClick={() => {
               const lat = Number(order.latitude);
               const lng = Number(order.longitude);
@@ -126,47 +132,67 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
           </Button>
         )}
 
-        {/* Payment */}
-        <div className="flex items-center gap-2">
-          <CreditCard className="h-4 w-4 text-muted-foreground" />
-          <span>{paymentLabels[order.payment_method] || order.payment_method}</span>
-          {order.payment_method === 'money' && order.change_for && (
-            <span className="text-muted-foreground">(Troco p/ {formatCurrency(order.change_for)})</span>
-          )}
-        </div>
-
-        {/* Items */}
-        <div className="space-y-1 border-t border-border pt-2">
-          <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
-            <FileText className="h-3 w-3" /> ITENS
+        {/* Items List - Compact Card Style */}
+        <div className="border-y border-border/20 py-3 my-2 space-y-1.5">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5">
+            <FileText className="h-3 w-3" /> Itens do Pedido
           </p>
-          {items?.map((item: any) => (
-            <div key={item.id}>
-              <span className="text-sm">
-                {item.quantity}x {item.product_name}
-              </span>
-              {item.observation && <p className="text-xs text-warning">📝 {item.observation}</p>}
+          <div className="grid grid-cols-1 gap-1">
+            {items?.map((item: any) => (
+              <div key={item.id} className="flex justify-between items-center text-sm sm:text-base">
+                <span className="text-foreground font-medium flex-1">
+                  <span className="font-bold text-primary mr-2">{item.quantity}x</span>
+                  {item.product_name}
+                </span>
+                {item.observation && (
+                  <Badge variant="outline" className="text-[10px] bg-orange-50/50 border-orange-200">
+                    Obs
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer: Payment & Total */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-70">Pagamento</span>
+            <div className="flex items-center gap-1.5 text-sm font-semibold">
+              <CreditCard className="h-3 w-3 text-muted-foreground" />
+              <span>{paymentLabels[order.payment_method] || order.payment_method}</span>
             </div>
-          ))}
+            {order.payment_method === 'money' && order.change_for && (
+              <span className="text-[11px] font-bold text-green-600 bg-green-50 px-1.5 rounded-md self-start mt-0.5">
+                Troco p/ {formatCurrency(order.change_for)}
+              </span>
+            )}
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase block text-right opacity-70">Total</span>
+            <span className="text-xl sm:text-3xl font-black text-foreground">{formatCurrency(order.total_amount)}</span>
+          </div>
         </div>
 
-        {/* Total */}
-        <div className="flex justify-between items-center border-t border-border pt-2">
-          <span className="font-semibold">Total</span>
-          <span className="font-bold text-primary text-lg">{formatCurrency(order.total_amount)}</span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-1">
+        {/* Major Status Buttons */}
+        <div className="pt-2">
           {order.status === 'ready' && (
-            <Button className="flex-1 gap-2" onClick={handleStartDelivery} disabled={isUpdating}>
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+            <Button 
+              className="w-full h-12 gap-2 text-base font-black uppercase tracking-wider bg-orange-500 hover:bg-orange-600 shadow-orange-200 shadow-lg"
+              onClick={handleStartDelivery} 
+              disabled={isUpdating}
+            >
+              {isUpdating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Play className="h-5 w-5 fill-current" />}
               Iniciar Entrega
             </Button>
           )}
           {order.status === 'delivery' && (
-            <Button className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={handleFinishDelivery} disabled={isUpdating}>
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />}
+            <Button 
+              className="w-full h-14 gap-2 text-lg font-black uppercase tracking-wider bg-green-600 hover:bg-green-700 shadow-green-200 shadow-lg"
+              onClick={handleFinishDelivery} 
+              disabled={isUpdating}
+            >
+              {isUpdating ? <Loader2 className="h-6 w-6 animate-spin" /> : <CheckCircle className="h-6 w-6" />}
               Finalizar Entrega
             </Button>
           )}
