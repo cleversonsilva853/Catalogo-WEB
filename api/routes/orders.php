@@ -27,6 +27,7 @@ if ($method === 'GET' && $id === 'kitchen') {
         LEFT JOIN comandas c ON cp.comanda_id = c.id
         WHERE oi.status IN ('pending', 'accepted', 'preparing', 'ready')
           AND o.status != 'cancelled'
+          AND DATE(o.created_at) = CURDATE()
         ORDER BY oi.created_at ASC
     ");
     $stmt->execute();

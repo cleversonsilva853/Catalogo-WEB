@@ -11,6 +11,9 @@ define('DB_USER',    getenv('DB_USER')    ?: 'clev2092_catalogcleve');
 define('DB_PASS',    getenv('DB_PASS')    ?: 'Ferreira1998@');
 define('DB_CHARSET', 'utf8mb4');
 
+// Configuração de Horário (Brasil)
+date_default_timezone_set('America/Sao_Paulo');
+
 // Chave secreta para assinar os tokens JWT.
 // IMPORTANTE: Defina JWT_SECRET como variável de ambiente no servidor antes do deploy!
 // IMPORTANTE: Configure JWT_SECRET no servidor para produção!
