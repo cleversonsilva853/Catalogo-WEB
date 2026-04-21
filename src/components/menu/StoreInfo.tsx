@@ -14,10 +14,9 @@ import { Badge } from '@/components/ui/badge';
 
 interface StoreInfoProps {
   store: StoreConfig;
-  socialMedia?: SocialMedia[];
 }
 
-export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
+export function StoreInfo({ store }: StoreInfoProps) {
   const [hoursModalOpen, setHoursModalOpen] = useState(false);
   const { data: businessHours } = useBusinessHours();
   const storeStatus = useStoreStatus();
@@ -45,7 +44,7 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
     'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
   };
   const currentDay = dayMap[dayName] ?? new Date().getDay();
-  
+
   // Get today's active slots for display
   const todaySlots = businessHours?.filter(h => h.day_of_week === currentDay && h.is_active) || [];
   const todaySchedule = todaySlots.length > 0
@@ -82,7 +81,7 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
               </p>
             )}
           </div>
-          <button 
+          <button
             onClick={() => setHoursModalOpen(true)}
             className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
           >
@@ -102,7 +101,7 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
               </p>
               <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">WhatsApp disponível</p>
             </div>
-            <a 
+            <a
               href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -125,7 +124,7 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
             </p>
           </div>
           {store.address && (
-            <a 
+            <a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -151,30 +150,6 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
             <p className="text-[10px] font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
           </div>
         </div>
-
-        {/* Social Medias row - New section */}
-        {socialMedia && socialMedia.filter(sm => sm.is_active).length > 0 && (
-          <div className="w-full flex justify-center gap-4 mt-2 mb-2">
-            {socialMedia.filter(sm => sm.is_active).map(sm => (
-              <a 
-                key={sm.id} 
-                href={sm.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 p-2 rounded-xl bg-card shadow-sm border border-border/50 hover:border-primary/50 transition-all hover:scale-105"
-              >
-                {sm.icon_url ? (
-                  <img src={sm.icon_url} alt={sm.name} className="h-6 w-6 object-contain" />
-                ) : (
-                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-primary">{sm.name.slice(0, 2).toUpperCase()}</span>
-                  </div>
-                )}
-                <span className="text-sm font-medium pr-1">{sm.name}</span>
-              </a>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Hours Modal - grouped by day with multiple slots */}
@@ -186,7 +161,7 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
               Horários de Funcionamento
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-2 mt-4">
             {[0, 1, 2, 3, 4, 5, 6].map((day) => {
               const daySlots = hoursByDay[day] || [];
@@ -194,11 +169,10 @@ export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
               const isToday = day === currentDay;
 
               return (
-                <div 
-                  key={day} 
-                  className={`flex items-start justify-between p-3 rounded-lg transition-colors ${
-                    isToday ? 'bg-primary/10 border border-primary/20' : 'bg-muted/50'
-                  }`}
+                <div
+                  key={day}
+                  className={`flex items-start justify-between p-3 rounded-lg transition-colors ${isToday ? 'bg-primary/10 border border-primary/20' : 'bg-muted/50'
+                    }`}
                 >
                   <div className="flex items-center gap-2">
                     <span className={`font-medium text-sm ${isToday ? 'text-primary' : 'text-foreground'}`}>

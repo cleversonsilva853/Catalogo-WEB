@@ -163,29 +163,30 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
           </div>
 
           {/* Nav Links */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="flex items-center gap-3 sm:gap-4 mr-2">
-              {socialMedia?.filter(sm => sm.is_active).map(sm => (
-                <a
-                  key={sm.id}
-                  href={sm.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 transition-transform hover:scale-110"
-                  title={sm.name}
-                >
-                  {sm.icon_url ? (
-                    <img
-                      src={sm.icon_url}
-                      alt={sm.name}
-                      className="h-6 w-6 sm:h-5 sm:w-5 object-contain"
-                    />
-                  ) : (
-                    <span className="text-white text-xs font-bold uppercase">{sm.name.slice(0, 2)}</span>
-                  )}
-                </a>
-              ))}
-            </div>
+          <div className="flex items-center gap-4">
+            {/* Social Medias */}
+            {socialMedia?.filter(sm => sm.is_active).map(sm => (
+              <a 
+                key={sm.id} 
+                href={sm.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="transition-transform hover:scale-110 shrink-0"
+                title={sm.name}
+              >
+                {sm.icon_url ? (
+                  <img
+                    src={sm.icon_url}
+                    alt={sm.name}
+                    className="h-5 w-5 object-contain"
+                  />
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-white/10 flex items-center justify-center">
+                    <span className="text-white text-[10px] font-bold uppercase">{sm.name.slice(0, 2)}</span>
+                  </div>
+                )}
+              </a>
+            ))}
 
             <Link
               to="/my-orders"
