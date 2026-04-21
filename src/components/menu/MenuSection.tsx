@@ -28,7 +28,6 @@ export const MenuSection = forwardRef<HTMLDivElement, MenuSectionProps>(
       <div ref={ref}>
         {/* Section Header */}
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-lg">{emoji}</span>
           <h3 className="text-base font-bold text-foreground">{category.name}</h3>
         </div>
 

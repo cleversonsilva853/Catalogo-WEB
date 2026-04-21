@@ -264,6 +264,23 @@ export default function DriverDashboard() {
               <p className="text-sm text-muted-foreground">{store?.name}</p>
             </div>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden sm:flex gap-2 font-bold"
+                onClick={() => navigate('/driver/report')}
+              >
+                <FileText className="h-4 w-4" />
+                Relatório
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="sm:hidden"
+                onClick={() => navigate('/driver/report')}
+              >
+                <FileText className="h-5 w-5" />
+              </Button>
               <PushNotificationToggle variant="button" userType="driver" userIdentifier={driverId} />
               <Button variant="outline" size="icon" onClick={handleLogout}>
                 <LogOut className="h-5 w-5" />

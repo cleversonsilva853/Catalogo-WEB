@@ -18,6 +18,14 @@ export function useDrivers() {
   });
 }
 
+export function useDriver(id: string | null) {
+  return useQuery({
+    queryKey: ['driver', id],
+    queryFn: () => api.get<Driver>(`/drivers/${id}`),
+    enabled: !!id,
+  });
+}
+
 export function useActiveDrivers() {
   return useQuery({
     queryKey: ['drivers', 'active'],
@@ -99,5 +107,13 @@ export function useDriverOrderItems(orderId: number) {
     queryKey: ['driver-order-items', orderId],
     queryFn: () => api.get<any[]>(`/order-items`, { order_id: String(orderId) }),
     enabled: !!orderId,
+  });
+}
+
+export function useDriverReportOrders(driverId: string | null) {
+  return useQuery({
+    queryKey: ['driver-report-orders', driverId],
+    queryFn: () => api.get<any[]>(`/orders/driver/${driverId}`),
+    enabled: !!driverId,
   });
 }

@@ -34,6 +34,7 @@ const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isDineInMode = searchParams.get('mode') === 'dine_in';
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [editingProduct, setEditingProduct] = useState<EditingProduct | null>(null);
   const [lastOrderId, setLastOrderId] = useState<number | null>(null);
@@ -130,6 +131,14 @@ const Index = () => {
     }
   };
 
+  const handleCategorySelect = (categoryId: string | null) => {
+    setSelectedCategoryId(categoryId);
+    // If selecting a specific category, scroll to the top of menu sections
+    // or to the specific category if we keep all on page.
+    // If we FILTER, we should scroll to the start of the results.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleCloseModal = () => {
     setSelectedProduct(null);
     setEditingProduct(null);
@@ -163,19 +172,21 @@ const Index = () => {
   }
 
   // Filter products by search
-  const filteredProducts = products?.filter(product => 
+  const filteredSearchProducts = products?.filter(product => 
     searchQuery === '' || 
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (product.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   ) || [];
 
-  // Group products by category
-  const productsByCategory = categories?.map(category => ({
+  // Group products by category AND filter by selected category
+  const productsByCategory = categories?.filter(cat => 
+    selectedCategoryId === null || cat.id === selectedCategoryId
+  ).map(category => ({
     category,
-    products: filteredProducts.filter(p => p.category_id === category.id)
+    products: filteredSearchProducts.filter(p => p.category_id === category.id)
   })).filter(group => group.products.length > 0) || [];
 
-  const totalItems = filteredProducts.length;
+  const totalItems = filteredSearchProducts.length;
   const menuLayout = store?.menu_layout || 'list';
   const isCategoryMode = menuLayout === 'category';
   // Determine which modal to show
@@ -219,8 +230,8 @@ const Index = () => {
                 /* When searching, show products in list mode */
                 <div className="px-4 pb-32 space-y-3">
                   <h2 className="text-lg font-bold text-foreground mb-3">Resultados</h2>
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
+                  {filteredSearchProducts.length > 0 ? (
+                    filteredSearchProducts.map((product) => (
                       <MenuProductCard
                         key={product.id}
                         product={product}
@@ -261,9 +272,10 @@ const Index = () => {
             {/* Categories */}
             {categories && categories.length > 0 && (
               <CategoryIcons 
-                categories={categories} 
-                onCategorySelect={scrollToCategory}
-              />
+              categories={categories} 
+              selectedId={selectedCategoryId}
+              onSelect={handleCategorySelect}
+            />
             )}
 
 

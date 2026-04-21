@@ -1,4 +1,4 @@
-import { UtensilsCrossed, ShoppingBag } from 'lucide-react';
+import { UtensilsCrossed, ShoppingBag, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StoreConfig } from '@/hooks/useStore';
 import { useCart } from '@/hooks/useCart';
@@ -145,19 +145,16 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
         {/* Navigation Bar */}
         <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 py-4">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="h-14 w-14 sm:h-14 sm:w-14 rounded-full border-2 border-primary bg-background shadow-lg overflow-hidden flex-shrink-0">
-              {store.logo_url ? (
-                <img
-                  src={store.logo_url}
-                  alt={`Logo ${store.name}`}
+          <div className="flex-shrink-0">
+            <div className="flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary shadow-xl overflow-hidden border-2 border-white/20">
+              {store?.logo_url ? (
+                <img 
+                  src={store.logo_url} 
+                  alt={store.name} 
                   className="h-full w-full object-cover"
-                  loading="eager"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-primary text-primary-foreground">
-                  <span className="text-xl">🍔</span>
-                </div>
+                <Store className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
               )}
             </div>
           </div>

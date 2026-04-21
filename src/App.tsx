@@ -30,6 +30,7 @@ import AdminEnvios from "./pages/admin/Envios";
 import Kitchen from "./pages/Kitchen";
 import DriverAccess from "./pages/DriverAccess";
 import DriverDashboard from "./pages/DriverDashboard";
+import DriverReport from "./pages/DriverReport";
 import AdminDrivers from "./pages/admin/Drivers";
 import AdminDriverReports from "./pages/admin/DriverReports";
 import AdminPDV from "./pages/admin/PDV";
@@ -83,6 +84,7 @@ const App = () => (
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />
+                <Route path="/driver/report" element={<DriverReport />} />
                 <Route path="/kitchen" element={<Kitchen />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

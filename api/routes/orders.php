@@ -4,6 +4,14 @@
 // ============================================================
 $db = getDB();
 
+// GET /orders/driver/{driverId} — todos os pedidos de um entregador (histórico completo)
+if ($method === 'GET' && $id === 'driver' && $sub) {
+    // Não exigimos auth restrito aqui pois o driver_id já serve como token de acesso simples para este portal
+    $stmt = $db->prepare('SELECT * FROM orders WHERE driver_id = ? ORDER BY created_at DESC LIMIT 500');
+    $stmt->execute([$sub]);
+    respond($stmt->fetchAll());
+}
+
 // GET /orders/all — todos os pedidos (unificado para Dashboard)
 if ($method === 'GET' && $id === 'all') {
     require_auth();

@@ -1,24 +1,16 @@
-import { useState } from 'react';
 import { Category } from '@/hooks/useCategories';
 import { cn } from '@/lib/utils';
 import { ChefHat, Utensils } from 'lucide-react';
 
 interface CategoryIconsProps {
   categories: Category[];
-  onCategorySelect: (categoryId: string) => void;
+  selectedId: string | null;
+  onSelect: (categoryId: string | null) => void;
 }
 
-export function CategoryIcons({ categories, onCategorySelect }: CategoryIconsProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
+export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIconsProps) {
   const handleSelect = (categoryId: string | null) => {
-    setSelectedId(categoryId);
-    if (categoryId) {
-      onCategorySelect(categoryId);
-    } else {
-      // Scroll to top for "Todos"
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    onSelect(categoryId);
   };
 
   return (
