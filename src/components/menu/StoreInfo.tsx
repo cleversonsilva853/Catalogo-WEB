@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Clock, Phone, MapPin, Bike } from 'lucide-react';
 import { StoreConfig } from '@/hooks/useStore';
+import { SocialMedia } from '@/hooks/useSocialMedia';
 import { useBusinessHours, getDayName } from '@/hooks/useBusinessHours';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import {
@@ -13,9 +14,10 @@ import { Badge } from '@/components/ui/badge';
 
 interface StoreInfoProps {
   store: StoreConfig;
+  socialMedia?: SocialMedia[];
 }
 
-export function StoreInfo({ store }: StoreInfoProps) {
+export function StoreInfo({ store, socialMedia }: StoreInfoProps) {
   const [hoursModalOpen, setHoursModalOpen] = useState(false);
   const { data: businessHours } = useBusinessHours();
   const storeStatus = useStoreStatus();
@@ -149,6 +151,30 @@ export function StoreInfo({ store }: StoreInfoProps) {
             <p className="text-[10px] font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
           </div>
         </div>
+
+        {/* Social Medias row - New section */}
+        {socialMedia && socialMedia.filter(sm => sm.is_active).length > 0 && (
+          <div className="w-full flex justify-center gap-4 mt-2 mb-2">
+            {socialMedia.filter(sm => sm.is_active).map(sm => (
+              <a 
+                key={sm.id} 
+                href={sm.link} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 p-2 rounded-xl bg-card shadow-sm border border-border/50 hover:border-primary/50 transition-all hover:scale-105"
+              >
+                {sm.icon_url ? (
+                  <img src={sm.icon_url} alt={sm.name} className="h-6 w-6 object-contain" />
+                ) : (
+                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-primary">{sm.name.slice(0, 2).toUpperCase()}</span>
+                  </div>
+                )}
+                <span className="text-sm font-medium pr-1">{sm.name}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Hours Modal - grouped by day with multiple slots */}

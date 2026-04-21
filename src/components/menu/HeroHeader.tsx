@@ -178,7 +178,7 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
                     <img
                       src={sm.icon_url}
                       alt={sm.name}
-                      className="h-6 w-6 sm:h-5 sm:w-5 object-contain invert brightness-0"
+                      className="h-6 w-6 sm:h-5 sm:w-5 object-contain"
                     />
                   ) : (
                     <span className="text-white text-xs font-bold uppercase">{sm.name.slice(0, 2)}</span>

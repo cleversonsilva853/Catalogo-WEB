@@ -195,7 +195,7 @@ const Index = () => {
 
 
         {/* Store Info */}
-        <StoreInfo store={store} />
+        <StoreInfo store={store} socialMedia={socialMedia} />
 
         {/* Categories & Products - Conditional Layout */}
         {isCategoryMode ? (
