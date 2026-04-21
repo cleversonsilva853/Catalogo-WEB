@@ -13,6 +13,7 @@ import {
   useDeleteSocialMedia,
   SocialMedia as SocialMediaModel
 } from '@/hooks/useSocialMedia';
+import { ImageUpload } from '@/components/admin/ImageUpload';
 import { 
   Plus, 
   Pencil, 
@@ -173,13 +174,15 @@ export default function SocialMedia() {
                   <Input value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." />
                 </div>
                 <div className="space-y-2">
-                  <Label>URL do Ícone (Opcional - Image URL)</Label>
-                  <div className="flex gap-2">
-                    <Input value={iconUrl} onChange={e => setIconUrl(e.target.value)} placeholder="https://.../icon.png" />
-                    <Button variant="outline" size="icon" title="Preview">
-                      {iconUrl ? <img src={iconUrl} className="h-4 w-4 object-contain" alt="icon" /> : <ImageIcon className="h-4 w-4" />}
-                    </Button>
-                  </div>
+                  <Label>Ícone da Rede (Somente imagem em PNG)</Label>
+                  <ImageUpload 
+                    bucket="store-assets" 
+                    currentUrl={iconUrl} 
+                    onUpload={url => setIconUrl(url)} 
+                    onRemove={() => setIconUrl('')} 
+                    className="mt-1"
+                    aspectRatio="1/1"
+                  />
                 </div>
               </div>
 
