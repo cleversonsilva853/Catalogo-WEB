@@ -21,6 +21,7 @@ if ($method === 'GET') {
 if ($method === 'POST') {
     require_auth(); $b = get_body();
     if(empty($b['usuario'])||empty($b['senha'])) respond_error('Usuário e senha são obrigatórios',422);
+    if(strlen($b['senha']) < 6) respond_error('A senha deve ter pelo menos 6 caracteres', 422);
     $uuid = gen_uuid();
     $hash = password_hash($b['senha'], PASSWORD_BCRYPT);
     $db->prepare('INSERT INTO admin_users (id,usuario,senha) VALUES (?,?,?)')
@@ -37,7 +38,10 @@ if ($method === 'PUT' && $id) {
                    'perm_qrcode','perm_cozinha','perm_pdv','perm_backup','perm_consumir_local'];
     foreach(array_merge(['usuario','login_email'],$permFields) as $f)
         if(array_key_exists($f,$b)){$fields[]="$f=?";$params[]=in_array($f,$permFields)?(int)(bool)$b[$f]:$b[$f];}
-    if(!empty($b['nova_senha'])){$fields[]='senha=?';$params[]=password_hash($b['nova_senha'],PASSWORD_BCRYPT);}
+    if(!empty($b['nova_senha'])){
+        if(strlen($b['nova_senha']) < 6) respond_error('A nova senha deve ter pelo menos 6 caracteres', 422);
+        $fields[]='senha=?';$params[]=password_hash($b['nova_senha'],PASSWORD_BCRYPT);
+    }
     if(!$fields) respond_error('Nenhum campo para atualizar',422);
     $params[]=$id;
     $db->prepare('UPDATE admin_users SET '.implode(',',$fields).' WHERE id=?')->execute($params);

@@ -75,8 +75,8 @@ export default function Users() {
     }
 
     if (!editingUser) {
-      if (!senha || senha.length < 4) {
-        toast({ title: 'Erro', description: 'Senha deve ter pelo menos 4 caracteres.', variant: 'destructive' });
+      if (!senha || senha.length < 6) {
+        toast({ title: 'Erro', description: 'Senha deve ter pelo menos 6 caracteres.', variant: 'destructive' });
         return;
       }
       if (senha !== confirmarSenha) {
@@ -110,8 +110,8 @@ export default function Users() {
   };
 
   const handleChangePassword = async () => {
-    if (!novaSenha || novaSenha.length < 4) {
-      toast({ title: 'Erro', description: 'Senha deve ter pelo menos 4 caracteres.', variant: 'destructive' });
+    if (!novaSenha || novaSenha.length < 6) {
+      toast({ title: 'Erro', description: 'Senha deve ter pelo menos 6 caracteres.', variant: 'destructive' });
       return;
     }
     if (novaSenha !== confirmarNovaSenha) {
