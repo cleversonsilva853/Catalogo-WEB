@@ -61,99 +61,91 @@ export function StoreInfo({ store }: StoreInfoProps) {
 
   return (
     <>
-      <div className="mt-4 px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+      <div className="mt-4 px-4 flex flex-wrap justify-center gap-4">
         {/* Status */}
-        <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className={`flex h-10 w-10 items-center justify-center rounded-full ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-              <Clock className={`h-5 w-5 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
-            </div>
-            <div>
-              <p className={`text-sm font-semibold ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
-                {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
+        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
+          <div className={`flex h-12 w-12 items-center justify-center rounded-full mb-3 ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+            <Clock className={`h-6 w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
+          </div>
+          <div className="mb-4">
+            <p className={`text-sm font-bold uppercase tracking-wider ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
+              {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
+            </p>
+            {!storeStatus.isForcedOpen && (
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {storeStatus.isOpen && todaySchedule
+                  ? `Horário: ${todaySchedule}`
+                  : storeStatus.message
+                }
               </p>
-              {!storeStatus.isForcedOpen && (
-                <p className="text-xs text-muted-foreground">
-                  {storeStatus.isOpen && todaySchedule
-                    ? `Horário: ${todaySchedule}`
-                    : storeStatus.message
-                  }
-                </p>
-              )}
-            </div>
+            )}
           </div>
           <button 
             onClick={() => setHoursModalOpen(true)}
-            className="flex flex-col sm:flex-row items-center gap-0 sm:gap-1 text-xs sm:text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors leading-tight"
+            className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
           >
-            <span>Ver</span>
-            <span>Horários</span>
+            Ver Horários
           </button>
         </div>
 
         {/* Phone */}
         {store.phone_whatsapp && (
-          <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-                <Phone className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {formatPhone(store.phone_whatsapp)}
-                </p>
-                <p className="text-xs text-muted-foreground">Entre em contato</p>
-              </div>
+          <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
+              <Phone className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="mb-4">
+              <p className="text-sm font-bold text-foreground">
+                {formatPhone(store.phone_whatsapp)}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">Entre em contato via WhatsApp</p>
             </div>
             <a 
               href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors"
+              className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
             >
-              WhatsApp
+              Falar agora
             </a>
           </div>
         )}
 
         {/* Location */}
-        <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-              <MapPin className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">Localização</p>
-              <p className="text-xs text-muted-foreground">
-                {store.address || 'Endereço não configurado'}
-              </p>
-            </div>
+        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
+            <MapPin className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div className="mb-4">
+            <p className="text-sm font-bold text-foreground">Localização</p>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              {store.address || 'Endereço não configurado'}
+            </p>
           </div>
           {store.address && (
             <a 
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-semibold uppercase text-primary hover:text-primary/80 transition-colors"
+              className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
             >
-              Direções
+              Ver no Mapa
             </a>
           )}
         </div>
 
         {/* Delivery */}
-        <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
-              <Bike className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-foreground">Tempo de entrega</p>
-              <p className="text-xs text-muted-foreground">
-                {store.delivery_time_min || 30}-{store.delivery_time_max || 45} MIN • TAXA: R$ {Number(store.delivery_fee).toFixed(2).replace('.', ',')}
-              </p>
-            </div>
+        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
+            <Bike className="h-6 w-6 text-muted-foreground" />
           </div>
+          <div className="mb-4">
+            <p className="text-sm font-bold text-foreground">Tempo de Entrega</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {store.delivery_time_min || 30}-{store.delivery_time_max || 45} MIN • TAXA: R$ {Number(store.delivery_fee).toFixed(2).replace('.', ',')}
+            </p>
+          </div>
+          <p className="text-xs font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
         </div>
       </div>
 
