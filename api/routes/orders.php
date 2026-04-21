@@ -11,6 +11,26 @@ if ($method === 'GET' && $id === 'all') {
     respond($stmt->fetchAll());
 }
 
+// GET /orders/by-phone — busca pública de histórico por telefone
+if ($method === 'GET' && $id === 'by-phone') {
+    $phone = $_GET['phone'] ?? null;
+    if (!$phone) respond_error('Telefone obrigatório', 422);
+
+    // Normaliza para apenas números para busca resiliente
+    $cleanPhone = preg_replace('/\D/', '', $phone);
+    
+    // Busca comparando o formato exato OU a versão limpa (apenas números)
+    $stmt = $db->prepare("
+        SELECT * FROM orders 
+        WHERE customer_phone = ? 
+           OR REPLACE(REPLACE(REPLACE(REPLACE(customer_phone, '(', ''), ')', ''), '-', ''), ' ', '') = ?
+        ORDER BY created_at DESC 
+        LIMIT 50
+    ");
+    $stmt->execute([$phone, $cleanPhone]);
+    respond($stmt->fetchAll());
+}
+
 // GET /orders/kitchen — Itens para a cozinha
 if ($method === 'GET' && $id === 'kitchen') {
     require_auth();
