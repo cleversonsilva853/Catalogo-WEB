@@ -142,7 +142,7 @@ const Checkout = () => {
   
   const deliveryFee = useMemo(() => {
     if (deliveryType !== 'delivery') return 0;
-    if (isZoneMode && selectedZone) return selectedZone.fee;
+    if (isZoneMode && selectedZone) return Number(selectedZone.fee);
     if (isZoneMode && !selectedZone) return 0;
     return Number(store?.delivery_fee || 5.99);
   }, [deliveryType, isZoneMode, selectedZone, store?.delivery_fee]);
@@ -154,12 +154,12 @@ const Checkout = () => {
   // Calculate subtotal - product.price already includes addons from ProductModal
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => {
-      return sum + (item.product.price * item.quantity);
+      return sum + (Number(item.product.price) * item.quantity);
     }, 0);
   }, [items]);
   
   const discount = appliedCoupon ? calculateDiscount(appliedCoupon, subtotal) : 0;
-  const finalTotal = subtotal + deliveryFee - discount;
+  const finalTotal = Number(subtotal) + Number(deliveryFee) - Number(discount);
   const minOrderValue = Number(store?.min_order_value || 0);
   const isStoreOpen = storeStatus.isOpen;
 
