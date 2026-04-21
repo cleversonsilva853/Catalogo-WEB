@@ -61,20 +61,20 @@ export function StoreInfo({ store }: StoreInfoProps) {
 
   return (
     <>
-      <div className="mt-4 px-4 flex flex-wrap justify-center gap-4">
+      <div className="mt-4 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2 sm:gap-4">
         {/* Status */}
-        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
-          <div className={`flex h-12 w-12 items-center justify-center rounded-full mb-3 ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-            <Clock className={`h-6 w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
+        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
+          <div className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full sm:mb-3 ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+            <Clock className={`h-5 w-5 sm:h-6 sm:w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
           </div>
-          <div className="mb-4">
-            <p className={`text-sm font-bold uppercase tracking-wider ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
+          <div className="flex-1 sm:mb-4">
+            <p className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
               {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
             </p>
             {!storeStatus.isForcedOpen && (
-              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 leading-tight sm:leading-relaxed">
                 {storeStatus.isOpen && todaySchedule
-                  ? `Horário: ${todaySchedule}`
+                  ? `Hoje: ${todaySchedule}`
                   : storeStatus.message
                 }
               </p>
@@ -82,43 +82,43 @@ export function StoreInfo({ store }: StoreInfoProps) {
           </div>
           <button 
             onClick={() => setHoursModalOpen(true)}
-            className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
+            className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
           >
-            Ver Horários
+            Horários
           </button>
         </div>
 
         {/* Phone */}
         {store.phone_whatsapp && (
-          <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-              <Phone className="h-6 w-6 text-muted-foreground" />
+          <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
+              <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
             </div>
-            <div className="mb-4">
-              <p className="text-sm font-bold text-foreground">
+            <div className="flex-1 sm:mb-4">
+              <p className="text-xs sm:text-sm font-bold text-foreground">
                 {formatPhone(store.phone_whatsapp)}
               </p>
-              <p className="text-xs text-muted-foreground mt-1">Entre em contato via WhatsApp</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">WhatsApp disponível</p>
             </div>
             <a 
               href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
+              className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
             >
-              Falar agora
+              Falar
             </a>
           </div>
         )}
 
         {/* Location */}
-        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-            <MapPin className="h-6 w-6 text-muted-foreground" />
+        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
+          <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
+            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
           </div>
-          <div className="mb-4">
-            <p className="text-sm font-bold text-foreground">Localização</p>
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+          <div className="flex-1 sm:mb-4">
+            <p className="text-xs sm:text-sm font-bold text-foreground">Localização</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-2">
               {store.address || 'Endereço não configurado'}
             </p>
           </div>
@@ -127,25 +127,27 @@ export function StoreInfo({ store }: StoreInfoProps) {
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-4 py-2 rounded-lg"
+              className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
             >
-              Ver no Mapa
+              Mapa
             </a>
           )}
         </div>
 
         {/* Delivery */}
-        <div className="flex flex-col items-center text-center rounded-xl bg-card p-6 shadow-sm min-w-[280px] flex-1 max-w-[350px]">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-3">
-            <Bike className="h-6 w-6 text-muted-foreground" />
+        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
+          <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
+            <Bike className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
           </div>
-          <div className="mb-4">
-            <p className="text-sm font-bold text-foreground">Tempo de Entrega</p>
-            <p className="text-xs text-muted-foreground mt-1">
+          <div className="flex-1 sm:mb-4">
+            <p className="text-xs sm:text-sm font-bold text-foreground">Entrega</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
               {store.delivery_time_min || 30}-{store.delivery_time_max || 45} MIN • TAXA: R$ {Number(store.delivery_fee).toFixed(2).replace('.', ',')}
             </p>
           </div>
-          <p className="text-xs font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
+          <div className="hidden sm:block">
+            <p className="text-[10px] font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
+          </div>
         </div>
       </div>
 
