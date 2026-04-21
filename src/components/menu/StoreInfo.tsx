@@ -61,7 +61,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
 
   return (
     <>
-      <div className="mt-4 px-4 space-y-3">
+      <div className="mt-4 px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
         {/* Status */}
         <div className="flex items-center justify-between rounded-xl bg-card p-4 shadow-sm">
           <div className="flex items-center gap-3">
