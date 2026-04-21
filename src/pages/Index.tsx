@@ -195,7 +195,7 @@ const Index = () => {
 
 
         {/* Store Info */}
-        <StoreInfo store={store} socialMedia={socialMedia} />
+        <StoreInfo store={store} />
 
         {/* Categories & Products - Conditional Layout */}
         {isCategoryMode ? (
@@ -300,14 +300,6 @@ const Index = () => {
 
         {/* Infornexa Advertisement Banner */}
         <InfornexaBanner />
-
-        {/* Floating Order Button */}
-        {lastOrderId && (
-          <FloatingOrderButton 
-            orderId={lastOrderId} 
-            onDismiss={() => setLastOrderId(null)} 
-          />
-        )}
 
         {/* PWA Install Prompt */}
         <InstallPrompt />
