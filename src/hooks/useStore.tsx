@@ -31,6 +31,10 @@ export interface StoreConfig {
   pickup_time_min?: number | null;
   pickup_time_max?: number | null;
   menu_layout?: string | null;
+  hero_text_1?: string | null;
+  hero_text_2?: string | null;
+  hero_text_3?: string | null;
+  hero_slogan?: string | null;
 }
 
 export function useStore() {

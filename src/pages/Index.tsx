@@ -18,6 +18,7 @@ import { useCategories } from '@/hooks/useCategories';
 import { useProducts, Product } from '@/hooks/useProducts';
 import { useTheme } from '@/hooks/useTheme';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
+import { useSocialMedia } from '@/hooks/useSocialMedia';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -42,6 +43,7 @@ const Index = () => {
   const { data: systemSettings } = useSystemSettings();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts();
+  const { data: socialMedia } = useSocialMedia();
   const storeStatus = useStoreStatus();
 
   // Apply dynamic theme based on store colors
@@ -189,7 +191,7 @@ const Index = () => {
 
       <div className="min-h-screen bg-background pb-24">
         {/* Hero Header */}
-        <HeroHeader store={store} />
+        <HeroHeader store={store} socialMedia={socialMedia} />
 
 
         {/* Store Info */}

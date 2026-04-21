@@ -23,7 +23,9 @@ import {
   MessageCircle, 
   Loader2,
   Image as ImageIcon,
-  ExternalLink
+  ExternalLink,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 const getSocialIcon = (name: string) => {
@@ -48,14 +50,14 @@ export default function SocialMedia() {
   const [link, setLink] = useState('');
   const [iconUrl, setIconUrl] = useState('');
   const [isActive, setIsActive] = useState(true);
-  const [displayOrder, setDisplayOrder] = useState('0');
+
+  const sortedSocials = [...(socials || [])].sort((a, b) => a.display_order - b.display_order);
 
   const resetForm = () => {
     setName('');
     setLink('');
     setIconUrl('');
     setIsActive(true);
-    setDisplayOrder('0');
     setEditingId(null);
     setShowForm(false);
   };
@@ -65,9 +67,37 @@ export default function SocialMedia() {
     setLink(item.link);
     setIconUrl(item.icon_url || '');
     setIsActive(item.is_active);
-    setDisplayOrder(item.display_order.toString());
     setEditingId(item.id);
     setShowForm(true);
+  };
+
+  const handleMove = async (item: SocialMediaModel, direction: 'up' | 'down') => {
+    const index = sortedSocials.findIndex(s => s.id === item.id);
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === sortedSocials.length - 1) return;
+
+    const neighbor = direction === 'up' ? sortedSocials[index - 1] : sortedSocials[index + 1];
+    
+    // Swap display_order
+    const currentOrder = item.display_order;
+    const neighborOrder = neighbor.display_order;
+
+    try {
+      // If they have the same order, increment/decrement to force a difference
+      const newCurrentOrder = direction === 'up' ? neighborOrder - 1 : neighborOrder + 1;
+      
+      await updateMutation.mutateAsync({ 
+        id: item.id, 
+        data: { display_order: newCurrentOrder } 
+      });
+      
+      // Also ensure neighbor has a stable order if needed, but usually just moving one is enough 
+      // if the SQL order is display_order ASC.
+      
+      toast({ title: 'Sucesso', description: 'Ordem alterada.' });
+    } catch (e: any) {
+      toast({ title: 'Erro', description: 'Erro ao reordenar.', variant: 'destructive' });
+    }
   };
 
   const handleSubmit = async () => {
@@ -81,7 +111,6 @@ export default function SocialMedia() {
       link: link.trim(),
       icon_url: iconUrl.trim() || null,
       is_active: isActive,
-      display_order: parseInt(displayOrder) || 0
     };
 
     try {
@@ -89,7 +118,11 @@ export default function SocialMedia() {
         await updateMutation.mutateAsync({ id: editingId, data: payload });
         toast({ title: 'Sucesso', description: 'Rede social atualizada.' });
       } else {
-        await createMutation.mutateAsync(payload);
+        // Set higher order for new items
+        const maxOrder = sortedSocials.length > 0 
+          ? Math.max(...sortedSocials.map(s => s.display_order)) 
+          : 0;
+        await createMutation.mutateAsync({ ...payload, display_order: maxOrder + 1 });
         toast({ title: 'Sucesso', description: 'Rede social adicionada.' });
       }
       resetForm();
@@ -148,10 +181,6 @@ export default function SocialMedia() {
                     </Button>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Ordem de Exibição</Label>
-                  <Input type="number" value={displayOrder} onChange={e => setDisplayOrder(e.target.value)} />
-                </div>
               </div>
 
               <div className="flex items-center gap-2 py-2">
@@ -174,7 +203,7 @@ export default function SocialMedia() {
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
-        ) : socials?.length === 0 ? (
+        ) : sortedSocials.length === 0 ? (
           <Card className="admin-card">
             <CardContent className="py-12 text-center text-muted-foreground">
               Nenhuma rede social configurada.
@@ -182,29 +211,49 @@ export default function SocialMedia() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {socials?.map(item => (
+            {sortedSocials.map((item, index) => (
               <Card key={item.id} className={`admin-card ${!item.is_active ? 'opacity-60' : ''}`}>
                 <CardContent className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 flex items-center justify-center bg-muted rounded-full overflow-hidden">
+                    <div className="flex flex-col gap-1 mr-1">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 p-0" 
+                        disabled={index === 0 || updateMutation.isPending}
+                        onClick={() => handleMove(item, 'up')}
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6 p-0" 
+                        disabled={index === sortedSocials.length - 1 || updateMutation.isPending}
+                        onClick={() => handleMove(item, 'down')}
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="h-10 w-10 flex items-center justify-center bg-muted rounded-full overflow-hidden shrink-0">
                       {item.icon_url ? (
                         <img src={item.icon_url} className="h-full w-full object-cover" alt={item.name} />
                       ) : (
                         getSocialIcon(item.name)
                       )}
                     </div>
-                    <div>
-                      <p className="font-medium text-sm">{item.name}</p>
-                      <a href={item.link} target="_blank" rel="noreferrer" className="text-xs text-primary flex items-center gap-1 hover:underline">
-                        Abrir link <ExternalLink className="h-3 w-3" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{item.name}</p>
+                      <a href={item.link} target="_blank" rel="noreferrer" className="text-[10px] text-primary flex items-center gap-1 hover:underline truncate">
+                        Link <ExternalLink className="h-2.5 w-2.5" />
                       </a>
                     </div>
                   </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}>
+                  <div className="flex gap-0.5">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(item)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)} className="text-destructive">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(item.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

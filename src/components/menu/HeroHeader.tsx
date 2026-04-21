@@ -5,6 +5,7 @@ import { useCart } from '@/hooks/useCart';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SocialMedia } from '@/hooks/useSocialMedia';
 import defaultFloatingImg from '@/assets/espetinho.png';
 
 interface HeroHeaderProps {
@@ -19,11 +20,12 @@ interface HeroHeaderProps {
     hero_banner_enabled?: boolean | null;
     floating_image_enabled?: boolean | null;
   };
+  socialMedia?: SocialMedia[];
 }
 
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&h=800&fit=crop';
 
-export function HeroHeader({ store }: HeroHeaderProps) {
+export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -161,14 +163,30 @@ export function HeroHeader({ store }: HeroHeaderProps) {
           </div>
 
           {/* Nav Links */}
-          <div className="flex items-center gap-6 sm:gap-6">
-            <button
-              onClick={scrollToMenu}
-              className="flex items-center gap-2 text-sm font-medium text-white/90 hover:text-white transition-colors"
-            >
-              <UtensilsCrossed className="h-6 w-6 sm:h-4 sm:w-4" />
-              <span className="hidden sm:inline">Cardápio</span>
-            </button>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-4 mr-2">
+              {socialMedia?.filter(sm => sm.is_active).map(sm => (
+                <a
+                  key={sm.id}
+                  href={sm.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 transition-transform hover:scale-110"
+                  title={sm.name}
+                >
+                  {sm.icon_url ? (
+                    <img
+                      src={sm.icon_url}
+                      alt={sm.name}
+                      className="h-6 w-6 sm:h-5 sm:w-5 object-contain invert brightness-0"
+                    />
+                  ) : (
+                    <span className="text-white text-xs font-bold uppercase">{sm.name.slice(0, 2)}</span>
+                  )}
+                </a>
+              ))}
+            </div>
+
             <Link
               to="/my-orders"
               className="flex items-center gap-2 text-sm font-medium text-white/90 hover:text-white transition-colors"
