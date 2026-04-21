@@ -264,11 +264,6 @@ const Index = () => {
               />
             )}
 
-            {/* Cardápio Header */}
-            <div className="px-4 pt-2 pb-3 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-foreground">Cardápio</h2>
-              <span className="text-sm text-muted-foreground">{totalItems} itens</span>
-            </div>
 
             {/* Menu Sections */}
             <div className="px-4 space-y-6">

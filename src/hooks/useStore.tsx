@@ -30,6 +30,7 @@ export interface StoreConfig {
   mode_pickup_enabled?: boolean;
   pickup_time_min?: number | null;
   pickup_time_max?: number | null;
+  menu_layout?: string | null;
 }
 
 export function useStore() {
