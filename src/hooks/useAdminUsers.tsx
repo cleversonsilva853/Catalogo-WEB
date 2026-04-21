@@ -19,6 +19,7 @@ export const PERM_KEYS = [
   'perm_usuarios',
   'perm_backup',
   'perm_consumir_local',
+  'perm_redes_sociais',
 ] as const;
 
 export type PermKey = typeof PERM_KEYS[number];
@@ -41,6 +42,7 @@ export const PERM_LABELS: Record<PermKey, string> = {
   perm_usuarios: 'Usuários',
   perm_backup: 'Backup',
   perm_consumir_local: 'Consumir no Local',
+  perm_redes_sociais: 'Redes Sociais',
 };
 
 export type PermMap = Record<PermKey, boolean>;
@@ -70,6 +72,7 @@ export interface AdminUser {
   perm_usuarios: boolean;
   perm_backup: boolean;
   perm_consumir_local: boolean;
+  perm_redes_sociais: boolean;
 }
 
 export function useAdminUsers() {

@@ -13,7 +13,7 @@ if ($method === 'GET') {
     $stmt = $db->query('SELECT id,usuario,acesso_gestao,acesso_operacoes,acesso_sistema,
         perm_dashboard,perm_pedidos,perm_produtos,perm_categorias,perm_acrescimos,perm_configuracoes,
         perm_relatorios,perm_usuarios,perm_horarios,perm_taxas_entrega,perm_cupons,perm_entregadores,
-        perm_qrcode,perm_cozinha,perm_pdv,perm_backup,perm_consumir_local,created_at,updated_at
+        perm_qrcode,perm_cozinha,perm_pdv,perm_backup,perm_consumir_local,perm_redes_sociais,created_at,updated_at
         FROM admin_users ORDER BY usuario ASC');
     respond($stmt->fetchAll());
 }
@@ -35,7 +35,7 @@ if ($method === 'PUT' && $id) {
     $permFields = ['acesso_gestao','acesso_operacoes','acesso_sistema','perm_dashboard','perm_pedidos',
                    'perm_produtos','perm_categorias','perm_acrescimos','perm_configuracoes','perm_relatorios',
                    'perm_usuarios','perm_horarios','perm_taxas_entrega','perm_cupons','perm_entregadores',
-                   'perm_qrcode','perm_cozinha','perm_pdv','perm_backup','perm_consumir_local'];
+                   'perm_qrcode','perm_cozinha','perm_pdv','perm_backup','perm_consumir_local', 'perm_redes_sociais'];
     foreach(array_merge(['usuario','login_email'],$permFields) as $f)
         if(array_key_exists($f,$b)){$fields[]="$f=?";$params[]=in_array($f,$permFields)?(int)(bool)$b[$f]:$b[$f];}
     if(!empty($b['nova_senha'])){

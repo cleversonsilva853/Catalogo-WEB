@@ -28,7 +28,8 @@ import {
   Receipt,
   Package,
   ExternalLink,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Share2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +85,7 @@ const navGroups = [
       { id: 'delivery-zones', label: 'Taxas de Entrega', icon: MapPin, path: '/admin/delivery-zones', permKey: 'perm_taxas_entrega' as PermKey },
       { id: 'hours', label: 'Horários', icon: Clock, path: '/admin/hours', permKey: 'perm_horarios' as PermKey },
       { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings', permKey: 'perm_configuracoes' as PermKey },
+      { id: 'social-media', label: 'Redes Sociais', icon: Share2, path: '/admin/social-media', permKey: 'perm_redes_sociais' as PermKey },
       { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users', permKey: 'perm_usuarios' as PermKey },
       { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup', permKey: 'perm_backup' as PermKey },
     ]
