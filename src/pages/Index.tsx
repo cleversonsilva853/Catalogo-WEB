@@ -19,6 +19,8 @@ import { useProducts, Product } from '@/hooks/useProducts';
 import { useTheme } from '@/hooks/useTheme';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { useSocialMedia } from '@/hooks/useSocialMedia';
+import { useStories } from '@/hooks/useStories';
+import { StoriesBar } from '@/components/menu/StoriesBar';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -45,6 +47,7 @@ const Index = () => {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: socialMedia } = useSocialMedia();
+  const { data: stories } = useStories();
   const storeStatus = useStoreStatus();
 
   // Apply dynamic theme based on store colors
@@ -207,6 +210,11 @@ const Index = () => {
 
         {/* Store Info */}
         <StoreInfo store={store} />
+
+        {/* Stories Bar */}
+        {stories && stories.length > 0 && (
+          <StoriesBar stories={stories} />
+        )}
 
         {/* Categories & Products - Conditional Layout */}
         {isCategoryMode ? (

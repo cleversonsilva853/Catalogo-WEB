@@ -37,6 +37,7 @@ import AdminPDV from "./pages/admin/PDV";
 import AdminUsers from "./pages/admin/Users";
 import AdminQRCodes from "./pages/admin/QRCodes";
 import AdminSocialMedia from "./pages/admin/SocialMedia";
+import AdminStories from "./pages/admin/Stories";
 import AdminComandas from "./pages/admin/Comandas";
 import PDVPublic from "./pages/PDVPublic";
 import NotFound from "./pages/NotFound";
@@ -80,6 +81,7 @@ const App = () => (
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/qrcode" element={<AdminQRCodes />} />
                 <Route path="/admin/social-media" element={<AdminSocialMedia />} />
+                <Route path="/admin/stories" element={<AdminStories />} />
                 <Route path="/admin/comandas" element={<AdminComandas />} />
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />

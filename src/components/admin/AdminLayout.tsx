@@ -29,7 +29,8 @@ import {
   Package,
   ExternalLink,
   UtensilsCrossed,
-  Share2
+  Share2,
+  BookImage
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -87,6 +88,7 @@ const navGroups = [
       { id: 'qrcode', label: 'QR Code', icon: QrCode, path: '/admin/qrcode', permKey: 'perm_qrcode' as PermKey },
       { id: 'settings', label: 'Configurações', icon: Settings, path: '/admin/settings', permKey: 'perm_configuracoes' as PermKey },
       { id: 'social-media', label: 'Redes Sociais', icon: Share2, path: '/admin/social-media', permKey: 'perm_redes_sociais' as PermKey },
+      { id: 'stories', label: 'Stories', icon: BookImage, path: '/admin/stories', permKey: 'perm_redes_sociais' as PermKey },
       { id: 'users', label: 'Usuários', icon: UsersIcon, path: '/admin/users', permKey: 'perm_usuarios' as PermKey },
       { id: 'backup', label: 'Backup', icon: DatabaseBackup, path: '/admin/backup', permKey: 'perm_backup' as PermKey },
     ]

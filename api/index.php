@@ -151,6 +151,9 @@ switch ($resource) {
     case 'social-media':
         require __DIR__ . '/routes/social_media.php';
         break;
+    case 'stories':
+        require __DIR__ . '/routes/stories.php';
+        break;
     case 'push':
         require __DIR__ . '/routes/push.php';
         break;
