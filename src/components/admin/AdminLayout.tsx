@@ -192,8 +192,6 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
       <GlobalOrderNotification />
       <GlobalStockNotification />
-      <InfornexaHeader />
-
       <div className="min-h-screen flex" style={{ backgroundColor: 'hsl(var(--admin-bg))' }}>
         {sidebarOpen && (
           <div 
@@ -312,7 +310,8 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
         </aside>
 
         <div className="flex-1 flex flex-col min-h-screen min-w-0 overflow-x-hidden">
-          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-3 shadow-sm" 
+          <InfornexaHeader />
+          <header className="sticky top-0 z-30 flex items-center gap-3 px-4 sm:px-6 py-2 shadow-sm" 
             style={{ backgroundColor: 'hsl(var(--admin-topbar))' }}>
             <button 
               className="lg:hidden text-white/70 hover:text-white"
