@@ -1,4 +1,4 @@
-import { UtensilsCrossed, ShoppingBag, Store } from 'lucide-react';
+import { ShoppingBag, Store } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { StoreConfig } from '@/hooks/useStore';
 import { useCart } from '@/hooks/useCart';
@@ -7,6 +7,8 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { SocialMedia } from '@/hooks/useSocialMedia';
 import defaultFloatingImg from '@/assets/espetinho.png';
+import { Story } from '@/hooks/useStories';
+import { StoryViewer } from './StoryViewer';
 
 interface HeroHeaderProps {
   store: StoreConfig & { 
@@ -21,13 +23,16 @@ interface HeroHeaderProps {
     floating_image_enabled?: boolean | null;
   };
   socialMedia?: SocialMedia[];
+  stories?: Story[];
 }
 
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&h=800&fit=crop';
 
-export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
+export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
+  const [storyOpen, setStoryOpen] = useState(false);
+  const activeStories = stories?.filter(s => s.is_active) ?? [];
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
@@ -144,8 +149,9 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
 
         {/* Navigation Bar */}
         <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 py-4">
-          {/* Logo */}
-          <div className="flex-shrink-0">
+          {/* Logo + Story Avatar */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Logo */}
             <div className="flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary shadow-xl overflow-hidden border-2 border-white/20">
               {store?.logo_url ? (
                 <img 
@@ -157,6 +163,41 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
                 <Store className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
               )}
             </div>
+
+            {/* Story Avatar — só aparece quando há stories ativos */}
+            {activeStories.length > 0 && (
+              <button
+                onClick={() => setStoryOpen(true)}
+                className="relative flex-shrink-0 group focus:outline-none"
+                aria-label="Ver stories"
+              >
+                {/* Anel gradiente animado */}
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-lg animate-pulse group-hover:scale-105 transition-transform duration-200">
+                  <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/60 bg-black">
+                    {activeStories[0].media_type === 'video' ? (
+                      <video
+                        src={activeStories[0].media_url}
+                        className="w-full h-full object-cover"
+                        muted
+                        playsInline
+                      />
+                    ) : (
+                      <img
+                        src={activeStories[0].media_url}
+                        alt={activeStories[0].title || 'story'}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+                {/* Badge com número de stories */}
+                {activeStories.length > 1 && (
+                  <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50">
+                    {activeStories.length}
+                  </span>
+                )}
+              </button>
+            )}
           </div>
 
           {/* Nav Links */}
@@ -286,6 +327,15 @@ export function HeroHeader({ store, socialMedia }: HeroHeaderProps) {
           </div>
         </div>
       </div>
+
+      {/* StoryViewer global — abre todos os stories em sequência */}
+      {storyOpen && activeStories.length > 0 && (
+        <StoryViewer
+          stories={activeStories}
+          initialIndex={0}
+          onClose={() => setStoryOpen(false)}
+        />
+      )}
     </header>
   );
 }

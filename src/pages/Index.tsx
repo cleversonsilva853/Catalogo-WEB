@@ -20,7 +20,6 @@ import { useTheme } from '@/hooks/useTheme';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { useSocialMedia } from '@/hooks/useSocialMedia';
 import { useStories } from '@/hooks/useStories';
-import { StoriesBar } from '@/components/menu/StoriesBar';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -205,16 +204,11 @@ const Index = () => {
 
       <div className="min-h-screen bg-background pb-24">
         {/* Hero Header */}
-        <HeroHeader store={store} socialMedia={socialMedia} />
+        <HeroHeader store={store} socialMedia={socialMedia} stories={stories} />
 
 
         {/* Store Info */}
         <StoreInfo store={store} />
-
-        {/* Stories Bar */}
-        {stories && stories.length > 0 && (
-          <StoriesBar stories={stories} />
-        )}
 
         {/* Categories & Products - Conditional Layout */}
         {isCategoryMode ? (
