@@ -27,7 +27,7 @@ self.addEventListener('push', (event) => {
     title: 'Nova Notificação',
     body: 'Você tem uma nova notificação',
     tag: 'default',
-    url: '/admin/orders',
+    url: '/',
   };
 
   if (event.data) {
@@ -90,7 +90,7 @@ self.addEventListener('notificationclick', (event) => {
   const action = event.action;
   if (action === 'dismiss') return; // user explicitly dismissed
 
-  const url = event.notification.data?.url || '/admin/orders';
+  const url = event.notification.data?.url || '/';
 
   event.waitUntil(
     clients

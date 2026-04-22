@@ -22,8 +22,10 @@ if ($method === 'GET' && $id === 'check-notifications') {
     $results = [];
     foreach ($pending as $story) {
         $title    = $story['title'] ?: 'Novo Story';
-        $body     = $story['subtitle'] ?: 'Toque para ver o story';
-        $sent     = send_push_to_all($title, $body, '/', $story['media_url']);
+        $body     = $story['subtitle'] ?: 'Toque para ver os stories';
+        $url      = '/?open_stories=1'; // Abre o cardápio com stories visíveis
+        $icon     = $story['media_type'] === 'image' ? $story['media_url'] : (defined('BASE_URL') ? BASE_URL . '/icon-192.png' : '/icon-192.png');
+        $sent     = send_push_to_all($title, $body, $url, $icon);
 
         // Marca como enviado independente do resultado (evita reenvios infinitos)
         $db->prepare('UPDATE stories SET notification_sent = 1 WHERE id = ?')
@@ -32,7 +34,10 @@ if ($method === 'GET' && $id === 'check-notifications') {
         $results[] = ['id' => $story['id'], 'title' => $title, 'push_sent' => $sent];
     }
 
-    respond(['processed' => count($pending), 'results' => $results]);
+    // Conta subscriptions para diagnóstico
+    $total_subs = $db->query('SELECT COUNT(*) FROM push_subscriptions')->fetchColumn();
+
+    respond(['processed' => count($pending), 'results' => $results, 'total_subscriptions' => (int)$total_subs]);
 }
 
 // GET /stories — Listar todos (público: só ativos; admin: todos)

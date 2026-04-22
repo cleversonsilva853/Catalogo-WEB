@@ -20,6 +20,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import { useSocialMedia } from '@/hooks/useSocialMedia';
 import { useStories } from '@/hooks/useStories';
+import { usePublicPush } from '@/hooks/usePublicPush';
+
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -48,6 +50,9 @@ const Index = () => {
   const { data: socialMedia } = useSocialMedia();
   const { data: stories } = useStories();
   const storeStatus = useStoreStatus();
+
+  // Register public push subscription (silent, customers who already granted permission)
+  usePublicPush();
 
   // Apply dynamic theme based on store colors
   useTheme();
