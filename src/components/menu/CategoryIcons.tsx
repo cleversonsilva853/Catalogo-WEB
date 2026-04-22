@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Category } from '@/hooks/useCategories';
 import { cn } from '@/lib/utils';
 import { ChefHat, Utensils } from 'lucide-react';
@@ -9,8 +10,27 @@ interface CategoryIconsProps {
 }
 
 export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIconsProps) {
-  const handleSelect = (categoryId: string | null) => {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSelect = (categoryId: string | null, event: React.MouseEvent<HTMLButtonElement>) => {
     onSelect(categoryId);
+    
+    // Auto-scroll logic to center the clicked item
+    const button = event.currentTarget;
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const containerWidth = container.offsetWidth;
+      const buttonLeft = button.offsetLeft;
+      const buttonWidth = button.offsetWidth;
+
+      // Calculate target so the button is centered in the container
+      const targetScroll = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+
+      container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+      });
+    }
   };
 
   return (
@@ -19,12 +39,15 @@ export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIcon
         <h3 className="text-xl font-bold text-foreground">Categorias</h3>
       </div>
       
-      <div className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide snap-x">
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide snap-x scroll-smooth"
+      >
         {/* Option: Todos */}
         <button
-          onClick={() => handleSelect(null)}
+          onClick={(e) => handleSelect(null, e)}
           className={cn(
-            "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1",
+            "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1 flex-shrink-0",
             selectedId === null
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
               : "bg-card text-muted-foreground border border-border/50 hover:border-primary/30"
@@ -41,9 +64,9 @@ export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIcon
           return (
             <button
               key={category.id}
-              onClick={() => handleSelect(category.id)}
+              onClick={(e) => handleSelect(category.id, e)}
               className={cn(
-                "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1",
+                "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1 flex-shrink-0",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
                   : "bg-card text-muted-foreground border border-border/50 hover:border-primary/30"

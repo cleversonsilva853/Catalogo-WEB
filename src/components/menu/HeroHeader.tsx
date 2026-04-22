@@ -148,11 +148,11 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
 
         {/* Navigation Bar */}
-        <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 py-4">
+        <nav className="relative z-10 flex items-center justify-between px-4 sm:px-8 pt-6 pb-4 sm:py-4">
           {/* Logo + Story Avatar */}
-          <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Logo */}
-            <div className="flex h-14 w-14 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary shadow-xl overflow-hidden border-2 border-white/20">
+            <div className="flex h-12 w-12 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-primary shadow-xl overflow-hidden border-2 border-white/20 flex-shrink-0">
               {store?.logo_url ? (
                 <img 
                   src={store.logo_url} 
@@ -160,7 +160,7 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <Store className="h-7 w-7 sm:h-10 sm:w-10 text-white" />
+                <Store className="h-6 w-6 sm:h-10 sm:w-10 text-white" />
               )}
             </div>
 
@@ -173,7 +173,7 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
               >
                 {/* Anel gradiente animado */}
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-lg group-hover:scale-105 transition-transform duration-200">
-                  <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/60 bg-black">
+                  <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40 bg-black">
                     {activeStories[0].media_type === 'video' ? (
                       <video
                         src={activeStories[0].media_url}
