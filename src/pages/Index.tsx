@@ -140,10 +140,9 @@ const Index = () => {
 
   const handleCategorySelect = (categoryId: string | null) => {
     setSelectedCategoryId(categoryId);
-    // If selecting a specific category, scroll to the top of menu sections
-    // or to the specific category if we keep all on page.
-    // If we FILTER, we should scroll to the start of the results.
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // If we FILTER, it's better to stay in the menu context or scroll to the results
+    // but the user specifically asked NOT to scroll to the top of the page.
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCloseModal = () => {
@@ -216,7 +215,8 @@ const Index = () => {
         <StoreInfo store={store} />
 
         {/* Categories & Products - Conditional Layout */}
-        {isCategoryMode ? (
+        <div data-menu-section="true">
+          {isCategoryMode ? (
           <>
             {/* Search Bar */}
             <div className="px-4 mt-4">
@@ -316,6 +316,7 @@ const Index = () => {
             </div>
           </>
         )}
+        </div>
 
         {/* Infornexa Advertisement Banner */}
         <InfornexaBanner />
