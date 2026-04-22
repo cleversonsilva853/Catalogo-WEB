@@ -207,23 +207,6 @@ export default function Stories() {
           </Button>
         </div>
 
-        {/* SQL Notice */}
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="p-4 text-sm text-amber-800 space-y-1">
-            <p className="font-bold">⚠️ Execute o SQL abaixo no phpMyAdmin (se ainda não executou):</p>
-            <code className="block bg-amber-100 p-2 rounded text-xs break-all">
-              {`CREATE TABLE IF NOT EXISTS stories (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255), subtitle VARCHAR(255), description TEXT, media_url TEXT NOT NULL, media_type ENUM('image','video') DEFAULT 'image', is_active TINYINT(1) DEFAULT 1, display_order INT DEFAULT 0, scheduled_at DATETIME DEFAULT NULL, notification_sent TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`}
-            </code>
-            <p className="font-bold mt-2">Se a tabela já existe, adicione as colunas novas:</p>
-            <code className="block bg-amber-100 p-2 rounded text-xs break-all">
-              {`ALTER TABLE stories ADD COLUMN scheduled_at DATETIME DEFAULT NULL; ALTER TABLE stories ADD COLUMN notification_sent TINYINT(1) DEFAULT 0;`}
-            </code>
-            <p className="font-bold mt-2">⏰ Cron no cPanel do HostGator (a cada 1 minuto):</p>
-            <code className="block bg-amber-100 p-2 rounded text-xs break-all">
-              {`* * * * * curl -s https://api.deliverygrill.infornexa.com.br/stories/check-notifications > /dev/null 2>&1`}
-            </code>
-          </CardContent>
-        </Card>
 
         {/* Form */}
         {showForm && (
