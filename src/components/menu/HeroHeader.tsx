@@ -172,7 +172,7 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
                 aria-label="Ver stories"
               >
                 {/* Anel gradiente animado */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-lg animate-pulse group-hover:scale-105 transition-transform duration-200">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-lg group-hover:scale-105 transition-transform duration-200">
                   <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/60 bg-black">
                     {activeStories[0].media_type === 'video' ? (
                       <video
