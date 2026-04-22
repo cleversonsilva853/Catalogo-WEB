@@ -35,9 +35,9 @@ define('UPLOAD_URL', BASE_URL . '/uploads/');
 // Defina ALLOWED_ORIGIN no ambiente para maior flexibilidade
 define('ALLOWED_ORIGIN', getenv('ALLOWED_ORIGIN') ?: 'https://deliverygrill.infornexa.com.br');
 
-// Chaves VAPID para Web Push Notifications
-define('VAPID_PUBLIC_KEY',  getenv('VAPID_PUBLIC')  ?: 'BCqY-o_m_v_u_p_s_k_y_v_a_p_i_d_p_u_b_l_i_c_k_e_y_d_e_v_e_l_o_p_m_e_n_t_f_u_l_l_k_e_y');
-define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE') ?: 'p_r_i_v_a_t_e_k_e_y_v_a_p_i_d_n_o_n_s_e_n_s_e_1_2_3');
+// Chaves VAPID para Web Push Notifications (geradas com npx web-push generate-vapid-keys)
+define('VAPID_PUBLIC_KEY',  getenv('VAPID_PUBLIC')  ?: 'BFOmI9K2Ml8Hq-uA1lcMsPXyz30gWKhyckOMjgmDwSJpJFlkFKue-JBgIeuTb4Ud-84cFUISDDfyK-YaDZNecTQ');
+define('VAPID_PRIVATE_KEY', getenv('VAPID_PRIVATE') ?: 'tYzW7H9RrPU9eqzTB501qBcUpbHOC7ZhdbGQvb7ywrQ');
 
 // ============================================================
 // Função de conexão PDO (singleton)
