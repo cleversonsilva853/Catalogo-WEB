@@ -286,12 +286,12 @@ const Index = () => {
             )}
 
 
-            {/* Selected Category Name Display */}
-            <div className="px-4 mt-6 mb-2">
-              <h2 className="text-xl font-bold text-foreground">
-                {selectedCategoryId === null ? 'Todas categorias' : categories?.find(c => c.id === selectedCategoryId)?.name}
-              </h2>
-            </div>
+            {/* Selected Category Name Display - Only show when all categories are visible */}
+            {selectedCategoryId === null && (
+              <div className="px-4 mt-6 mb-2">
+                <h2 className="text-xl font-bold text-foreground text-primary">Todas categorias</h2>
+              </div>
+            )}
 
             {/* Menu Sections */}
             <div className="px-4 space-y-6">
