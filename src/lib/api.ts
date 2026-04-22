@@ -34,7 +34,6 @@ async function request<T = unknown>(
 
   if (res.status === 401) {
     clearToken();
-    window.location.href = '/auth';
     throw new Error('Não autenticado');
   }
 

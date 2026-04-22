@@ -20,9 +20,18 @@ import { useKitchenItems } from '@/hooks/useKitchenItems';
 import { useStore } from '@/hooks/useStore';
 import { useTheme } from '@/hooks/useTheme';
 import { usePWAConfig } from '@/hooks/usePWAConfig';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Kitchen() {
   const navigate = useNavigate();
+  const { user, isLoading: authLoading } = useAuth();
+  
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
   const { data: store } = useStore();
   const { data: items = [], isLoading, error } = useKitchenItems();
   const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'preparing' | 'ready'>('pending');
