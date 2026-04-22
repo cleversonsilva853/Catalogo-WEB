@@ -11,6 +11,8 @@ export interface Story {
   is_active: boolean;
   display_order: number;
   created_at: string;
+  scheduled_at?: string | null;
+  notification_sent?: boolean | number;
 }
 
 export function useStories(adminMode = false) {

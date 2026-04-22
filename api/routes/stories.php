@@ -4,6 +4,37 @@
 // ============================================================
 $db = getDB();
 
+// GET /stories/check-notifications — chamado pelo cron do HostGator (a cada minuto)
+// Verifica stories com scheduled_at <= NOW() e envia push para todos os dispositivos
+if ($method === 'GET' && $id === 'check-notifications') {
+    require_once __DIR__ . '/../web_push.php';
+
+    $stmt = $db->prepare("
+        SELECT * FROM stories
+        WHERE scheduled_at IS NOT NULL
+          AND scheduled_at <= NOW()
+          AND notification_sent = 0
+          AND is_active = 1
+    ");
+    $stmt->execute();
+    $pending = $stmt->fetchAll();
+
+    $results = [];
+    foreach ($pending as $story) {
+        $title    = $story['title'] ?: 'Novo Story';
+        $body     = $story['subtitle'] ?: 'Toque para ver o story';
+        $sent     = send_push_to_all($title, $body, '/', $story['media_url']);
+
+        // Marca como enviado independente do resultado (evita reenvios infinitos)
+        $db->prepare('UPDATE stories SET notification_sent = 1 WHERE id = ?')
+           ->execute([$story['id']]);
+
+        $results[] = ['id' => $story['id'], 'title' => $title, 'push_sent' => $sent];
+    }
+
+    respond(['processed' => count($pending), 'results' => $results]);
+}
+
 // GET /stories — Listar todos (público: só ativos; admin: todos)
 if ($method === 'GET' && !$id) {
     $isAuthd = false;
@@ -35,28 +66,33 @@ if ($method === 'POST' && !$id) {
     if (empty($b['media_url'])) respond_error('URL da mídia é obrigatória', 422);
 
     $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-        mt_rand(0,0xffff), mt_rand(0,0xffff),
-        mt_rand(0,0xffff),
-        mt_rand(0,0x0fff)|0x4000,
-        mt_rand(0,0x3fff)|0x8000,
+        mt_rand(0,0xffff), mt_rand(0,0xffff), mt_rand(0,0xffff),
+        mt_rand(0,0x0fff)|0x4000, mt_rand(0,0x3fff)|0x8000,
         mt_rand(0,0xffff), mt_rand(0,0xffff), mt_rand(0,0xffff));
 
-    // get next order
     $maxOrder = $db->query('SELECT COALESCE(MAX(display_order), -1) + 1 FROM stories')->fetchColumn();
 
+    // Normaliza scheduled_at: converte datetime-local (sem timezone) para formato MySQL
+    $scheduled = null;
+    if (!empty($b['scheduled_at'])) {
+        $dt = DateTime::createFromFormat('Y-m-d\TH:i', $b['scheduled_at'], new DateTimeZone('America/Sao_Paulo'));
+        if ($dt) $scheduled = $dt->format('Y-m-d H:i:s');
+    }
+
     $stmt = $db->prepare('
-        INSERT INTO stories (id, title, subtitle, description, media_url, media_type, is_active, display_order)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO stories (id, title, subtitle, description, media_url, media_type, is_active, display_order, scheduled_at, notification_sent)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     ');
     $stmt->execute([
         $uuid,
-        $b['title'] ?? null,
-        $b['subtitle'] ?? null,
+        $b['title']      ?? null,
+        $b['subtitle']   ?? null,
         $b['description'] ?? null,
         $b['media_url'],
         $b['media_type'] ?? 'image',
         isset($b['is_active']) ? (int)$b['is_active'] : 1,
         $maxOrder,
+        $scheduled,
     ]);
 
     $stmt2 = $db->prepare('SELECT * FROM stories WHERE id = ?');
@@ -64,7 +100,7 @@ if ($method === 'POST' && !$id) {
     respond($stmt2->fetch(), 201);
 }
 
-// PUT /stories/reorder — Reordenar stories
+// PUT /stories/reorder
 if ($method === 'PUT' && $id === 'reorder') {
     require_auth();
     $b = get_body();
@@ -76,18 +112,33 @@ if ($method === 'PUT' && $id === 'reorder') {
     respond(['message' => 'Ordem atualizada']);
 }
 
-// PUT /stories/{id} — Atualizar story
+// PUT /stories/{id}
 if ($method === 'PUT' && $id) {
     require_auth();
     $b = get_body();
     $fields = []; $params = [];
-    $allowed = ['title', 'subtitle', 'description', 'media_url', 'media_type', 'is_active', 'display_order'];
+
+    $allowed = ['title', 'subtitle', 'description', 'media_url', 'media_type', 'is_active', 'display_order', 'notification_sent'];
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) { $fields[] = "$f = ?"; $params[] = $b[$f]; }
     }
+
+    // Trata scheduled_at separadamente (converte datetime-local → MySQL)
+    if (array_key_exists('scheduled_at', $b)) {
+        if (empty($b['scheduled_at'])) {
+            $fields[] = 'scheduled_at = ?'; $params[] = null;
+            $fields[] = 'notification_sent = ?'; $params[] = 0;
+        } else {
+            $dt = DateTime::createFromFormat('Y-m-d\TH:i', $b['scheduled_at'], new DateTimeZone('America/Sao_Paulo'));
+            $fields[] = 'scheduled_at = ?'; $params[] = $dt ? $dt->format('Y-m-d H:i:s') : null;
+            $fields[] = 'notification_sent = ?'; $params[] = 0; // resetar ao regendar
+        }
+    }
+
     if (!$fields) respond_error('Nenhum campo para atualizar', 422);
     $params[] = $id;
     $db->prepare('UPDATE stories SET ' . implode(', ', $fields) . ' WHERE id = ?')->execute($params);
+
     $stmt = $db->prepare('SELECT * FROM stories WHERE id = ?');
     $stmt->execute([$id]);
     respond($stmt->fetch());

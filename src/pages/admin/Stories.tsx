@@ -12,7 +12,7 @@ import { useStories, useCreateStory, useUpdateStory, useDeleteStory, useReorderS
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import {
   Plus, Pencil, Trash2, Loader2, Film, Image as ImageIcon,
-  ArrowUp, ArrowDown, BookImage, X
+  ArrowUp, ArrowDown, BookImage, X, Bell, Calendar
 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
@@ -32,12 +32,14 @@ export default function Stories() {
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
   const [isActive, setIsActive] = useState(true);
+  const [scheduledAt, setScheduledAt] = useState('');
 
   const sorted = [...(stories || [])].sort((a, b) => a.display_order - b.display_order);
 
   const resetForm = () => {
     setTitle(''); setSubtitle(''); setDescription('');
     setMediaUrl(''); setMediaType('image'); setIsActive(true);
+    setScheduledAt('');
     setEditingId(null); setShowForm(false);
   };
 
@@ -49,6 +51,8 @@ export default function Stories() {
     setMediaUrl(story.media_url);
     setMediaType(story.media_type);
     setIsActive(story.is_active);
+    // Converte 'YYYY-MM-DD HH:mm:ss' → 'YYYY-MM-DDTHH:mm' para datetime-local
+    setScheduledAt(story.scheduled_at ? story.scheduled_at.replace(' ', 'T').slice(0, 16) : '');
     setShowForm(true);
   };
 
@@ -56,7 +60,11 @@ export default function Stories() {
     e.preventDefault();
     if (!mediaUrl) { toast({ title: 'Selecione uma mídia', variant: 'destructive' }); return; }
 
-    const data = { title, subtitle, description, media_url: mediaUrl, media_type: mediaType, is_active: isActive };
+    const data = {
+      title, subtitle, description,
+      media_url: mediaUrl, media_type: mediaType, is_active: isActive,
+      scheduled_at: scheduledAt || null,
+    };
 
     if (editingId) {
       updateMutation.mutate({ id: editingId, ...data }, {
@@ -100,9 +108,17 @@ export default function Stories() {
         {/* SQL Notice */}
         <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-4 text-sm text-amber-800 space-y-1">
-            <p className="font-bold">⚠️ Execute o SQL abaixo no phpMyAdmin antes de usar:</p>
+            <p className="font-bold">⚠️ Execute o SQL abaixo no phpMyAdmin (se ainda não executou):</p>
             <code className="block bg-amber-100 p-2 rounded text-xs break-all">
-              {`CREATE TABLE IF NOT EXISTS stories (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255), subtitle VARCHAR(255), description TEXT, media_url TEXT NOT NULL, media_type ENUM('image','video') DEFAULT 'image', is_active TINYINT(1) DEFAULT 1, display_order INT DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`}
+              {`CREATE TABLE IF NOT EXISTS stories (id VARCHAR(36) PRIMARY KEY, title VARCHAR(255), subtitle VARCHAR(255), description TEXT, media_url TEXT NOT NULL, media_type ENUM('image','video') DEFAULT 'image', is_active TINYINT(1) DEFAULT 1, display_order INT DEFAULT 0, scheduled_at DATETIME DEFAULT NULL, notification_sent TINYINT(1) DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`}
+            </code>
+            <p className="font-bold mt-2">Se a tabela já existe, adicione as colunas novas:</p>
+            <code className="block bg-amber-100 p-2 rounded text-xs break-all">
+              {`ALTER TABLE stories ADD COLUMN IF NOT EXISTS scheduled_at DATETIME DEFAULT NULL; ALTER TABLE stories ADD COLUMN IF NOT EXISTS notification_sent TINYINT(1) DEFAULT 0;`}
+            </code>
+            <p className="font-bold mt-2">⏰ Cron no cPanel do HostGator (a cada 1 minuto):</p>
+            <code className="block bg-amber-100 p-2 rounded text-xs break-all">
+              {`* * * * * curl -s https://api.deliverygrill.infornexa.com.br/stories/check-notifications > /dev/null 2>&1`}
             </code>
           </CardContent>
         </Card>
@@ -191,6 +207,31 @@ export default function Stories() {
                   <Label>Ativo (visível no cardápio)</Label>
                 </div>
 
+                {/* Agendamento de Notificação Push */}
+                <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-primary" />
+                    <Label className="font-semibold">Notificação Push Agendada</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Quando chegar essa data/hora, todos os dispositivos com a PWA instalada receberão uma notificação.
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <input
+                      type="datetime-local"
+                      value={scheduledAt}
+                      onChange={e => setScheduledAt(e.target.value)}
+                      className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    />
+                    {scheduledAt && (
+                      <button type="button" onClick={() => setScheduledAt('')} className="text-xs text-muted-foreground hover:text-destructive whitespace-nowrap">
+                        Limpar
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex gap-3">
                   <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
                     {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -235,13 +276,23 @@ export default function Stories() {
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm text-foreground truncate">{story.title || '(sem título)'}</p>
                       {story.subtitle && <p className="text-xs text-muted-foreground truncate">{story.subtitle}</p>}
-                      <div className="flex items-center gap-2 mt-1">
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant={story.is_active ? 'default' : 'secondary'} className="text-[10px]">
                           {story.is_active ? 'Ativo' : 'Inativo'}
                         </Badge>
                         <Badge variant="outline" className="text-[10px]">
                           {story.media_type === 'video' ? '🎬 Vídeo' : '🖼️ Imagem'}
                         </Badge>
+                        {story.scheduled_at && !story.notification_sent && (
+                          <Badge variant="outline" className="text-[10px] border-amber-400 text-amber-700 bg-amber-50">
+                            ⏰ Agendado: {new Date(story.scheduled_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                          </Badge>
+                        )}
+                        {story.notification_sent ? (
+                          <Badge variant="outline" className="text-[10px] border-green-400 text-green-700 bg-green-50">
+                            ✅ Notificação enviada
+                          </Badge>
+                        ) : null}
                       </div>
                     </div>
 
