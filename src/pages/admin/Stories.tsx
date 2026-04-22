@@ -114,7 +114,7 @@ export default function Stories() {
             </code>
             <p className="font-bold mt-2">Se a tabela já existe, adicione as colunas novas:</p>
             <code className="block bg-amber-100 p-2 rounded text-xs break-all">
-              {`ALTER TABLE stories ADD COLUMN IF NOT EXISTS scheduled_at DATETIME DEFAULT NULL; ALTER TABLE stories ADD COLUMN IF NOT EXISTS notification_sent TINYINT(1) DEFAULT 0;`}
+              {`ALTER TABLE stories ADD COLUMN scheduled_at DATETIME DEFAULT NULL; ALTER TABLE stories ADD COLUMN notification_sent TINYINT(1) DEFAULT 0;`}
             </code>
             <p className="font-bold mt-2">⏰ Cron no cPanel do HostGator (a cada 1 minuto):</p>
             <code className="block bg-amber-100 p-2 rounded text-xs break-all">
