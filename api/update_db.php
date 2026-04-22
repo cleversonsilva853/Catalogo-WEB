@@ -2,6 +2,11 @@
 require_once __DIR__ . '/config.php';
 $db = getDB();
 
+// Proteção simples para evitar execução acidental por terceiros
+if (($_GET['key'] ?? '') !== 'infornexa2024') {
+    die("Acesso negado. Por favor, forneça a chave de segurança correta.");
+}
+
 try {
     echo "Iniciando atualização do banco de dados...\n";
 
@@ -17,50 +22,70 @@ try {
         }
     }
 
-    // 1. Adicionar pdv_password em store_config
-    if (!columnExists($db, 'store_config', 'pdv_password')) {
-        $db->exec("ALTER TABLE store_config ADD pdv_password VARCHAR(100) DEFAULT NULL");
-        echo "Coluna pdv_password adicionada em store_config.\n";
-    } else {
-        echo "Coluna pdv_password já existe em store_config.\n";
+    // 1. Criar tabela stories se não existir
+    $db->exec("CREATE TABLE IF NOT EXISTS stories (
+        id CHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+        title VARCHAR(255) DEFAULT NULL,
+        subtitle VARCHAR(255) DEFAULT NULL,
+        description TEXT DEFAULT NULL,
+        media_url TEXT NOT NULL,
+        media_type VARCHAR(20) DEFAULT 'image',
+        is_active TINYINT(1) DEFAULT 1,
+        display_order INT DEFAULT 0,
+        scheduled_at DATETIME DEFAULT NULL,
+        notification_sent TINYINT(1) DEFAULT 0,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    echo "Tabela stories verificada/criada.\n";
+
+    // 2. Colunas em store_config
+    $store_columns = [
+        'pdv_password' => "VARCHAR(100) DEFAULT NULL",
+        'mode_delivery_enabled' => "TINYINT(1) DEFAULT 1",
+        'mode_pickup_enabled' => "TINYINT(1) DEFAULT 1",
+        'hero_banner_enabled' => "TINYINT(1) DEFAULT 1",
+        'floating_image_enabled' => "TINYINT(1) DEFAULT 1",
+        'cover_url_mobile' => "TEXT DEFAULT NULL",
+        'pickup_time_min' => "INT DEFAULT 30",
+        'pickup_time_max' => "INT DEFAULT 45",
+        'menu_layout' => "VARCHAR(20) DEFAULT 'list'",
+        'hero_text_1' => "VARCHAR(255) DEFAULT NULL",
+        'hero_text_2' => "VARCHAR(255) DEFAULT NULL",
+        'hero_text_3' => "VARCHAR(255) DEFAULT NULL",
+        'hero_slogan' => "VARCHAR(255) DEFAULT NULL",
+        'floating_image_url' => "TEXT DEFAULT NULL",
+        'floating_image_size' => "INT DEFAULT 300",
+        'floating_image_position' => "INT DEFAULT 50",
+        'floating_image_vertical_position' => "INT DEFAULT 50",
+        'floating_image_size_mobile' => "INT DEFAULT 300",
+        'floating_image_position_mobile' => "INT DEFAULT 0",
+        'floating_image_vertical_position_mobile' => "INT DEFAULT 0",
+        'stock_enabled' => "TINYINT(1) DEFAULT 1",
+        'product_stock_enabled' => "TINYINT(1) DEFAULT 1"
+    ];
+
+    foreach ($store_columns as $col => $definition) {
+        if (!columnExists($db, 'store_config', $col)) {
+            $db->exec("ALTER TABLE store_config ADD $col $definition");
+            echo "Coluna $col adicionada em store_config.\n";
+        }
     }
 
-    // 2. Adicionar status em order_items
+    // 3. Colunas em order_items
     if (!columnExists($db, 'order_items', 'status')) {
         $db->exec("ALTER TABLE order_items ADD status VARCHAR(20) NOT NULL DEFAULT 'pending'");
         echo "Coluna status adicionada em order_items.\n";
-    } else {
-        echo "Coluna status já existe em order_items.\n";
     }
 
-    // 3. Adicionar stock_enabled e product_stock_enabled em store_config
-    if (!columnExists($db, 'store_config', 'stock_enabled')) {
-        $db->exec("ALTER TABLE store_config ADD stock_enabled TINYINT(1) DEFAULT 1");
-        echo "Coluna stock_enabled adicionada em store_config.\n";
-    } else {
-        echo "Coluna stock_enabled já existe em store_config.\n";
-    }
-
-    if (!columnExists($db, 'store_config', 'product_stock_enabled')) {
-        $db->exec("ALTER TABLE store_config ADD product_stock_enabled TINYINT(1) DEFAULT 1");
-        echo "Coluna product_stock_enabled adicionada em store_config.\n";
-    } else {
-        echo "Coluna product_stock_enabled já existe em store_config.\n";
-    }
-
-    // 4. Adicionar user_type e user_identifier em push_subscriptions
+    // 4. Colunas em push_subscriptions
     if (!columnExists($db, 'push_subscriptions', 'user_type')) {
         $db->exec("ALTER TABLE push_subscriptions ADD user_type VARCHAR(20) DEFAULT 'admin'");
         echo "Coluna user_type adicionada em push_subscriptions.\n";
-    } else {
-        echo "Coluna user_type já existe em push_subscriptions.\n";
     }
 
     if (!columnExists($db, 'push_subscriptions', 'user_identifier')) {
         $db->exec("ALTER TABLE push_subscriptions ADD user_identifier VARCHAR(100) DEFAULT NULL");
         echo "Coluna user_identifier adicionada em push_subscriptions.\n";
-    } else {
-        echo "Coluna user_identifier já existe em push_subscriptions.\n";
     }
 
     echo "\nAtualização concluída com sucesso!";
