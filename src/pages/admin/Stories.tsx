@@ -8,12 +8,114 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+
 import { useStories, useCreateStory, useUpdateStory, useDeleteStory, useReorderStories, Story } from '@/hooks/useStories';
 import { ImageUpload } from '@/components/admin/ImageUpload';
+import { uploadFile } from '@/lib/api';
+import { cn } from '@/lib/utils';
 import {
   Plus, Pencil, Trash2, Loader2, Film, Image as ImageIcon,
-  ArrowUp, ArrowDown, BookImage, X, Bell, Calendar
+  ArrowUp, ArrowDown, BookImage, X, Bell, Calendar, Video
 } from 'lucide-react';
+
+
+// ─── Componente de Upload de Vídeo ─────────────────────────────────────────
+interface VideoUploadProps {
+  currentUrl: string | null;
+  onUpload: (url: string) => void;
+  onRemove: () => void;
+}
+
+function VideoUpload({ currentUrl, onUpload, onRemove }: VideoUploadProps) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(mp4|webm|mov|mkv)$/i)) {
+      toast({ title: 'Arquivo inválido', description: 'Selecione um vídeo MP4, WebM ou MOV', variant: 'destructive' });
+      return;
+    }
+
+    if (file.size > 100 * 1024 * 1024) {
+      toast({ title: 'Arquivo muito grande', description: 'O tamanho máximo é 100MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    setProgress(10);
+
+    try {
+      // Simula progresso enquanto faz upload
+      const interval = setInterval(() => setProgress(p => Math.min(p + 10, 85)), 400);
+      const url = await uploadFile(file);
+      clearInterval(interval);
+      setProgress(100);
+      onUpload(url);
+      toast({ title: 'Vídeo enviado com sucesso!' });
+    } catch (error: any) {
+      toast({ title: 'Erro ao enviar vídeo', description: error.message || 'Tente novamente', variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+      setProgress(0);
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <input ref={inputRef} type="file" accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov" className="hidden" onChange={handleFileSelect} />
+
+      {currentUrl ? (
+        <div className="relative rounded-xl overflow-hidden border border-border w-full max-w-[180px]">
+          <div className="aspect-[9/16]">
+            <video src={currentUrl} className="w-full h-full object-cover" muted playsInline controls />
+          </div>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute top-2 right-2 h-7 w-7 rounded-full bg-destructive text-white flex items-center justify-center shadow"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+          className={cn(
+            'w-full h-40 rounded-xl border-2 border-dashed border-border',
+            'flex flex-col items-center justify-center gap-2',
+            'bg-muted/30 hover:bg-muted/50 transition-colors text-muted-foreground',
+            isUploading && 'cursor-not-allowed opacity-80',
+          )}
+        >
+          {isUploading ? (
+            <>
+              <Loader2 className="h-8 w-8 animate-spin" />
+              <span className="text-sm">Enviando vídeo... {progress}%</span>
+              <div className="w-3/4 h-1.5 bg-muted rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              </div>
+            </>
+          ) : (
+            <>
+              <Video className="h-8 w-8" />
+              <span className="text-sm font-medium">Clique para enviar vídeo</span>
+              <span className="text-xs">MP4, WebM ou MOV até 100MB</span>
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export default function Stories() {
@@ -162,21 +264,11 @@ export default function Stories() {
                       aspectRatio="aspect-[9/16]"
                     />
                   ) : (
-                    <div className="space-y-2">
-                      <Input
-                        placeholder="URL do vídeo (MP4)"
-                        value={mediaUrl}
-                        onChange={(e) => setMediaUrl(e.target.value)}
-                      />
-                      {mediaUrl && (
-                        <video
-                          src={mediaUrl}
-                          className="w-32 aspect-[9/16] rounded-xl object-cover"
-                          muted
-                          playsInline
-                        />
-                      )}
-                    </div>
+                    <VideoUpload
+                      currentUrl={mediaUrl || null}
+                      onUpload={(url) => setMediaUrl(url)}
+                      onRemove={() => setMediaUrl('')}
+                    />
                   )}
                 </div>
 
