@@ -9,6 +9,7 @@ import { useCart } from '@/hooks/useCart';
 import { useProductAddons, AddonGroup, AddonOption } from '@/hooks/useAddons';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductModalProps {
   product: Product;
@@ -38,6 +39,7 @@ export function ProductModal({
   const [observation, setObservation] = useState(initialObservation);
   const [selectedAddOns, setSelectedAddOns] = useState<Record<string, string[]>>(initialAddons || {});
   const { addItem, removeItem } = useCart();
+  const { toast } = useToast();
   
   const { data: addonGroups, isLoading: addonsLoading } = useProductAddons(product.id);
 
@@ -52,11 +54,12 @@ export function ProductModal({
 
   // Initialize selected add-ons when data loads (only if not editing with pre-selected addons)
   useEffect(() => {
-    if (addonGroups && !initialAddons) {
+    // Only initialize if we have addonGroups and no initialAddons were provided (new item)
+    // AND if we haven't already initialized (selectedAddOns is mostly empty)
+    if (addonGroups && !initialAddons && Object.keys(selectedAddOns).length === 0) {
       const initial: Record<string, string[]> = {};
       addonGroups.forEach((group: AddonGroupWithOptions) => {
         if (group.is_required && group.options.length > 0) {
-          // Pre-select first option if required
           initial[group.id] = [group.options[0].id];
         } else {
           initial[group.id] = [];
@@ -104,16 +107,41 @@ export function ProductModal({
   const handleMultiSelect = (groupId: string, optionId: string, maxSelections: number) => {
     setSelectedAddOns(prev => {
       const current = prev[groupId] || [];
-      if (current.includes(optionId)) {
+      const isSelected = current.includes(optionId);
+      
+      if (isSelected) {
         return { ...prev, [groupId]: current.filter(id => id !== optionId) };
-      } else if (current.length < maxSelections) {
+      }
+      
+      // If max selections reached and limit is 1, replace the current one
+      if (maxSelections === 1) {
+        return { ...prev, [groupId]: [optionId] };
+      }
+      
+      // If within limit, add it
+      if (current.length < maxSelections) {
         return { ...prev, [groupId]: [...current, optionId] };
       }
+      
       return prev;
     });
   };
 
   const handleAddToCart = () => {
+    // Validate required addons
+    const missingRequired = addonGroups?.filter(g => 
+      g.is_required && (!selectedAddOns[g.id] || selectedAddOns[g.id].length === 0)
+    ) || [];
+
+    if (missingRequired.length > 0) {
+      toast({
+        title: "Seleção obrigatória",
+        description: `Por favor, selecione as opções obrigatórias: ${missingRequired.map(g => g.title).join(', ')}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (isEditing) {
       removeItem(product.id);
     }
@@ -225,8 +253,8 @@ export function ProductModal({
                   </p>
                 </div>
                 
-                {/* Options */}
-                {group.max_selections === 1 ? (
+                {/* Options - Use Radio for Required Single Choice, Checkbox for everything else */}
+                {group.max_selections === 1 && group.is_required ? (
                   <RadioGroup 
                     value={selectedAddOns[group.id]?.[0] || ''} 
                     onValueChange={(value) => handleSingleSelect(group.id, value)} 
