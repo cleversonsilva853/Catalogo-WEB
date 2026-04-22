@@ -41,6 +41,7 @@ export function useStore() {
   return useQuery({
     queryKey: ['store'],
     queryFn: () => api.get<StoreConfig>('/store'),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

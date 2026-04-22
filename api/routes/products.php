@@ -5,8 +5,48 @@
 
 $db = getDB();
 
-// GET /products ou GET /products/{id}
+// GET /products ou GET /products/{id} ou GET /products/addons
 if ($method === 'GET' && !$sub) {
+    // Caso especial: acréscimos de produtos (chamado por useProductAddons)
+    if ($id === 'addons') {
+        $productId = $_GET['product_id'] ?? null;
+        if (!$productId) respond_error('product_id é obrigatório', 422);
+
+        // Buscar grupos vinculados ao produto
+        $stmt = $db->prepare('
+            SELECT ag.*
+            FROM product_addon_groups pag
+            JOIN addon_groups ag ON ag.id = pag.addon_group_id
+            WHERE pag.product_id = ?
+            ORDER BY ag.sort_order ASC
+        ');
+        $stmt->execute([$productId]);
+        $groups = $stmt->fetchAll();
+
+        if ($groups) {
+            $groupIds = array_map(fn($g) => $g['id'], $groups);
+            $placeholders = implode(',', array_fill(0, count($groupIds), '?'));
+            
+            // Buscar opções para estes grupos
+            $stmt = $db->prepare("SELECT * FROM addon_options WHERE group_id IN ($placeholders) AND is_available = 1 ORDER BY sort_order ASC");
+            $stmt->execute($groupIds);
+            $allOptions = $stmt->fetchAll();
+
+            $optionsByGroup = [];
+            foreach ($allOptions as $opt) {
+                $optionsByGroup[$opt['group_id']][] = $opt;
+            }
+
+            foreach ($groups as &$g) {
+                $g['options'] = $optionsByGroup[$g['id']] ?? [];
+                $g['is_required'] = (bool)($g['is_required'] ?? false);
+                $g['max_selections'] = (int)($g['max_selections'] ?? 1);
+            }
+        }
+
+        respond($groups);
+    }
+
     if ($id) {
         $stmt = $db->prepare('
             SELECT p.*, c.name as category_name 

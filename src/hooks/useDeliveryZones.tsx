@@ -16,6 +16,7 @@ export function useDeliveryZones() {
   return useQuery({
     queryKey: ['delivery-zones'],
     queryFn: () => api.get<DeliveryZone[]>('/delivery-zones'),
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 

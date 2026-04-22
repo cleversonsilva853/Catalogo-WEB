@@ -22,6 +22,7 @@ export function useSystemSettings() {
         consume_on_site_enabled: res.consume_on_site_enabled === true || res.consume_on_site_enabled == 1,
       } as SystemSettings;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
