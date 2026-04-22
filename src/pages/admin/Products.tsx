@@ -29,6 +29,11 @@ import { useSystemSettings } from '@/hooks/useSystemSettings';
 import { useAddonGroups, useAddProductAddonGroup, useRemoveProductAddonGroup } from '@/hooks/useAddons';
 import { useToast } from '@/hooks/use-toast';
 
+const formatQuantity = (v: number | string) => {
+  const num = Number(v);
+  return isNaN(num) ? '0' : num.toString();
+};
+
 const AdminProducts = () => {
   const { data: products, isLoading } = useProducts();
   const { data: categories } = useCategories();
@@ -175,7 +180,7 @@ const AdminProducts = () => {
         if (ing && qtyUsed > ing.stock_quantity) {
           toast({ 
             title: `Estoque insuficiente para o ingrediente ${ing.name}.`, 
-            description: `Disponível: ${ing.stock_quantity}, necessário: ${qtyUsed}`,
+            description: `Disponível: ${formatQuantity(ing.stock_quantity)}, necessário: ${formatQuantity(qtyUsed)}`,
             variant: 'destructive' 
           });
           return;
@@ -795,7 +800,7 @@ const AdminProducts = () => {
                                     <SelectContent>
                                       {ingredients?.map((i) => (
                                         <SelectItem key={i.id} value={i.id} className="text-xs">
-                                          {i.name} (Disp: {i.stock_quantity} {i.unit})
+                                          {i.name} (Disp: {formatQuantity(i.stock_quantity)} {i.unit})
                                         </SelectItem>
                                       ))}
                                     </SelectContent>
@@ -848,7 +853,7 @@ const AdminProducts = () => {
                               </div>
                               {isOverStock && ing && (
                                 <p className="text-[10px] text-destructive font-medium mt-1 ml-1">
-                                  Estoque insuficiente. Disponível: {ing.stock_quantity} {ing.unit}
+                                  Estoque insuficiente. Disponível: {formatQuantity(ing.stock_quantity)} {ing.unit}
                                 </p>
                               )}
                             </div>
