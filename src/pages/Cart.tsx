@@ -53,9 +53,9 @@ const Cart = () => {
         </header>
 
         {/* Cart Items */}
-        <div className="p-4 space-y-4">
+        <div className="px-0 sm:px-4 py-4 space-y-4">
           {items.map((item) => (
-            <div key={item.product.id} className="bg-card rounded-2xl p-4 shadow-card">
+            <div key={item.product.id} className="bg-card sm:rounded-2xl rounded-none p-4 sm:shadow-card shadow-none border-y border-border sm:border-none">
               <div className="flex gap-3">
                 {/* Product Image */}
                 <img
@@ -134,12 +134,14 @@ const Cart = () => {
           ))}
 
           {/* Add More Items Button */}
-          <button
-            onClick={() => navigate('/')}
-            className="w-full py-4 text-center text-muted-foreground font-medium border-2 border-dashed border-border rounded-2xl hover:border-primary hover:text-primary transition-colors"
-          >
-            + Adicionar mais itens
-          </button>
+          <div className="px-4">
+            <button
+              onClick={() => navigate('/')}
+              className="w-full py-4 text-center text-muted-foreground font-medium border-2 border-dashed border-border rounded-2xl hover:border-primary hover:text-primary transition-colors"
+            >
+              + Adicionar mais itens
+            </button>
+          </div>
         </div>
 
         {/* Footer */}

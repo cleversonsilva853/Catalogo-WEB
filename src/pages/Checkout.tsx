@@ -460,10 +460,10 @@ const Checkout = () => {
           )}
         </div>
 
-        <div className="p-4 space-y-6">
+        <div className="px-0 sm:px-4 py-4 space-y-6">
           {/* Address Section */}
           {deliveryType === 'delivery' && (
-            <section className="bg-card rounded-2xl p-4 shadow-card">
+            <section className="bg-card sm:rounded-2xl rounded-none p-4 sm:shadow-card shadow-none border-y border-border sm:border-none">
               <h3 className="font-semibold text-foreground mb-4">Endereço para entrega</h3>
               
               {/* Geolocation Button */}
@@ -593,7 +593,7 @@ const Checkout = () => {
 
           {/* Pickup Store Address */}
           {deliveryType === 'pickup' && store?.address && (
-            <section className="bg-card rounded-2xl p-4 shadow-card">
+            <section className="bg-card sm:rounded-2xl rounded-none p-4 sm:shadow-card shadow-none border-y border-border sm:border-none">
               <h3 className="font-semibold text-foreground mb-3">Local para retirada</h3>
               <div className="flex items-start gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
@@ -613,8 +613,8 @@ const Checkout = () => {
 
           {/* Customer Data Section */}
           <section className="space-y-2">
-            <h3 className="font-semibold text-foreground">Dados do cliente</h3>
-            <div className="bg-card rounded-2xl p-4 shadow-card space-y-4">
+            <h3 className="font-semibold text-foreground px-4 sm:px-0">Dados do cliente</h3>
+            <div className="bg-card sm:rounded-2xl rounded-none p-4 sm:shadow-card shadow-none border-y border-border sm:border-none space-y-4">
               <div>
                 <label className="text-sm text-muted-foreground">Nome completo</label>
                 <Input
@@ -639,7 +639,7 @@ const Checkout = () => {
           </section>
 
           {/* Payment Method Section */}
-          <section className="space-y-2">
+          <section className="space-y-2 px-4 sm:px-0">
             <h3 className="font-semibold text-foreground">Método de pagamento</h3>
             <div className="grid grid-cols-2 gap-3">
               {paymentOptions.map((option) => (
@@ -684,7 +684,7 @@ const Checkout = () => {
 
 
           {/* Order Summary Section */}
-          <section className="space-y-3">
+          <section className="space-y-3 px-4 sm:px-0">
             <h3 className="font-semibold text-foreground text-center">Resumo do pedido</h3>
             
             {items.map((item) => (
@@ -776,42 +776,44 @@ const Checkout = () => {
           </section>
 
           {/* Coupon Section */}
-          {appliedCoupon ? (
-            <div className="flex items-center justify-between p-4 bg-secondary/10 border border-secondary/30 rounded-xl">
-              <div className="flex items-center gap-3">
-                <Tag className="h-5 w-5 text-secondary" />
-                <div>
-                  <p className="font-medium text-foreground">{appliedCoupon.code}</p>
-                  <p className="text-sm text-secondary">
-                    -{appliedCoupon.discount_type === 'percentage' ? `${appliedCoupon.discount_value}%` : formatCurrency(appliedCoupon.discount_value)}
-                  </p>
+          <div className="px-4">
+            {appliedCoupon ? (
+              <div className="flex items-center justify-between p-4 bg-secondary/10 border border-secondary/30 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <Tag className="h-5 w-5 text-secondary" />
+                  <div>
+                    <p className="font-medium text-foreground">{appliedCoupon.code}</p>
+                    <p className="text-sm text-secondary">
+                      -{appliedCoupon.discount_type === 'percentage' ? `${appliedCoupon.discount_value}%` : formatCurrency(appliedCoupon.discount_value)}
+                    </p>
+                  </div>
                 </div>
+                <Button variant="ghost" size="icon" onClick={removeCoupon}>
+                  <X className="h-4 w-4" />
+                </Button>
               </div>
-              <Button variant="ghost" size="icon" onClick={removeCoupon}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex gap-2">
-              <Input
-                placeholder="Cupom de desconto"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="flex-1 bg-card border-border"
-              />
-              <Button 
-                variant="outline" 
-                className="text-primary border-primary hover:bg-primary/10"
-                onClick={handleApplyCoupon}
-                disabled={isApplyingCoupon}
-              >
-                {isApplyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
-              </Button>
-            </div>
-          )}
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Cupom de desconto"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  className="flex-1 bg-card border-border"
+                />
+                <Button 
+                  variant="outline" 
+                  className="text-primary border-primary hover:bg-primary/10"
+                  onClick={handleApplyCoupon}
+                  disabled={isApplyingCoupon}
+                >
+                  {isApplyingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* Summary */}
-          <div className="space-y-2">
+          <div className="space-y-2 px-6">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="text-foreground">{formatCurrency(subtotal)}</span>
@@ -839,15 +841,17 @@ const Checkout = () => {
           </div>
 
           {/* Delivery Estimate */}
-          <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
-            <Clock className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="text-xs text-primary font-medium uppercase">
-                {deliveryType === 'delivery' ? 'Previsão de entrega' : 'Previsão de preparo'}
-              </p>
-              <p className="font-semibold text-foreground">
-                {deliveryType === 'delivery' ? '30-45 min' : '15-25 min'}
-              </p>
+          <div className="px-4">
+            <div className="flex items-center gap-3 p-4 bg-card rounded-2xl shadow-card">
+              <Clock className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-primary font-medium uppercase">
+                  {deliveryType === 'delivery' ? 'Previsão de entrega' : 'Previsão de preparo'}
+                </p>
+                <p className="font-semibold text-foreground">
+                  {deliveryType === 'delivery' ? '30-45 min' : '15-25 min'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
