@@ -23,11 +23,17 @@ if ($method === 'POST') {
         respond_error($errMsg, 500);
     }
 
-    $allowed  = ['image/jpeg','image/png','image/webp','image/gif'];
-    $maxSize  = 5 * 1024 * 1024; // 5MB
+    $allowedImages = ['image/jpeg','image/png','image/webp','image/gif'];
+    $allowedVideos = ['video/mp4','video/webm','video/quicktime'];
+    $allowed = array_merge($allowedImages, $allowedVideos);
+    
+    $maxSize  = 100 * 1024 * 1024; // 100MB
 
-    if (!in_array($file['type'], $allowed)) respond_error('Tipo de arquivo não permitido. Use JPG, PNG ou WebP.', 422);
-    if ($file['size'] > $maxSize) respond_error('Arquivo muito grande. Máximo: 5MB', 422);
+    if (!in_array($file['type'], $allowed)) {
+        respond_error('Tipo de arquivo não permitido. Use JPG, PNG, WebP ou vídeos MP4/WebM.', 422);
+    }
+    
+    if ($file['size'] > $maxSize) respond_error('Arquivo muito grande. Máximo: 100MB', 422);
 
     // Garantir que a pasta existe e é gravável
     if (!is_dir(UPLOAD_DIR)) {
