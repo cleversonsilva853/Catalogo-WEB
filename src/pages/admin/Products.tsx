@@ -152,6 +152,11 @@ const AdminProducts = () => {
       return;
     }
 
+    if (!formData.category_id) {
+      toast({ title: 'Categoria é obrigatória', variant: 'destructive' });
+      return;
+    }
+
     const price = parseFloat(formData.price.replace(',', '.'));
     if (isNaN(price) || price <= 0) {
       toast({ title: 'Preço inválido', variant: 'destructive' });

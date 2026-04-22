@@ -21,17 +21,27 @@ if ($method === 'GET') {
 if ($method === 'PUT') {
     require_auth();
     $b = get_body();
-    $allowed = ['name','phone_whatsapp','pix_key','pix_key_type','logo_url','cover_url',
-                'address','is_open','delivery_fee','min_order_value','delivery_time_min',
-                'delivery_time_max','primary_color','secondary_color','accent_color',
-                'pwa_name','pwa_short_name','pix_message','delivery_fee_mode',
-                'checkout_whatsapp_message','consume_on_site_enabled','pdv_password',
-                'stock_enabled','product_stock_enabled'];
+    $allowed = [
+        'name', 'phone_whatsapp', 'pix_key', 'pix_key_type', 'logo_url', 'cover_url', 'cover_url_mobile',
+        'address', 'is_open', 'delivery_fee', 'min_order_value', 'delivery_time_min',
+        'delivery_time_max', 'pickup_time_min', 'pickup_time_max', 'primary_color', 'secondary_color', 'accent_color',
+        'pwa_name', 'pwa_short_name', 'pix_message', 'delivery_fee_mode',
+        'checkout_whatsapp_message', 'consume_on_site_enabled', 'pdv_password',
+        'stock_enabled', 'product_stock_enabled', 'menu_layout',
+        'hero_banner_enabled', 'hero_text_1', 'hero_text_2', 'hero_text_3', 'hero_slogan',
+        'floating_image_enabled', 'floating_image_url', 'floating_image_size', 
+        'floating_image_position', 'floating_image_vertical_position',
+        'floating_image_size_mobile', 'floating_image_position_mobile', 'floating_image_vertical_position_mobile',
+        'mode_delivery_enabled', 'mode_pickup_enabled'
+    ];
     $fields = []; $params = [];
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) {
             $fields[] = "$f = ?";
-            $bool_fields = ['is_open','consume_on_site_enabled','stock_enabled','product_stock_enabled'];
+            $bool_fields = [
+                'is_open', 'consume_on_site_enabled', 'stock_enabled', 'product_stock_enabled',
+                'hero_banner_enabled', 'floating_image_enabled', 'mode_delivery_enabled', 'mode_pickup_enabled'
+            ];
             $params[] = in_array($f, $bool_fields) ? (int)(bool)$b[$f] : $b[$f];
         }
     }
