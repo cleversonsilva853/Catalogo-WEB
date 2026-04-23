@@ -52,6 +52,7 @@ try {
         'hero_text_1' => "VARCHAR(255) DEFAULT NULL",
         'hero_text_2' => "VARCHAR(255) DEFAULT NULL",
         'hero_text_3' => "VARCHAR(255) DEFAULT NULL",
+        'hero_text_4' => "VARCHAR(255) DEFAULT NULL",
         'hero_slogan' => "VARCHAR(255) DEFAULT NULL",
         'floating_image_url' => "TEXT DEFAULT NULL",
         'floating_image_size' => "INT DEFAULT 300",

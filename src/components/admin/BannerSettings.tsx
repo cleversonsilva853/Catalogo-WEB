@@ -26,6 +26,7 @@ export function BannerSettings({ className }: BannerSettingsProps) {
     hero_text_1: '',
     hero_text_2: '',
     hero_text_3: '',
+    hero_text_4: '',
     hero_slogan: '',
     floating_image_url: '',
     floating_image_size: 100,
@@ -60,6 +61,7 @@ export function BannerSettings({ className }: BannerSettingsProps) {
         hero_text_1: store.hero_text_1 || '',
         hero_text_2: store.hero_text_2 || '',
         hero_text_3: store.hero_text_3 || '',
+        hero_text_4: store.hero_text_4 || '',
         hero_slogan: store.hero_slogan || '',
         floating_image_url: store.floating_image_url || '',
         floating_image_size: store.floating_image_size ?? 100,
@@ -85,6 +87,7 @@ export function BannerSettings({ className }: BannerSettingsProps) {
         hero_text_1: current.hero_text_1 || null,
         hero_text_2: current.hero_text_2 || null,
         hero_text_3: current.hero_text_3 || null,
+        hero_text_4: current.hero_text_4 || null,
         hero_slogan: current.hero_slogan || null,
         floating_image_url: current.floating_image_url || null,
         floating_image_size: current.floating_image_size,
@@ -194,6 +197,14 @@ export function BannerSettings({ className }: BannerSettingsProps) {
                     value={formData.hero_text_3}
                     onChange={(e) => setFormDataAndRef((prev) => ({ ...prev, hero_text_3: e.target.value }))}
                     placeholder="Ex: Sabor Irresistível"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs sm:text-sm text-muted-foreground">Texto 4 (Fixo)</Label>
+                  <Input
+                    value={formData.hero_text_4}
+                    onChange={(e) => setFormDataAndRef((prev) => ({ ...prev, hero_text_4: e.target.value }))}
+                    placeholder="Ex: Entrega Rápida!"
                   />
                 </div>
               </div>

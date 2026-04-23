@@ -219,8 +219,8 @@ export function LocalHeroHeader({ store, stories }: LocalHeroHeaderProps) {
             </div>
           )}
 
-          <p className="text-white/90 mb-10 text-lg sm:text-xl font-medium">
-            Entrega Rápida!
+          <p className="text-white/90 mb-12 text-lg sm:text-xl font-medium">
+            {store.hero_text_4 ?? 'Entrega Rápida!'}
           </p>
 
           <Button

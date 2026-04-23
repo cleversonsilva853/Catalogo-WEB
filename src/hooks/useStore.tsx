@@ -34,7 +34,17 @@ export interface StoreConfig {
   hero_text_1?: string | null;
   hero_text_2?: string | null;
   hero_text_3?: string | null;
+  hero_text_4?: string | null;
   hero_slogan?: string | null;
+  hero_banner_enabled?: boolean | null;
+  floating_image_enabled?: boolean | null;
+  floating_image_url?: string | null;
+  floating_image_size?: number | null;
+  floating_image_position?: number | null;
+  floating_image_vertical_position?: number | null;
+  floating_image_size_mobile?: number | null;
+  floating_image_position_mobile?: number | null;
+  floating_image_vertical_position_mobile?: number | null;
 }
 
 export function useStore() {

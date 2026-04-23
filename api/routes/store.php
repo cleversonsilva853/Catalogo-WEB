@@ -28,7 +28,7 @@ if ($method === 'PUT') {
         'pwa_name', 'pwa_short_name', 'pix_message', 'delivery_fee_mode',
         'checkout_whatsapp_message', 'consume_on_site_enabled', 'pdv_password',
         'stock_enabled', 'product_stock_enabled', 'menu_layout',
-        'hero_banner_enabled', 'hero_text_1', 'hero_text_2', 'hero_text_3', 'hero_slogan',
+        'hero_banner_enabled', 'hero_text_1', 'hero_text_2', 'hero_text_3', 'hero_text_4', 'hero_slogan',
         'floating_image_enabled', 'floating_image_url', 'floating_image_size', 
         'floating_image_position', 'floating_image_vertical_position',
         'floating_image_size_mobile', 'floating_image_position_mobile', 'floating_image_vertical_position_mobile',
