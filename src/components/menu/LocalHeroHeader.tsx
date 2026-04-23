@@ -150,10 +150,11 @@ export function LocalHeroHeader({ store, stories }: LocalHeroHeaderProps) {
             {activeStories.length > 0 && (
               <button
                 onClick={() => setStoryOpen(true)}
-                className="relative flex-shrink-0 group focus:outline-none w-12 h-12 sm:w-14 sm:h-14"
+                className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50 ml-1"
+                style={{ width: '56px', height: '56px', minWidth: '56px' }}
                 aria-label="Ver stories"
               >
-                <div className="w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-lg group-hover:scale-105 transition-transform duration-200">
+                <div className="w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center">
                   <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40 bg-black">
                     {activeStories[0].media_type === 'video' ? (
                       <video
