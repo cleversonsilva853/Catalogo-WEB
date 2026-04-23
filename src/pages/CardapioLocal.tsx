@@ -9,6 +9,7 @@ import { InfornexaBanner } from '@/components/menu/InfornexaBanner';
 import { useStore } from '@/hooks/useStore';
 import { useCategories } from '@/hooks/useCategories';
 import { useProducts, Product } from '@/hooks/useProducts';
+import { useStories } from '@/hooks/useStories';
 import { useTheme } from '@/hooks/useTheme';
 import { Loader2, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -20,6 +21,7 @@ const CardapioLocal = () => {
   const { data: store, isLoading: storeLoading } = useStore();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts();
+  const { data: stories } = useStories();
 
   useTheme();
 
@@ -80,7 +82,7 @@ const CardapioLocal = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background pb-12">
-        <LocalHeroHeader store={store} />
+        <LocalHeroHeader store={store} stories={stories} />
         
 
         {isCategoryMode ? (
@@ -137,7 +139,11 @@ const CardapioLocal = () => {
             </div>
 
             {categories && categories.length > 0 && (
-              <CategoryIcons categories={categories} onCategorySelect={scrollToCategory} />
+              <CategoryIcons 
+                categories={categories} 
+                selectedId={null}
+                onSelect={(id) => id && scrollToCategory(id)} 
+              />
             )}
 
             <div className="px-4 pt-2 pb-3 flex items-center justify-between">

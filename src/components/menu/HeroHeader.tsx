@@ -180,6 +180,8 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
                       <video
                         src={activeStories[0].media_url}
                         className="w-full h-full object-cover"
+                        autoPlay
+                        loop
                         muted
                         playsInline
                       />
