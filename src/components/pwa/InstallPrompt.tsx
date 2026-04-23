@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, X, Share, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
@@ -9,12 +9,32 @@ const InstallPrompt = () => {
   const { data: store } = useStore();
   const [dismissed, setDismissed] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show when scrolling past 40% of the screen height (which is right before the store hours)
+      if (window.scrollY > window.innerHeight * 0.4) {
+        setHasScrolled(true);
+      } else {
+        setHasScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Don't show if already installed or dismissed
   if (isInstalled || dismissed) return null;
 
   // Don't show if not installable and not iOS
   if (!isInstallable && !showIOSInstructions) return null;
+
+  // Don't show if user hasn't scrolled down yet
+  if (!hasScrolled) return null;
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -29,7 +49,7 @@ const InstallPrompt = () => {
   return (
     <>
       {/* Floating Install Button */}
-      <div className="fixed bottom-24 right-4 z-40 animate-slide-up">
+      <div className="fixed bottom-6 right-4 sm:bottom-8 sm:right-6 z-40 animate-slide-up">
         <div className="relative">
           <Button
             onClick={handleInstallClick}
