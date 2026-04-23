@@ -50,7 +50,7 @@ export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIcon
             "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1 flex-shrink-0",
             selectedId === null
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
-              : "bg-card text-muted-foreground border border-border/50 hover:border-primary/30"
+              : "bg-card text-muted-foreground border-[1.5px] border-border/60 hover:border-primary/30"
           )}
         >
           <ChefHat className={cn("h-7 w-7", selectedId === null ? "text-white" : "text-primary")} />
@@ -69,7 +69,7 @@ export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIcon
                 "flex flex-col items-center justify-center min-w-[85px] h-[85px] rounded-[24px] transition-all duration-300 snap-start gap-1 flex-shrink-0",
                 isSelected
                   ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105"
-                  : "bg-card text-muted-foreground border border-border/50 hover:border-primary/30"
+                  : "bg-card text-muted-foreground border-[1.5px] border-border/60 hover:border-primary/30"
               )}
             >
               {category.image_url ? (
