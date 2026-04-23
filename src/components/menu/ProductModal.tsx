@@ -173,7 +173,7 @@ export function ProductModal({
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/60 backdrop-blur-sm sm:items-center">
       <div className="absolute inset-0" onClick={onClose} />
-      <div className="relative w-full max-w-lg animate-slide-up bg-background sm:rounded-3xl sm:m-4 max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="relative w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] sm:max-w-lg animate-slide-up bg-background sm:rounded-3xl overflow-hidden flex flex-col shadow-2xl">
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
           {/* Image Header with Close Button */}

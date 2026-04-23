@@ -19,6 +19,7 @@ export interface StoreConfig {
   primary_color: string;
   secondary_color: string;
   accent_color: string;
+  menu_color?: string | null;
   pwa_name: string;
   pwa_short_name: string;
   pix_message: string | null;

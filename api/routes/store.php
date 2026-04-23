@@ -24,7 +24,7 @@ if ($method === 'PUT') {
     $allowed = [
         'name', 'phone_whatsapp', 'pix_key', 'pix_key_type', 'logo_url', 'cover_url', 'cover_url_mobile',
         'address', 'is_open', 'delivery_fee', 'min_order_value', 'delivery_time_min',
-        'delivery_time_max', 'pickup_time_min', 'pickup_time_max', 'primary_color', 'secondary_color', 'accent_color',
+        'delivery_time_max', 'pickup_time_min', 'pickup_time_max', 'primary_color', 'secondary_color', 'accent_color', 'menu_color',
         'pwa_name', 'pwa_short_name', 'pix_message', 'delivery_fee_mode',
         'checkout_whatsapp_message', 'consume_on_site_enabled', 'pdv_password',
         'stock_enabled', 'product_stock_enabled', 'menu_layout',

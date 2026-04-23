@@ -64,6 +64,11 @@ export function useTheme() {
       root.style.setProperty('--sidebar-ring', parseHslColor(store.primary_color, '45 100% 51%'));
     }
 
+    // Apply menu background color (only outside of admin interface)
+    if (store.menu_color && !window.location.pathname.startsWith('/admin')) {
+      root.style.setProperty('--background', parseHslColor(store.menu_color, '0 0% 100%'));
+    }
+
     // Apply secondary color
     if (store.secondary_color) {
       root.style.setProperty('--secondary', parseHslColor(store.secondary_color, '142 76% 49%'));

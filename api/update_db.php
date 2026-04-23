@@ -55,6 +55,7 @@ try {
         'hero_text_4' => "VARCHAR(255) DEFAULT NULL",
         'hero_slogan' => "VARCHAR(255) DEFAULT NULL",
         'floating_image_url' => "TEXT DEFAULT NULL",
+        'menu_color' => "VARCHAR(50) DEFAULT NULL",
         'floating_image_size' => "INT DEFAULT 300",
         'floating_image_position' => "INT DEFAULT 50",
         'floating_image_vertical_position' => "INT DEFAULT 50",

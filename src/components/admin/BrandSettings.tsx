@@ -30,6 +30,16 @@ const SECONDARY_PRESETS = [
   { name: 'Vermelho', value: '0 84% 60%', hex: '#ef4444' },
 ];
 
+const MENU_COLOR_PRESETS = [
+  { name: 'Branco Original', value: '0 0% 100%', hex: '#ffffff' },
+  { name: 'Creme', value: '40 20% 97%', hex: '#f9f8f4' },
+  { name: 'Cinza Claro', value: '210 20% 96%', hex: '#f1f5f9' },
+  { name: 'Cinza Escuro', value: '215 15% 15%', hex: '#21252b' },
+  { name: 'Preto Total', value: '0 0% 5%', hex: '#0d0d0d' },
+  { name: 'Amarelo Suave', value: '45 100% 96%', hex: '#fffbea' },
+  { name: 'Rosa Bebê', value: '330 100% 98%', hex: '#fff0f6' },
+];
+
 interface BrandSettingsProps {
   className?: string;
 }
@@ -44,6 +54,7 @@ export function BrandSettings({ className }: BrandSettingsProps) {
     logo_url: '',
     primary_color: '45 100% 51%',
     secondary_color: '142 76% 49%',
+    menu_color: '0 0% 100%',
     pwa_name: '',
     pwa_short_name: '',
   });
@@ -55,6 +66,7 @@ export function BrandSettings({ className }: BrandSettingsProps) {
         logo_url: store.logo_url || '',
         primary_color: store.primary_color || '45 100% 51%',
         secondary_color: store.secondary_color || '142 76% 49%',
+        menu_color: store.menu_color || '0 0% 100%',
         pwa_name: store.pwa_name || store.name || '',
         pwa_short_name: store.pwa_short_name || store.pwa_name?.slice(0, 12) || store.name?.slice(0, 12) || '',
       });
@@ -70,6 +82,7 @@ export function BrandSettings({ className }: BrandSettingsProps) {
         logo_url: formData.logo_url || null,
         primary_color: formData.primary_color,
         secondary_color: formData.secondary_color,
+        menu_color: formData.menu_color,
         pwa_name: formData.pwa_name || formData.name,
         pwa_short_name: formData.pwa_short_name || formData.pwa_name?.slice(0, 12) || formData.name.slice(0, 12),
       };
@@ -176,6 +189,30 @@ export function BrandSettings({ className }: BrandSettingsProps) {
           </div>
           <p className="text-xs text-muted-foreground">
             Usada em status de sucesso, WhatsApp e elementos secundários
+          </p>
+        </div>
+
+        {/* Menu Background Color */}
+        <div className="space-y-3">
+          <Label className="text-xs sm:text-sm text-foreground font-semibold">Cor de Fundo do Cardápio</Label>
+          <div className="flex flex-wrap gap-2">
+            {MENU_COLOR_PRESETS.map((color) => (
+              <button
+                key={color.value}
+                type="button"
+                onClick={() => setFormData({ ...formData, menu_color: color.value })}
+                className={`h-10 w-10 rounded-xl border-2 transition-all ${
+                  formData.menu_color === color.value
+                    ? 'border-primary ring-2 ring-primary/20 scale-110 shadow-md'
+                    : 'border-border shadow-sm hover:border-border/80'
+                }`}
+                style={{ backgroundColor: color.hex }}
+                title={color.name}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Cor de fundo do menu principal <strong>(Padrão: Branco)</strong>. Será refletido apenas na página de pedidos.
           </p>
         </div>
 
