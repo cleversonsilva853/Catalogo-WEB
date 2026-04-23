@@ -63,10 +63,10 @@ export function StoreInfo({ store }: StoreInfoProps) {
   return (
     <>
       {/* Primary Info - Large Block */}
-      <div className="mt-4 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2">
+      <div className="relative z-30 -mt-16 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2 mb-2">
         {/* Status */}
-        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] w-full sm:max-w-[350px] transition-all">
-          <div className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full sm:mb-3 ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+        <div className="flex flex-row items-center gap-3 rounded-[24px] bg-card p-5 shadow-lg shadow-black/10 sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] w-full sm:max-w-[350px] transition-all border border-border/30">
+          <div className={`flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full sm:mb-3 shadow-inner ${storeStatus.isOpen ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
             <Clock className={`h-5 w-5 sm:h-6 sm:w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
           </div>
           <div className="flex-1 sm:mb-4">
