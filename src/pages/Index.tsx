@@ -57,7 +57,7 @@ const Index = () => {
   // Apply dynamic theme based on store colors
   useTheme();
 
-  const isLoading = storeLoading || categoriesLoading || productsLoading;
+  const isMenuLoading = categoriesLoading || productsLoading;
 
   // Check for last order on mount
   useEffect(() => {
@@ -150,12 +150,12 @@ const Index = () => {
     setEditingProduct(null);
   };
 
-  if (isLoading) {
+  if (storeLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Carregando cardápio...</p>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -216,7 +216,12 @@ const Index = () => {
 
         {/* Categories & Products - Conditional Layout */}
         <div data-menu-section="true">
-          {isCategoryMode ? (
+          {isMenuLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+              <p className="ml-4 flex items-center text-lg text-muted-foreground">Carregando cardápio...</p>
+            </div>
+          ) : isCategoryMode ? (
           <>
             {/* Search Bar */}
             <div className="px-4 mt-4">

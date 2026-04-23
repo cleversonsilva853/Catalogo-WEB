@@ -30,6 +30,7 @@ export function MenuProductCard({ product, onSelect }: MenuProductCardProps) {
             src={product.image_url}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           />
           {!product.is_available && (

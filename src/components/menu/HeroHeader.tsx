@@ -157,6 +157,8 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
                 <img 
                   src={store.logo_url} 
                   alt={store.name} 
+                  fetchPriority="high"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -292,6 +294,8 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
             ref={imageRef}
             src={floatingImageUrl}
             alt="Destaque"
+            fetchPriority="high"
+            decoding="async"
             className="absolute drop-shadow-2xl transition-transform duration-100 ease-out pointer-events-none z-0"
             style={
               isMobile

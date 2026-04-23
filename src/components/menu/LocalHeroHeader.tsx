@@ -129,6 +129,8 @@ export function LocalHeroHeader({ store }: LocalHeroHeaderProps) {
                 <img
                   src={store.logo_url}
                   alt={`Logo ${store.name}`}
+                  fetchPriority="high"
+                  decoding="async"
                   className="h-full w-full object-cover"
                   loading="eager"
                 />
@@ -196,6 +198,8 @@ export function LocalHeroHeader({ store }: LocalHeroHeaderProps) {
             ref={imageRef}
             src={floatingImageUrl}
             alt="Destaque"
+            fetchPriority="high"
+            decoding="async"
             className="absolute drop-shadow-2xl transition-transform duration-200 ease-out pointer-events-none z-0"
             style={
               isMobile
