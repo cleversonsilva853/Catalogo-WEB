@@ -62,9 +62,10 @@ export function StoreInfo({ store }: StoreInfoProps) {
 
   return (
     <>
-      <div className="mt-4 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2 sm:gap-4">
+      {/* Primary Info - Large Block */}
+      <div className="mt-4 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2">
         {/* Status */}
-        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
+        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] w-full sm:max-w-[350px] transition-all">
           <div className={`flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full sm:mb-3 ${storeStatus.isOpen ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
             <Clock className={`h-5 w-5 sm:h-6 sm:w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
           </div>
@@ -83,72 +84,48 @@ export function StoreInfo({ store }: StoreInfoProps) {
           </div>
           <button
             onClick={() => setHoursModalOpen(true)}
-            className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
+            className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shrink-0"
           >
             Horários
           </button>
         </div>
+      </div>
 
+      {/* Secondary Info - Side by Side Pills */}
+      <div className="flex gap-2 mt-2 px-4 overflow-x-auto scrollbar-hide pb-2 snap-x">
         {/* Phone */}
         {store.phone_whatsapp && (
-          <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
-            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
-              <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-            </div>
-            <div className="flex-1 sm:mb-4">
-              <p className="text-xs sm:text-sm font-bold text-foreground">
-                {formatPhone(store.phone_whatsapp)}
-              </p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">WhatsApp disponível</p>
-            </div>
-            <a
-              href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
-            >
-              Falar
-            </a>
-          </div>
+          <a
+            href={`https://api.whatsapp.com/send?phone=55${store.phone_whatsapp.replace(/\D/g, '')}&text=${encodeURIComponent('Olá! Vim pelo cardápio digital.')}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-card px-4 py-3 rounded-[16px] shadow-sm whitespace-nowrap min-w-max border border-border/10 transition-transform active:scale-95 snap-start"
+          >
+            <Phone className="h-4 w-4 text-primary" />
+            <span className="text-[12px] font-bold">WhatsApp</span>
+          </a>
         )}
 
         {/* Location */}
-        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
-          <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
-            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-          </div>
-          <div className="flex-1 sm:mb-4">
-            <p className="text-xs sm:text-sm font-bold text-foreground">Localização</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1 sm:line-clamp-2">
-              {store.address || 'Endereço não configurado'}
-            </p>
-          </div>
-          {store.address && (
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg"
-            >
-              Mapa
-            </a>
-          )}
-        </div>
+        {store.address && (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 bg-card px-4 py-3 rounded-[16px] shadow-sm whitespace-nowrap min-w-max border border-border/10 transition-transform active:scale-95 snap-start"
+          >
+            <MapPin className="h-4 w-4 text-primary" />
+            <span className="text-[12px] font-bold">Local</span>
+          </a>
+        )}
 
         {/* Delivery */}
-        <div className="flex flex-row items-center gap-3 rounded-xl bg-card p-4 shadow-sm sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] flex-1 sm:max-w-[350px] transition-all">
-          <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-full bg-muted sm:mb-3">
-            <Bike className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
-          </div>
-          <div className="flex-1 sm:mb-4">
-            <p className="text-xs sm:text-sm font-bold text-foreground">Entrega</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-              {store.delivery_time_min || 30}-{store.delivery_time_max || 45} MIN • TAXA: R$ {Number(store.delivery_fee).toFixed(2).replace('.', ',')}
-            </p>
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-[10px] font-semibold text-primary/60 uppercase tracking-tight">Delivery Ativo</p>
-          </div>
+        <div 
+          onClick={() => alert(`📦 Entrega: ${store.delivery_time_min || 30}-${store.delivery_time_max || 45} mins\n💳 Taxa: R$ ${Number(store.delivery_fee).toFixed(2).replace('.', ',')}`)}
+          className="flex items-center gap-2 bg-card px-4 py-3 rounded-[16px] shadow-sm whitespace-nowrap min-w-max border border-border/10 transition-transform active:scale-95 snap-start cursor-pointer"
+        >
+          <Bike className="h-4 w-4 text-primary" />
+          <span className="text-[12px] font-bold">Entrega</span>
         </div>
       </div>
 

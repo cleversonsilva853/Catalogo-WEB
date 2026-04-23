@@ -12,19 +12,13 @@ const InstallPrompt = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Show when scrolling past 40% of the screen height (which is right before the store hours)
-      if (window.scrollY > window.innerHeight * 0.4) {
-        setHasScrolled(true);
-      } else {
-        setHasScrolled(false);
-      }
-    };
+    // Show the prompt after 3 seconds of page load instead of relying on scroll
+    // This is much more reliable across all mobile browsers
+    const timer = setTimeout(() => {
+      setHasScrolled(true);
+    }, 4000);
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => clearTimeout(timer);
   }, []);
 
   // Don't show if already installed or dismissed
