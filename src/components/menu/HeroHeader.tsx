@@ -103,8 +103,9 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
   useEffect(() => {
     const handleDeviceMotion = (e: DeviceMotionEvent) => {
       if (e.accelerationIncludingGravity) {
-        const x = (e.accelerationIncludingGravity.x || 0) * 8;
-        const y = (e.accelerationIncludingGravity.y || 0) * 8;
+        // Reduzido o multiplicador para tornar menos sensível (de 8 para 2.5)
+        const x = (e.accelerationIncludingGravity.x || 0) * 2.5;
+        const y = (e.accelerationIncludingGravity.y || 0) * 2.5;
         setImagePosition({ x: -x, y });
       }
     };

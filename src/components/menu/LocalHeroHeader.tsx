@@ -89,8 +89,9 @@ export function LocalHeroHeader({ store, stories }: LocalHeroHeaderProps) {
   useEffect(() => {
     const handleDeviceMotion = (e: DeviceMotionEvent) => {
       if (e.accelerationIncludingGravity) {
-        const x = (e.accelerationIncludingGravity.x || 0) * 2;
-        const y = (e.accelerationIncludingGravity.y || 0) * 2;
+        // Reduzido o multiplicador para tornar menos sensível (foi padronizado para 2.5)
+        const x = (e.accelerationIncludingGravity.x || 0) * 2.5;
+        const y = (e.accelerationIncludingGravity.y || 0) * 2.5;
         setImagePosition({ x: -x, y });
       }
     };
