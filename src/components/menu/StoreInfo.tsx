@@ -63,31 +63,37 @@ export function StoreInfo({ store }: StoreInfoProps) {
   return (
     <>
       {/* Primary Info - Large Block */}
-      <div className="relative z-30 -mt-16 px-4 flex flex-col sm:flex-row sm:flex-wrap sm:justify-center gap-2 mb-2">
+      <div className="mt-2 px-4 flex justify-center mb-2">
         {/* Status */}
-        <div className="flex flex-row items-center gap-3 rounded-[24px] bg-card p-5 shadow-lg shadow-black/10 sm:flex-col sm:items-center sm:text-center sm:p-6 sm:min-w-[280px] w-full sm:max-w-[350px] transition-all border border-border/30">
-          <div className={`flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full sm:mb-3 shadow-inner ${storeStatus.isOpen ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-            <Clock className={`h-5 w-5 sm:h-6 sm:w-6 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
-          </div>
-          <div className="flex-1 sm:mb-4">
-            <p className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
-              {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
-            </p>
-            {!storeStatus.isForcedOpen && (
-              <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 leading-tight sm:leading-relaxed">
-                {storeStatus.isOpen && todaySchedule
-                  ? `Hoje: ${todaySchedule}`
-                  : storeStatus.message
-                }
+        <div className="flex flex-row items-center justify-between gap-3 rounded-2xl bg-card p-4 sm:p-5 shadow-sm w-full sm:max-w-[400px] transition-all border border-border/20 mx-auto">
+          
+          <div className="flex flex-row items-center gap-3 overflow-hidden">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${storeStatus.isOpen ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+              <Clock className={`h-5 w-5 ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`} />
+            </div>
+            
+            <div className="flex flex-col text-left truncate">
+              <p className={`text-sm font-bold uppercase tracking-wider ${storeStatus.isOpen ? 'text-green-500' : 'text-red-500'}`}>
+                {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
               </p>
-            )}
+              {!storeStatus.isForcedOpen && (
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">
+                  {storeStatus.isOpen && todaySchedule
+                    ? `Hoje das ${todaySchedule}`
+                    : storeStatus.message
+                  }
+                </p>
+              )}
+            </div>
           </div>
+
           <button
             onClick={() => setHoursModalOpen(true)}
-            className="text-[10px] sm:text-xs font-bold uppercase text-primary hover:text-primary/80 transition-colors border border-primary/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shrink-0"
+            className={`text-[10px] sm:text-xs font-bold uppercase px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shrink-0 border ${storeStatus.isOpen ? 'text-green-500 border-green-500/30' : 'text-red-500 border-red-500/30'} hover:bg-black/5 transition-colors`}
           >
             Horários
           </button>
+          
         </div>
       </div>
 
