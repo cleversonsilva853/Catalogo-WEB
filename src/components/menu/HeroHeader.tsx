@@ -275,7 +275,7 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
           )}
 
           {/* Info Line */}
-          <p className="text-white/90 mb-10 text-lg sm:text-xl font-medium">
+          <p className="text-white/90 mt-12 sm:mt-20 mb-8 sm:mb-10 text-lg sm:text-xl font-medium">
             {store.hero_text_4 ?? 'Entrega Rápida!'}
           </p>
 
