@@ -154,18 +154,18 @@ export function LocalHeroHeader({ store }: LocalHeroHeaderProps) {
         {/* Hero Content */}
         <div className="relative z-10 flex flex-col items-start text-left justify-start pt-24 md:pt-8 md:justify-center h-[calc(100%-80px)] px-6 sm:px-8 md:px-12 lg:px-16">
           {heroSlogan && (
-            <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-4">
+            <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-6">
               {heroSlogan}
             </p>
           )}
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-3 drop-shadow-lg"
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-6 drop-shadow-lg"
               style={{ fontFamily: "'Poppins', sans-serif", textShadow: '2px 4px 8px rgba(0,0,0,0.4)' }}>
             {store.name}
           </h1>
 
           {rotatingTexts.length > 0 && (
-            <div className="h-14 sm:h-16 lg:h-20 mb-4 overflow-hidden">
+            <div className="h-14 sm:h-16 lg:h-20 mb-8 overflow-hidden">
               <p
                 className={`text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary drop-shadow-md transition-all duration-300 ${
                   isAnimating ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'
@@ -177,7 +177,7 @@ export function LocalHeroHeader({ store }: LocalHeroHeaderProps) {
             </div>
           )}
 
-          <p className="text-white/90 mb-6 text-lg sm:text-xl font-medium">
+          <p className="text-white/90 mb-10 text-lg sm:text-xl font-medium">
             Entrega Rápida!
           </p>
 
