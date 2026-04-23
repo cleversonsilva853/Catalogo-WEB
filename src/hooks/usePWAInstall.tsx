@@ -20,11 +20,17 @@ export function usePWAInstall() {
       return;
     }
 
+    if ((window as any).deferredPWAInstallPrompt) {
+      setDeferredPrompt((window as any).deferredPWAInstallPrompt);
+      setIsInstallable(true);
+    }
+
     // Listen for the install prompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
+      (window as any).deferredPWAInstallPrompt = e;
     };
 
     // Listen for app installed event
