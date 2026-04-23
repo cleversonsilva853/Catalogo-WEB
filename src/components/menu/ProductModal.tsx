@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -220,14 +220,43 @@ export function ProductModal({
           </div>
 
           {/* Product Info */}
-          <div className="p-4 sm:p-5 border-b border-border">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground">{product.name}</h2>
-            <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-              {product.description}
-            </p>
-            <p className="mt-3 text-xl sm:text-2xl font-bold text-primary italic">
+          <div className="px-5 py-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-slate-800 leading-tight">{product.name}</h2>
+            <p className="mt-1.5 text-2xl sm:text-3xl font-bold text-primary">
               {formattedPrice}
             </p>
+            
+            {product.description && (
+              <div className="mt-6">
+                <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-2">Descrição</h3>
+                <p className="text-sm sm:text-base text-slate-500 leading-relaxed font-medium">
+                  {product.description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Quantity Section - Moved out of footer */}
+          <div className="px-5 mb-8">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-4">Quantidade</h3>
+            <div className="flex items-center gap-5">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+                className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[14px] bg-slate-100 text-slate-400 hover:bg-slate-200 disabled:opacity-50 transition-colors"
+                aria-label="Diminuir"
+              >
+                <span className="text-3xl font-medium leading-none mb-1">-</span>
+              </button>
+              <span className="text-xl sm:text-2xl font-bold w-4 text-center text-slate-800">{quantity}</span>
+              <button
+                onClick={() => setQuantity(quantity + 1)}
+                className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-[14px] bg-primary text-white hover:bg-primary/90 transition-colors shadow-sm"
+                aria-label="Aumentar"
+              >
+                <span className="text-3xl font-medium leading-none mb-1">+</span>
+              </button>
+            </div>
           </div>
 
           {/* Add-ons Sections */}
@@ -237,86 +266,78 @@ export function ProductModal({
             </div>
           ) : hasAddons ? (
             addonGroups.map((group: AddonGroupWithOptions) => (
-              <div key={group.id} className="border-b border-border">
+              <div key={group.id} className="px-5 mb-8">
                 {/* Section Header */}
-                <div className="bg-muted/50 px-4 sm:px-5 py-3">
+                <div className="mb-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-foreground text-sm sm:text-base">{group.title}</h3>
+                    <h3 className="text-lg sm:text-xl font-bold text-slate-800">{group.title}</h3>
                     {group.is_required && (
-                      <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full">
+                      <span className="text-[10px] sm:text-xs font-bold text-destructive bg-destructive/10 px-2 py-1 rounded-md uppercase">
                         Obrigatório
                       </span>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    {group.subtitle || `Escolha ${group.max_selections === 1 ? '1 opção' : `até ${group.max_selections} opções`}`}
-                  </p>
+                  {group.subtitle && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {group.subtitle}
+                    </p>
+                  )}
                 </div>
                 
-                {/* Options - Use Radio for Required Single Choice, Checkbox for everything else */}
+                {/* Options */}
                 {group.max_selections === 1 && group.is_required ? (
                   <RadioGroup 
                     value={selectedAddOns[group.id]?.[0] || ''} 
                     onValueChange={(value) => handleSingleSelect(group.id, value)} 
-                    className="px-4 sm:px-5 py-2"
+                    className="space-y-3"
                   >
-                    {group.options.map((option) => (
-                      <div 
-                        key={option.id} 
-                        className="flex items-center justify-between py-3 border-b border-border/50 last:border-0"
+                    {group.options.map((option) => {
+                      const isSelected = selectedAddOns[group.id]?.[0] === option.id;
+                      return (
+                      <Label 
+                        key={option.id}
+                        htmlFor={`${group.id}-${option.id}`} 
+                        className={`flex items-center w-full p-4 rounded-xl border transition-all cursor-pointer shadow-sm ${isSelected ? 'border-primary bg-primary/5' : 'border-border/60 bg-card hover:border-primary/30'}`}
                       >
-                        <Label 
-                          htmlFor={`${group.id}-${option.id}`} 
-                          className="flex-1 cursor-pointer font-normal text-sm sm:text-base text-foreground"
-                        >
-                          {option.name}
-                          {Number(option.price) > 0 && (
-                            <span className="text-muted-foreground ml-2 text-sm">
-                              +{Number(option.price).toLocaleString('pt-BR', {
-                                style: 'currency',
-                                currency: 'BRL'
-                              })}
-                            </span>
-                          )}
-                        </Label>
-                        <RadioGroupItem 
-                          value={option.id} 
-                          id={`${group.id}-${option.id}`} 
-                          className="h-5 w-5 sm:h-6 sm:w-6 border-2 border-muted-foreground data-[state=checked]:border-primary data-[state=checked]:bg-primary" 
-                        />
-                      </div>
-                    ))}
+                        <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-3 ${isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
+                          {isSelected ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : <span className="text-lg leading-none mb-0.5 font-medium">+</span>}
+                        </div>
+                        <span className="flex-1 font-medium text-sm sm:text-base text-slate-800 select-none">{option.name}</span>
+                        {Number(option.price) > 0 && (
+                          <span className={`font-bold text-sm select-none ${isSelected ? 'text-primary' : 'text-primary'}`}>
+                            + {Number(option.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </span>
+                        )}
+                        <RadioGroupItem value={option.id} id={`${group.id}-${option.id}`} className="sr-only" />
+                      </Label>
+                    )})}
                   </RadioGroup>
                 ) : (
-                  <div className="px-4 sm:px-5 py-2">
+                  <div className="space-y-3">
                     {group.options.map((option) => {
                       const isSelected = selectedAddOns[group.id]?.includes(option.id) || false;
                       return (
-                        <div 
-                          key={option.id} 
-                          className="flex items-center justify-between py-3 border-b border-border/50 last:border-0"
+                        <Label 
+                          key={option.id}
+                          htmlFor={`${group.id}-${option.id}`} 
+                          className={`flex items-center w-full p-4 rounded-xl border transition-all cursor-pointer shadow-sm ${isSelected ? 'border-primary bg-primary/5' : 'border-border/60 bg-card hover:border-primary/30'}`}
                         >
-                          <Label 
-                            htmlFor={`${group.id}-${option.id}`} 
-                            className="flex-1 cursor-pointer font-normal text-sm sm:text-base text-foreground"
-                          >
-                            {option.name}
-                            {Number(option.price) > 0 && (
-                              <span className="text-muted-foreground ml-2 text-sm">
-                                +{Number(option.price).toLocaleString('pt-BR', {
-                                  style: 'currency',
-                                  currency: 'BRL'
-                                })}
-                              </span>
-                            )}
-                          </Label>
+                          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-3 ${isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            {isSelected ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : <span className="text-lg leading-none mb-0.5 font-medium">+</span>}
+                          </div>
+                          <span className="flex-1 font-medium text-sm sm:text-base text-slate-800 select-none">{option.name}</span>
+                          {Number(option.price) > 0 && (
+                            <span className="text-primary font-bold text-sm select-none">
+                              + {Number(option.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            </span>
+                          )}
                           <Checkbox
                             id={`${group.id}-${option.id}`}
                             checked={isSelected}
                             onCheckedChange={() => handleMultiSelect(group.id, option.id, group.max_selections)}
-                            className="h-5 w-5 sm:h-6 sm:w-6"
+                            className="sr-only"
                           />
-                        </div>
+                        </Label>
                       );
                     })}
                   </div>
@@ -326,47 +347,29 @@ export function ProductModal({
           ) : null}
 
           {/* Observation */}
-          <div className="p-4 sm:p-5">
-            <label className="text-sm font-medium text-foreground">
-              Alguma observação?
-            </label>
+          <div className="px-5 mb-10">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 mb-4">
+              Observações do pedido
+            </h3>
             <Textarea 
-              placeholder="Ex: Sem cebola, molho à parte..." 
+              placeholder="Ex: sem cebola, pouco molho, carne bem passada" 
               value={observation} 
               onChange={e => setObservation(e.target.value)} 
-              className="mt-2 resize-none rounded-xl bg-muted border-0 text-sm" 
+              className="resize-none rounded-2xl bg-card border border-border/60 text-sm sm:text-base p-4 min-h-[100px] shadow-sm focus-visible:ring-1 focus-visible:ring-primary/30 font-medium placeholder:text-slate-400" 
               rows={3} 
             />
           </div>
         </div>
 
         {/* Footer - Add Button */}
-        <div className="shrink-0 bg-background p-4 pb-6 safe-area-bottom border-t border-border">
-          {/* Quantity Selector */}
-          <div className="flex items-center justify-center gap-4 mb-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              disabled={quantity <= 1}
-              className="h-10 w-10 rounded-full"
-            >
-              -
-            </Button>
-            <span className="text-lg font-bold w-8 text-center">{quantity}</span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setQuantity(quantity + 1)}
-              className="h-10 w-10 rounded-full"
-            >
-              +
-            </Button>
-          </div>
-          
-          <Button onClick={handleAddToCart} className="w-full rounded-full" size="xl">
-            {isEditing ? 'Atualizar' : 'Adicionar'} • {totalPrice}
-          </Button>
+        <div className="shrink-0 bg-background p-4 sm:p-5 border-t border-border shadow-[0_-4px_15px_rgba(0,0,0,0.03)] z-10 safe-area-bottom">
+          <button 
+            onClick={handleAddToCart} 
+            className="w-full relative flex items-center justify-between rounded-[16px] bg-primary px-6 py-4 sm:py-5 text-white hover:bg-primary/95 transition-all shadow-md active:scale-[0.98]" 
+          >
+            <span className="font-bold text-base sm:text-lg">{isEditing ? 'Atualizar carrinho' : 'Adicionar ao carrinho'}</span>
+            <span className="font-bold text-base sm:text-lg">{totalPrice}</span>
+          </button>
         </div>
       </div>
     </div>

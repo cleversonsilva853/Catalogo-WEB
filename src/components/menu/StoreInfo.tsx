@@ -63,7 +63,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
   return (
     <>
       {/* Primary Info - Large Block */}
-      <div className="mt-2 px-4 flex justify-center mb-2">
+      <div className="mt-0 px-4 flex justify-center mb-2">
         {/* Status */}
         <div className="flex flex-row items-center justify-between gap-3 rounded-2xl bg-card p-4 sm:p-5 shadow-sm w-full sm:max-w-[400px] transition-all border border-border/20 mx-auto">
           
@@ -77,7 +77,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
                 {storeStatus.isOpen ? 'Aberto' : 'Fechado'}
               </p>
               {!storeStatus.isForcedOpen && (
-                <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 truncate">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-bold mt-0.5 truncate">
                   {storeStatus.isOpen && todaySchedule
                     ? `Hoje das ${todaySchedule}`
                     : storeStatus.message
