@@ -286,17 +286,13 @@ export function ProductModal({
                 
                 {/* Options */}
                 {group.max_selections === 1 && group.is_required ? (
-                  <RadioGroup 
-                    value={selectedAddOns[group.id]?.[0] || ''} 
-                    onValueChange={(value) => handleSingleSelect(group.id, value)} 
-                    className="space-y-3"
-                  >
+                  <div className="space-y-3">
                     {group.options.map((option) => {
                       const isSelected = selectedAddOns[group.id]?.[0] === option.id;
                       return (
-                      <Label 
+                      <div 
                         key={option.id}
-                        htmlFor={`${group.id}-${option.id}`} 
+                        onClick={() => handleSingleSelect(group.id, option.id)}
                         className={`flex items-center w-full p-4 rounded-xl border transition-all cursor-pointer shadow-sm ${isSelected ? 'border-primary bg-primary/5' : 'border-border/60 bg-card hover:border-primary/30'}`}
                       >
                         <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-3 ${isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
@@ -308,18 +304,17 @@ export function ProductModal({
                             + {Number(option.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                           </span>
                         )}
-                        <RadioGroupItem value={option.id} id={`${group.id}-${option.id}`} className="sr-only" />
-                      </Label>
+                      </div>
                     )})}
-                  </RadioGroup>
+                  </div>
                 ) : (
                   <div className="space-y-3">
                     {group.options.map((option) => {
                       const isSelected = selectedAddOns[group.id]?.includes(option.id) || false;
                       return (
-                        <Label 
+                        <div 
                           key={option.id}
-                          htmlFor={`${group.id}-${option.id}`} 
+                          onClick={() => handleMultiSelect(group.id, option.id, group.max_selections)}
                           className={`flex items-center w-full p-4 rounded-xl border transition-all cursor-pointer shadow-sm ${isSelected ? 'border-primary bg-primary/5' : 'border-border/60 bg-card hover:border-primary/30'}`}
                         >
                           <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-3 ${isSelected ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}`}>
@@ -331,13 +326,7 @@ export function ProductModal({
                               + {Number(option.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             </span>
                           )}
-                          <Checkbox
-                            id={`${group.id}-${option.id}`}
-                            checked={isSelected}
-                            onCheckedChange={() => handleMultiSelect(group.id, option.id, group.max_selections)}
-                            className="sr-only"
-                          />
-                        </Label>
+                        </div>
                       );
                     })}
                   </div>
