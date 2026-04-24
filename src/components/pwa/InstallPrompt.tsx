@@ -12,11 +12,10 @@ const InstallPrompt = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
-    // Show the prompt after 3 seconds of page load instead of relying on scroll
-    // This is much more reliable across all mobile browsers
+    // Show the prompt soon after page load instead of making user wait 4 seconds
     const timer = setTimeout(() => {
       setHasScrolled(true);
-    }, 4000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, []);

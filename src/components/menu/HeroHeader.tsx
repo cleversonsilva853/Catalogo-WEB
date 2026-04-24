@@ -9,6 +9,7 @@ import { SocialMedia } from '@/hooks/useSocialMedia';
 import defaultFloatingImg from '@/assets/espetinho.png';
 import { Story } from '@/hooks/useStories';
 import { StoryViewer } from './StoryViewer';
+import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
 interface HeroHeaderProps {
   store: StoreConfig & { 
@@ -208,6 +209,7 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
 
           {/* Nav Links */}
           <div className="flex items-center gap-4">
+            <PWAInstallButton appName={store?.pwa_short_name || store?.pwa_name || store?.name} />
             {/* Social Medias */}
             {socialMedia?.filter(sm => sm.is_active).map(sm => (
               <a 
