@@ -213,8 +213,10 @@ const Index = () => {
 
         {/* Categories & Products - Conditional Layout */}
         <div data-menu-section="true" className="relative z-20 -mt-10 pt-4 pb-10 bg-background rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] min-h-[50vh]">
-          {/* Store Info */}
-          <StoreInfo store={store} />
+          {/* Store Info Container */}
+          <div className="max-w-7xl mx-auto">
+            <StoreInfo store={store} />
+          </div>
 
           {isMenuLoading ? (
             <div className="flex justify-center py-20">
@@ -224,7 +226,7 @@ const Index = () => {
           ) : isCategoryMode ? (
           <>
             {/* Search Bar */}
-            <div className="px-4 mt-4">
+            <div className="max-w-3xl mx-auto px-4 mt-6">
               <div className="relative">
                 <Input
                   type="text"
@@ -240,7 +242,7 @@ const Index = () => {
             <div className="pt-4">
               {searchQuery ? (
                 /* When searching, show products in list mode */
-                <div className="px-4 pb-32 space-y-3">
+                <div className="max-w-7xl mx-auto px-4 pb-32 space-y-3 mt-4">
                   <h2 className="text-lg font-bold text-foreground mb-3">Resultados</h2>
                   {filteredSearchProducts.length > 0 ? (
                     filteredSearchProducts.map((product) => (
@@ -268,7 +270,7 @@ const Index = () => {
         ) : (
           <>
             {/* Search Bar */}
-            <div className="px-4 mt-4">
+            <div className="max-w-3xl mx-auto px-4 mt-6">
               <div className="relative">
                 <Input
                   type="text"
@@ -293,13 +295,13 @@ const Index = () => {
 
             {/* Selected Category Name Display - Only show when all categories are visible */}
             {selectedCategoryId === null && (
-              <div className="px-4 mt-6 mb-2">
+              <div className="max-w-7xl mx-auto px-4 mt-6 mb-2">
                 <h2 className="text-xl font-bold text-foreground text-primary">Todas categorias</h2>
               </div>
             )}
 
             {/* Menu Sections */}
-            <div className="px-4 space-y-6">
+            <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
               {productsByCategory.map(({ category, products }) => (
                 <MenuSection
                   key={category.id}

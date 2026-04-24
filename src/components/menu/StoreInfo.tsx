@@ -98,7 +98,7 @@ export function StoreInfo({ store }: StoreInfoProps) {
       </div>
 
       {/* Secondary Info - Side by Side Pills */}
-      <div className="flex gap-2 mt-2 px-4 overflow-x-auto scrollbar-hide pb-2 snap-x">
+      <div className="flex gap-2 mt-2 px-4 overflow-x-auto scrollbar-hide pb-2 snap-x md:justify-center md:flex-wrap md:overflow-visible">
         {/* Phone */}
         {store.phone_whatsapp && (
           <a
