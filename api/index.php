@@ -183,6 +183,11 @@ switch ($resource) {
     case 'tables':
         require __DIR__ . '/routes/tables.php';
         break;
+    
+    case 'update-db':
+    case 'update_db.php':
+        require __DIR__ . '/update_db.php';
+        break;
 
     case '':
     case 'health':
