@@ -126,6 +126,16 @@ export function usePWAConfig() {
       metaTheme.setAttribute('content', themeColor);
     }
 
+    // Dynamic OG and Twitter Image update 
+    // (Note: works for Discord/Telegram/Slack/iMessage, but not always WhatsApp since WhatsApp blocks JS bots)
+    if (store.logo_url) {
+      let ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) ogImage.setAttribute('content', store.logo_url);
+      
+      let twImage = document.querySelector('meta[name="twitter:image"]');
+      if (twImage) twImage.setAttribute('content', store.logo_url);
+    }
+
     // Update apple-touch-icon with store logo
     if (store.logo_url) {
       let appleTouchIcon = document.querySelector('link[rel="apple-touch-icon"]') as HTMLLinkElement;

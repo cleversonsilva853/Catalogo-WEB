@@ -8,7 +8,7 @@ Sistema de cardápio digital e PDV desenvolvido com Vite, React, TypeScript e Ta
 - [React](https://react.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [Supabase](https://supabase.com/)
+- [Banco de dados](mysql-hostgator)
 
 ## Como rodar o projeto localmente
 
