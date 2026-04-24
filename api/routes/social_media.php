@@ -3,7 +3,14 @@
 $db = getDB();
 
 if ($method === 'GET') {
-    $stmt = $db->query('SELECT * FROM social_media ORDER BY display_order ASC, name ASC');
+    $isAuthd = false;
+    try { require_auth(); $isAuthd = true; } catch (Exception $e) {}
+
+    if ($isAuthd) {
+        $stmt = $db->query('SELECT * FROM social_media ORDER BY display_order ASC, name ASC');
+    } else {
+        $stmt = $db->query('SELECT * FROM social_media WHERE is_active = 1 ORDER BY display_order ASC, name ASC');
+    }
     respond($stmt->fetchAll());
 }
 

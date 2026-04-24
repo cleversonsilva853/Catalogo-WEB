@@ -48,8 +48,8 @@ if ($method === 'GET' && !$id) {
     if ($isAuthd) {
         $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
     } else {
-        $stmt = $db->prepare('SELECT * FROM stories WHERE is_active = 1 ORDER BY display_order ASC, created_at DESC');
-        $stmt->execute();
+        // Público vê apenas ativos
+        $stmt = $db->query('SELECT * FROM stories WHERE is_active = 1 ORDER BY display_order ASC, created_at DESC');
     }
     respond($stmt->fetchAll());
 }
