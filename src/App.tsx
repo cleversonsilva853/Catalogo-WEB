@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import Install from "./pages/Install";
 import AdminOrders from "./pages/admin/Orders";
 import AdminProducts from "./pages/admin/Products";
+import AdminPromotions from "./pages/admin/Promotions";
 import AdminCategories from "./pages/admin/Categories";
 import AdminIngredients from "./pages/admin/Ingredients";
 import AdminCoupons from "./pages/admin/Coupons";
@@ -63,6 +64,7 @@ const App = () => (
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/promotions" element={<AdminPromotions />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/ingredients" element={<AdminIngredients />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />

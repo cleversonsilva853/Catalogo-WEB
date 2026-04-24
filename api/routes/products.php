@@ -104,8 +104,8 @@ if ($method === 'POST') {
         mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff));
 
     $db->prepare('
-        INSERT INTO products (id, category_id, name, description, price, image_url, is_available, stock_type, unit, stock_quantity, min_stock)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO products (id, category_id, name, description, price, image_url, is_available, stock_type, unit, stock_quantity, min_stock, promo_price, is_promo_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ')->execute([
         $uuid,
         $b['category_id']    ?? null,
@@ -118,6 +118,8 @@ if ($method === 'POST') {
         $b['unit']           ?? 'un',
         $b['stock_quantity'] ?? 0,
         $b['min_stock']      ?? 0,
+        $b['promo_price']    ?? null,
+        isset($b['is_promo_active']) ? (int)(bool)$b['is_promo_active'] : 0,
     ]);
 
     $stmt = $db->prepare('SELECT * FROM products WHERE id = ?');
@@ -132,7 +134,7 @@ if ($method === 'PUT' && $id && !$sub) {
 
     $fields = [];
     $params = [];
-    $allowed = ['category_id','name','description','price','image_url','is_available','stock_type','unit','stock_quantity','min_stock'];
+    $allowed = ['category_id','name','description','price','image_url','is_available','stock_type','unit','stock_quantity','min_stock', 'promo_price', 'is_promo_active'];
 
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) {

@@ -31,8 +31,22 @@ export function MenuProductCard({ product, onSelect }: MenuProductCardProps) {
             {product.description}
           </p>
         </div>
-        <div className="flex items-center mt-3">
-          <span className="text-lg font-extrabold text-primary">{formattedPrice}</span>
+        <div className="flex items-center mt-3 gap-2">
+          {product.is_promo_active && product.promo_price ? (
+            <>
+              <span className="text-lg font-extrabold text-primary">
+                {Number(product.promo_price).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground line-through opacity-70">
+                {formattedPrice}
+              </span>
+            </>
+          ) : (
+            <span className="text-lg font-extrabold text-primary">{formattedPrice}</span>
+          )}
         </div>
       </div>
 

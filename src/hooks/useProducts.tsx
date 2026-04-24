@@ -12,7 +12,8 @@ export interface Product {
   stock_type: 'unit' | 'ingredient';
   unit: string;
   stock_quantity: number;
-  min_stock: number;
+  promo_price?: number;
+  is_promo_active?: boolean;
   category_name?: string;
 }
 

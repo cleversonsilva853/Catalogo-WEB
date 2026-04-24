@@ -89,6 +89,19 @@ try {
         $db->exec("ALTER TABLE push_subscriptions ADD user_identifier VARCHAR(100) DEFAULT NULL");
         echo "Coluna user_identifier adicionada em push_subscriptions.\n";
     }
+    
+    // 5. Colunas em products (Promoções)
+    $product_columns = [
+        'promo_price' => "DECIMAL(10,2) DEFAULT NULL",
+        'is_promo_active' => "TINYINT(1) DEFAULT 0"
+    ];
+
+    foreach ($product_columns as $col => $definition) {
+        if (!columnExists($db, 'products', $col)) {
+            $db->exec("ALTER TABLE products ADD $col $definition");
+            echo "Coluna $col adicionada em products.\n";
+        }
+    }
 
     echo "\nAtualização concluída com sucesso!";
 } catch (Exception $e) {
