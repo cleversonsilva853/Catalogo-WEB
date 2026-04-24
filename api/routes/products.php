@@ -139,7 +139,7 @@ if ($method === 'PUT' && $id && !$sub) {
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) {
             $fields[] = "$f = ?";
-            $params[] = ($f === 'is_available') ? (int)(bool)$b[$f] : $b[$f];
+            $params[] = ($f === 'is_available' || $f === 'is_promo_active') ? (int)(bool)$b[$f] : $b[$f];
         }
     }
 

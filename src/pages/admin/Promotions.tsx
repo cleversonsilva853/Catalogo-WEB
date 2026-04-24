@@ -57,8 +57,13 @@ export default function Promotions() {
       setIsModalOpen(false);
       setModalSearchTerm('');
       toast({ title: 'Produto adicionado!', description: 'Agora defina o preço promocional.' });
-    } catch (e) {
-      toast({ title: 'Erro ao adicionar', variant: 'destructive' });
+    } catch (e: any) {
+      console.error(e);
+      toast({ 
+        title: 'Erro ao adicionar', 
+        description: e.message || 'Verifique se as colunas promo_price e is_promo_active existem no banco.',
+        variant: 'destructive' 
+      });
     }
   };
 

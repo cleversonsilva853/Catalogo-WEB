@@ -65,6 +65,11 @@ export function MenuProductCard({ product, onSelect }: MenuProductCardProps) {
               <span className="text-[10px] font-bold uppercase text-white">Esgotado</span>
             </div>
           )}
+          {product.is_promo_active && product.is_available && (
+            <div className="absolute bottom-0 left-0 right-0 bg-red-600 py-1 flex items-center justify-center">
+              <span className="text-[10px] font-extrabold uppercase text-white tracking-widest">Promoção</span>
+            </div>
+          )}
           {/* Add Button - Overlapping Image */}
           {product.is_available && (
             <button
