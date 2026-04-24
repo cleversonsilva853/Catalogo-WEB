@@ -4,7 +4,7 @@ import { api } from '@/lib/api';
 export interface BulkMessage {
   id: number;
   scheduled_at: string;
-  media_url: string | null;
+  media_url?: string;
   message: string;
   status: 'pending' | 'sent';
   created_at: string;
@@ -15,46 +15,47 @@ export interface BulkClient {
   customer_phone: string;
 }
 
-export function useBulkMessages() {
+export const useBulkMessages = () => {
   const queryClient = useQueryClient();
 
-  const query = useQuery<BulkMessage[]>({
-    queryKey: ['bulk-messages'],
+  const bulkMessagesQuery = useQuery<BulkMessage[]>({
+    queryKey: ['bulkMessages'],
     queryFn: async () => {
-      return await api.get<BulkMessage[]>('/bulk-messages');
-    },
+      return api.get<BulkMessage[]>('/bulk-messages');
+    }
   });
 
   const clientsQuery = useQuery<BulkClient[]>({
-    queryKey: ['bulk-clients'],
+    queryKey: ['bulkClients'],
     queryFn: async () => {
-      return await api.get<BulkClient[]>('/bulk-messages?id=clients');
-    },
+      return api.get<BulkClient[]>('/bulk-messages?id=clients');
+    }
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (newMessage: Partial<BulkMessage>) => {
-      return await api.post<{ success: true, id: number }>('/bulk-messages', newMessage);
+  const createBulkMessage = useMutation({
+    mutationFn: async (message: Partial<BulkMessage>) => {
+      return api.post<BulkMessage>('/bulk-messages', message);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bulk-messages'] });
-    },
+      queryClient.invalidateQueries({ queryKey: ['bulkMessages'] });
+    }
   });
 
-  const deleteMutation = useMutation({
+  const deleteBulkMessage = useMutation({
     mutationFn: async (id: number) => {
-      return await api.delete<{ success: true }>(`/bulk-messages?id=${id}`);
+      return api.delete(`/bulk-messages?id=${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bulk-messages'] });
-    },
+      queryClient.invalidateQueries({ queryKey: ['bulkMessages'] });
+    }
   });
 
   return {
-    ...query,
+    bulkMessages: bulkMessagesQuery.data || [],
+    isLoadingBulk: bulkMessagesQuery.isLoading,
     clients: clientsQuery.data || [],
     isLoadingClients: clientsQuery.isLoading,
-    createBulkMessage: createMutation,
-    deleteBulkMessage: deleteMutation,
+    createBulkMessage,
+    deleteBulkMessage
   };
-}
+};
