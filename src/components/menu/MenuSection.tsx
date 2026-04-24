@@ -1,6 +1,8 @@
 import { forwardRef } from 'react';
 import { Category } from '@/hooks/useCategories';
 import { Product } from '@/hooks/useProducts';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 import { MenuProductCard } from './MenuProductCard';
 import { Beef, Layers, Coffee, IceCream } from 'lucide-react';
 
@@ -22,6 +24,7 @@ const categoryEmojis: Record<string, string> = {
 
 export const MenuSection = forwardRef<HTMLDivElement, MenuSectionProps>(
   ({ category, products, onProductSelect }, ref) => {
+    const isMobile = useIsMobile();
     const emoji = categoryEmojis[category.name] || '📦';
 
     return (
@@ -31,8 +34,8 @@ export const MenuSection = forwardRef<HTMLDivElement, MenuSectionProps>(
           <h3 className="text-base font-bold text-foreground">{category.name}</h3>
         </div>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        {/* Products */}
+        <div className="space-y-3">
           {products.map((product) => (
             <MenuProductCard
               key={product.id}

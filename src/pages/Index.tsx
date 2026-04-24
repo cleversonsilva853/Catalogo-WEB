@@ -212,7 +212,7 @@ const Index = () => {
 
 
         {/* Categories & Products - Conditional Layout */}
-        <div data-menu-section="true" className="relative z-20 mt-0 pt-8 pb-10 bg-background min-h-[50vh]">
+        <div data-menu-section="true" className="relative z-20 -mt-10 pt-4 pb-10 bg-background rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.15)] min-h-[50vh]">
           {/* Store Info Container */}
           <div className="max-w-7xl mx-auto">
             <StoreInfo store={store} />

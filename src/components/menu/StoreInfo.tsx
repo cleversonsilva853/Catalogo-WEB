@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Clock, Phone, MapPin, Bike } from 'lucide-react';
 import { StoreConfig } from '@/hooks/useStore';
-import { SocialMedia } from '@/hooks/useSocialMedia';
 import { useBusinessHours, getDayName } from '@/hooks/useBusinessHours';
 import { useStoreStatus } from '@/hooks/useStoreStatus';
 import {

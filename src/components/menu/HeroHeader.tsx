@@ -150,7 +150,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
 
         {/* Navigation Bar */}
-        <nav className="relative z-50 flex items-center justify-between px-4 sm:px-8 pt-6 pb-4 sm:py-4 max-w-7xl mx-auto">
+        <nav className="relative z-50 flex items-center justify-between px-4 py-4 sm:px-6">
           {/* Logo + Story Avatar */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {/* Logo */}
@@ -256,8 +256,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
           </div>
         </nav>
 
-        {/* Hero Content - Left-aligned, positioned higher */}
-        <div className="relative z-10 flex flex-col items-start text-left justify-start pt-24 md:pt-8 md:justify-center h-[calc(100%-80px)] px-6 sm:px-8 md:px-12 lg:px-16 max-w-7xl mx-auto">
+        <div className="relative z-10 flex flex-col items-start text-left justify-center h-[calc(100%-80px)] px-6 sm:px-12">
           {/* Slogan */}
           {heroSlogan && (
             <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-6">

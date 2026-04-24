@@ -41,7 +41,7 @@ export function CategoryIcons({ categories, selectedId, onSelect }: CategoryIcon
       
       <div 
         ref={scrollContainerRef}
-        className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide snap-x scroll-smooth md:justify-center md:overflow-visible md:flex-wrap"
+        className="flex gap-3 pb-4 overflow-x-auto scrollbar-hide snap-x scroll-smooth"
       >
         {/* Option: Todos */}
         <button
