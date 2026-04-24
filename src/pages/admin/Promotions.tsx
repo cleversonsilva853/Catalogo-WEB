@@ -116,8 +116,8 @@ export default function Promotions() {
               <TrendingDown className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Promoções Ativas</h2>
-              <p className="text-xs text-white/50">Gerencie descontos e ofertas especiais</p>
+              <h2 className="text-xl font-bold text-slate-900">Promoções Ativas</h2>
+              <p className="text-xs text-slate-500">Gerencie descontos e ofertas especiais</p>
             </div>
           </div>
 
@@ -127,7 +127,7 @@ export default function Promotions() {
                 <Plus className="h-4 w-4 mr-2" /> Adicionar Produto
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] admin-card border-white/10 text-white">
+            <DialogContent className="sm:max-w-[425px] bg-white border-slate-200 text-slate-900 shadow-2xl">
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <Package className="h-5 w-5 text-primary" />
@@ -136,10 +136,10 @@ export default function Promotions() {
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input 
                     placeholder="Buscar produto..." 
-                    className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary/50"
+                    className="pl-9 bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary/50"
                     value={modalSearchTerm}
                     onChange={e => setModalSearchTerm(e.target.value)}
                   />
@@ -156,13 +156,13 @@ export default function Promotions() {
                         key={p.id} 
                         className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5 hover:border-primary/30 transition-all group"
                       >
-                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-3">
                           {p.image_url && (
                              <img src={p.image_url} className="h-10 w-10 rounded-lg object-cover" />
                           )}
                           <div>
-                            <p className="text-sm font-bold text-white">{p.name}</p>
-                            <p className="text-[10px] text-white/60">Preço atual: {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                            <p className="text-sm font-bold text-slate-900">{p.name}</p>
+                            <p className="text-[10px] text-slate-500">Preço atual: {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                           </div>
                         </div>
                         <Button 
@@ -184,10 +184,10 @@ export default function Promotions() {
 
         {/* Search & Filter */}
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/30" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input 
             placeholder="Filtrar promoções já adicionadas..." 
-            className="pl-12 h-12 bg-white/5 border-white/10 rounded-2xl text-white placeholder:text-white/20"
+            className="pl-12 h-12 bg-white border-slate-200 rounded-2xl text-slate-900 shadow-sm placeholder:text-slate-400"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
@@ -199,11 +199,11 @@ export default function Promotions() {
             <Loader2 className="h-10 w-10 animate-spin text-primary/50" />
           </div>
         ) : filteredPromos.length === 0 ? (
-          <Card className="admin-card border-dashed border-white/10 bg-transparent">
-            <CardContent className="flex flex-col items-center justify-center py-16 text-white/40">
-              <Tag className="h-12 w-12 mb-4 opacity-10" />
+          <Card className="bg-white border-dashed border-slate-200">
+            <CardContent className="flex flex-col items-center justify-center py-16 text-slate-400">
+              <Tag className="h-12 w-12 mb-4 opacity-20" />
               <p>Nenhuma promoção configurada.</p>
-              <p className="text-xs">Clique em "Adicionar Produto" para começar.</p>
+              <p className="text-xs text-slate-500">Clique em "Adicionar Produto" para começar.</p>
             </CardContent>
           </Card>
         ) : (
@@ -232,19 +232,19 @@ export default function Promotions() {
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <Badge variant="outline" className="mb-1 text-[10px] border-white/20 text-white/40 font-normal">
+                        <Badge variant="outline" className="mb-1 text-[10px] border-slate-200 text-slate-500 font-normal">
                           {p.category_name || 'Produto'}
                         </Badge>
-                        <h4 className="font-bold text-lg text-white truncate leading-none">{p.name}</h4>
-                        <p className="text-xs text-white/30 mt-1 line-clamp-1">{p.description}</p>
+                        <h4 className="font-bold text-lg text-slate-900 truncate leading-none">{p.name}</h4>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-1">{p.description}</p>
                       </div>
                     </div>
 
                     {/* Pricing Controls */}
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-8 bg-black/40 p-4 rounded-2xl border border-white/10">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-8 bg-slate-50 p-4 rounded-2xl border border-slate-200">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-white/40">Preço Atual</span>
-                        <span className="text-sm font-medium text-white/70 line-through">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Preço Atual</span>
+                        <span className="text-sm font-medium text-slate-500 line-through">
                           {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </span>
                       </div>
@@ -252,13 +252,13 @@ export default function Promotions() {
                       <div className="flex flex-col min-w-[120px]">
                         <Label className="text-[10px] uppercase font-extrabold tracking-wider text-primary mb-1">Preço Promo</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/60">R$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">R$</span>
                           <Input 
                             type="number"
                             step="0.01"
                             defaultValue={p.promo_price}
                             onBlur={(e) => handleUpdatePrice(p, e.target.value)}
-                            className="pl-8 h-9 bg-white/15 border-white/20 text-white font-bold text-sm focus:ring-primary/50"
+                            className="pl-8 h-9 bg-white border-slate-200 text-slate-900 font-bold text-sm focus:ring-primary/50"
                           />
                         </div>
                       </div>
@@ -267,8 +267,8 @@ export default function Promotions() {
 
                       <div className="flex items-center gap-3">
                         <div className="flex flex-col items-end">
-                          <span className="text-[10px] uppercase font-bold text-white/30">Status</span>
-                          <span className={cn("text-xs font-bold", p.is_promo_active ? "text-primary" : "text-white/40")}>
+                          <span className="text-[10px] uppercase font-bold text-slate-400">Status</span>
+                          <span className={cn("text-xs font-bold", p.is_promo_active ? "text-primary" : "text-slate-400")}>
                             {p.is_promo_active ? 'ATIVO' : 'INATIVO'}
                           </span>
                         </div>
@@ -281,7 +281,7 @@ export default function Promotions() {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-10 w-10 text-white/20 hover:text-destructive hover:bg-destructive/10 transition-colors"
+                        className="h-10 w-10 text-slate-300 hover:text-destructive hover:bg-destructive/10 transition-colors"
                         onClick={() => handleRemovePromo(p)}
                       >
                         <Trash2 className="h-5 w-5" />
