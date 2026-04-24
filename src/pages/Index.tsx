@@ -48,7 +48,7 @@ const Index = () => {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts();
   const { data: socialMedia } = useSocialMedia();
-  const { data: stories } = useStories();
+  const { data: stories, isLoading: storiesLoading } = useStories();
   const storeStatus = useStoreStatus();
 
   // Register public push subscription (silent, customers who already granted permission)
@@ -208,7 +208,7 @@ const Index = () => {
 
       <div className="min-h-screen bg-background pb-24">
         {/* Hero Header */}
-        <HeroHeader store={store} socialMedia={socialMedia} stories={stories} />
+        <HeroHeader store={store} socialMedia={socialMedia} stories={stories} storiesLoading={storiesLoading} />
 
 
         {/* Categories & Products - Conditional Layout */}

@@ -24,11 +24,12 @@ interface HeroHeaderProps {
   };
   socialMedia?: SocialMedia[];
   stories?: Story[];
+  storiesLoading?: boolean;
 }
 
 const DEFAULT_COVER = 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=1920&h=800&fit=crop';
 
-export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
+export function HeroHeader({ store, socialMedia, stories, storiesLoading }: HeroHeaderProps) {
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
   const [storyOpen, setStoryOpen] = useState(false);
@@ -167,42 +168,54 @@ export function HeroHeader({ store, socialMedia, stories }: HeroHeaderProps) {
               )}
             </div>
 
-            {/* Story Avatar — só aparece quando há stories ativos */}
-            {activeStories.length > 0 && (
-              <button
-                onClick={() => setStoryOpen(true)}
-                className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50 ml-1"
-                style={{ width: '56px', height: '56px', minWidth: '56px' }}
-                aria-label="Ver stories"
-              >
-                {/* Anel gradiente animado */}
-                <div className="w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center">
-                  <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40 bg-black">
-                    {activeStories[0].media_type === 'video' ? (
-                      <video
-                        src={activeStories[0].media_url}
-                        className="w-full h-full object-cover"
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                      />
-                    ) : (
-                      <img
-                        src={activeStories[0].media_url}
-                        alt={activeStories[0].title || 'story'}
-                        className="w-full h-full object-cover"
-                      />
-                    )}
+            {/* Story Button - Skeleton or Content */}
+            {(storiesLoading || activeStories.length > 0) && (
+              <div className="flex items-center ml-1">
+                {storiesLoading ? (
+                  /* Skeleton do Story */
+                  <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: '56px', height: '56px' }}>
+                    <div className="w-full h-full rounded-full border-2 border-white/10 p-[2.5px] animate-pulse">
+                      <div className="w-full h-full rounded-full bg-white/5" />
+                    </div>
                   </div>
-                </div>
-                {/* Badge com número de stories */}
-                {activeStories.length > 1 && (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50">
-                    {activeStories.length}
-                  </span>
+                ) : (
+                  <button
+                    onClick={() => setStoryOpen(true)}
+                    className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50"
+                    style={{ width: '56px', height: '56px', minWidth: '56px' }}
+                    aria-label="Ver stories"
+                  >
+                    {/* Anel gradiente animado com pulso sutil */}
+                    <div className="w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center relative">
+                      <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping -z-10" />
+                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40 bg-black">
+                        {activeStories[0].media_type === 'video' ? (
+                          <video
+                            src={activeStories[0].media_url}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                          />
+                        ) : (
+                          <img
+                            src={activeStories[0].media_url}
+                            alt={activeStories[0].title || 'story'}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                    </div>
+                    {/* Badge com número de stories */}
+                    {activeStories.length > 1 && (
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50">
+                        {activeStories.length}
+                      </span>
+                    )}
+                  </button>
                 )}
-              </button>
+              </div>
             )}
           </div>
 

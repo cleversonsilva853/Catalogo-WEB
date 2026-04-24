@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Story } from '@/hooks/useStories';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface StoryViewerProps {
   stories: Story[];
@@ -12,6 +13,7 @@ interface StoryViewerProps {
 const STORY_DURATION = 5000; // ms per story
 
 export function StoryViewer({ stories, initialIndex, onClose }: StoryViewerProps) {
+  const isMobile = useIsMobile();
   const [current, setCurrent] = useState(initialIndex);
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -65,8 +67,8 @@ export function StoryViewer({ stories, initialIndex, onClose }: StoryViewerProps
     >
       {/* Story Card — portrait 9:16 */}
       <div
-        className="relative w-full max-w-sm h-full sm:h-[85vh] sm:rounded-2xl overflow-hidden select-none"
-        style={{ aspectRatio: '9/16', maxHeight: '100dvh' }}
+        className="relative w-full h-[100dvh] sm:h-[85vh] sm:max-w-sm sm:rounded-2xl overflow-hidden select-none"
+        style={{ aspectRatio: isMobile ? 'auto' : '9/16' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Media */}
