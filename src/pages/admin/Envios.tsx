@@ -1,38 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Loader2, MessageSquare, Send, Calendar, ImagePlus, X, Clock, Plus } from 'lucide-react';
+import { Loader2, MessageSquare, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useStore, useUpdateStore } from '@/hooks/useStore';
 import { useToast } from '@/hooks/use-toast';
-import { useBulkMessages } from '@/hooks/useBulkMessages';
-import { ImageUpload } from '@/components/admin/ImageUpload';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 const AdminEnvios = () => {
   const { data: store, isLoading } = useStore();
   const updateStore = useUpdateStore();
-  const { createBulkMessage } = useBulkMessages();
   const { toast } = useToast();
   
   const [pixMessage, setPixMessage] = useState('');
   const [checkoutMessage, setCheckoutMessage] = useState('');
-
-  // Bulk Message Form State
-  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
-  const [bulkData, setBulkData] = useState({
-    scheduled_at: '',
-    media_url: '',
-    message: ''
-  });
 
   useEffect(() => {
     if (store) {
@@ -65,23 +45,6 @@ const AdminEnvios = () => {
     });
   };
 
-  const handleCreateBulk = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bulkData.scheduled_at || !bulkData.message) {
-      toast({ title: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
-      return;
-    }
-
-    try {
-      await createBulkMessage.mutateAsync(bulkData);
-      toast({ title: 'Envio agendado com sucesso!' });
-      setIsBulkModalOpen(false);
-      setBulkData({ scheduled_at: '', media_url: '', message: '' });
-    } catch (e: any) {
-      toast({ title: 'Erro ao agendar', description: e.message, variant: 'destructive' });
-    }
-  };
-
   if (isLoading) {
     return (
       <AdminLayout title="Envios">
@@ -97,133 +60,16 @@ const AdminEnvios = () => {
 
   return (
     <AdminLayout title="Envios">
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* SECTION 1: Bulk Messages */}
-        <div className="space-y-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-              <span className="w-2 h-8 bg-primary rounded-full mr-1" />
-              Envios em massa no WhatsApp dos clientes
-            </h2>
-            <p className="text-sm text-slate-500 ml-4">Ative o marketing direto e envie ofertas para toda sua base.</p>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center gap-6 group hover:border-primary/30 transition-all">
-            <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0 group-hover:scale-105 transition-transform">
-              <Send className="h-10 w-10 rotate-[-15deg]" />
-            </div>
-            <div className="flex-1 text-center md:text-left">
-              <h3 className="text-lg font-bold text-slate-900">Potencialize suas vendas!</h3>
-              <p className="text-sm text-slate-500 mt-1 max-w-lg">
-                Selecione seus clientes cadastrados e envie promoções, novos stories ou avisos importantes diretamente no WhatsApp deles.
-              </p>
-            </div>
-
-            <Dialog open={isBulkModalOpen} onOpenChange={setIsBulkModalOpen}>
-              <DialogTrigger asChild>
-                <Button size="lg" className="rounded-full px-8 shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Criar envio
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] bg-white border-slate-200 text-slate-900 shadow-2xl">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2 text-xl">
-                    <Send className="h-5 w-5 text-primary" />
-                    Novo Envio em Massa
-                  </DialogTitle>
-                </DialogHeader>
-                
-                <form onSubmit={handleCreateBulk} className="space-y-6 pt-4">
-                  <div className="space-y-4">
-                    {/* Date & Time */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2">
-                        <Calendar className="h-3.5 w-3.5 text-primary" />
-                        Data e Hora do Envio
-                      </Label>
-                      <Input 
-                        type="datetime-local" 
-                        className="bg-slate-50 border-slate-200 h-11"
-                        value={bulkData.scheduled_at}
-                        onChange={e => setBulkData({ ...bulkData, scheduled_at: e.target.value })}
-                        required
-                      />
-                    </div>
-
-                    {/* Media Upload */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2">
-                        <ImagePlus className="h-3.5 w-3.5 text-primary" />
-                        Imagem ou Vídeo (Opcional)
-                      </Label>
-                      <ImageUpload 
-                        bucket="store-assets"
-                        currentUrl={bulkData.media_url}
-                        onUpload={url => setBulkData({ ...bulkData, media_url: url })}
-                        onRemove={() => setBulkData({ ...bulkData, media_url: '' })}
-                        className="h-32"
-                      />
-                    </div>
-
-                    {/* Message */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2">
-                        <MessageSquare className="h-3.5 w-3.5 text-primary" />
-                        Sua Mensagem
-                      </Label>
-                      <Textarea 
-                        placeholder="Escreva aqui o que seus clientes vão receber..."
-                        className="min-h-[120px] bg-slate-50 border-slate-200"
-                        value={bulkData.message}
-                        onChange={e => setBulkData({ ...bulkData, message: e.target.value })}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      className="flex-1"
-                      onClick={() => setIsBulkModalOpen(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button 
-                      type="submit" 
-                      className="flex-1 shadow-lg shadow-primary/20"
-                      disabled={createBulkMessage.isPending}
-                    >
-                      {createBulkMessage.isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Send className="h-4 w-4 mr-2" />
-                      )}
-                      Salvar Envio
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col gap-1 mb-6">
+          <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+            <span className="w-2 h-8 bg-blue-500 rounded-full mr-1" />
+            Envios dos Pedidos
+          </h2>
+          <p className="text-sm text-slate-500 ml-4">Mensagens automáticas disparadas no fluxo de compra.</p>
         </div>
 
-        <div className="border-t border-slate-100" />
-
-        {/* SECTION 2: Order Messages */}
-        <div className="space-y-6">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-              <span className="w-2 h-8 bg-blue-500 rounded-full mr-1" />
-              Envios dos Pedidos
-            </h2>
-            <p className="text-sm text-slate-500 ml-4">Mensagens automáticas disparadas no fluxo de compra.</p>
-          </div>
-
-        {/* Variáveis Globais */}
-        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 sm:p-5">
+        <div className="bg-muted/30 border border-border/50 rounded-xl p-4 sm:p-5 mb-8">
            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-2">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             Palavras-Chave (Variáveis)
@@ -321,11 +167,8 @@ const AdminEnvios = () => {
                 )}
             </Button>
           </div>
-          </form>
-        </div>
+        </form>
       </div>
     </AdminLayout>
   );
 };
-
-export default AdminEnvios;

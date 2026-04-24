@@ -10,6 +10,11 @@ export interface BulkMessage {
   created_at: string;
 }
 
+export interface BulkClient {
+  customer_name: string;
+  customer_phone: string;
+}
+
 export function useBulkMessages() {
   const queryClient = useQueryClient();
 
@@ -17,6 +22,13 @@ export function useBulkMessages() {
     queryKey: ['bulk-messages'],
     queryFn: async () => {
       return await api.get<BulkMessage[]>('/bulk-messages');
+    },
+  });
+
+  const clientsQuery = useQuery<BulkClient[]>({
+    queryKey: ['bulk-clients'],
+    queryFn: async () => {
+      return await api.get<BulkClient[]>('/bulk-messages?id=clients');
     },
   });
 
@@ -40,6 +52,8 @@ export function useBulkMessages() {
 
   return {
     ...query,
+    clients: clientsQuery.data || [],
+    isLoadingClients: clientsQuery.isLoading,
     createBulkMessage: createMutation,
     deleteBulkMessage: deleteMutation,
   };

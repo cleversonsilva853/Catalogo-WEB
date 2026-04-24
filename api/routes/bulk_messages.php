@@ -7,6 +7,21 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 function handleBulkMessages($db, $method) {
     if ($method === 'GET') {
+        $id = $_GET['id'] ?? null;
+        
+        // GET /bulk-messages/clients
+        if ($id === 'clients') {
+            $stmt = $db->query("
+                SELECT customer_name, customer_phone 
+                FROM orders 
+                WHERE id IN (SELECT MAX(id) FROM orders GROUP BY customer_phone)
+                ORDER BY customer_name ASC
+            ");
+            echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+            return;
+        }
+
+        // GET /bulk-messages
         $stmt = $db->query("SELECT * FROM bulk_messages ORDER BY scheduled_at DESC");
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
     } elseif ($method === 'POST') {
