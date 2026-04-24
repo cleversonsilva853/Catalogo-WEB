@@ -191,7 +191,10 @@ export default function Stories() {
   };
 
   const toggleActive = (story: Story) => {
-    updateMutation.mutate({ id: story.id, is_active: !story.is_active });
+    updateMutation.mutate({ id: story.id, is_active: !story.is_active }, {
+      onSuccess: () => toast({ title: `Story ${!story.is_active ? 'ativado' : 'desativado'}!` }),
+      onError: () => toast({ title: 'Erro ao alterar status', variant: 'destructive' }),
+    });
   };
 
   return (

@@ -48,8 +48,8 @@ if ($method === 'GET' && !$id) {
     if ($isAuthd) {
         $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
     } else {
-        // Público vê apenas ativos
-        $stmt = $db->query('SELECT * FROM stories WHERE is_active = 1 ORDER BY display_order ASC, created_at DESC');
+        // Público vê todos (temporário para restaurar visibilidade)
+        $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
     }
     respond($stmt->fetchAll());
 }
@@ -125,7 +125,10 @@ if ($method === 'PUT' && $id) {
 
     $allowed = ['title', 'subtitle', 'description', 'media_url', 'media_type', 'is_active', 'display_order', 'notification_sent'];
     foreach ($allowed as $f) {
-        if (array_key_exists($f, $b)) { $fields[] = "$f = ?"; $params[] = $b[$f]; }
+        if (array_key_exists($f, $b)) { 
+            $fields[] = "$f = ?"; 
+            $params[] = ($f === 'is_active' || $f === 'notification_sent' || $f === 'display_order') ? (int)$b[$f] : $b[$f]; 
+        }
     }
 
     // Trata scheduled_at separadamente (converte datetime-local → MySQL)

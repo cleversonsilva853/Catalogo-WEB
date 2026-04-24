@@ -33,7 +33,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
   const { totalItems } = useCart();
   const isMobile = useIsMobile();
   const [storyOpen, setStoryOpen] = useState(false);
-  const activeStories = stories?.filter(s => s.is_active) ?? [];
+  const activeStories = stories ?? [];
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
@@ -218,7 +218,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
           {/* Nav Links */}
           <div className="flex items-center gap-4">
             {/* Social Medias */}
-            {socialMedia?.filter(sm => sm.is_active).map(sm => (
+            {socialMedia?.map(sm => (
               <a 
                 key={sm.id} 
                 href={sm.link} 
