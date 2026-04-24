@@ -270,8 +270,8 @@ export default function Promotions() {
 
                       <div className="h-8 w-px bg-white/10 hidden sm:block" />
 
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-end">
+                      <div className="flex items-center gap-4">
+                        <div className="flex flex-col items-end mr-1">
                           <span className="text-[10px] uppercase font-bold text-slate-400">Status</span>
                           <span className={cn("text-xs font-bold", p.is_promo_active ? "text-primary" : "text-slate-400")}>
                             {p.is_promo_active ? 'ATIVO' : 'INATIVO'}
@@ -280,17 +280,17 @@ export default function Promotions() {
                         <Switch 
                           checked={p.is_promo_active} 
                           onCheckedChange={() => handleToggleActive(p)}
+                          className="mr-2"
                         />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-9 w-9 text-slate-300 hover:text-destructive hover:bg-destructive/10 transition-colors border border-slate-200"
+                          onClick={() => handleRemovePromo(p)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-10 w-10 text-slate-300 hover:text-destructive hover:bg-destructive/10 transition-colors"
-                        onClick={() => handleRemovePromo(p)}
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
