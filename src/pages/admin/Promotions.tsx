@@ -136,10 +136,10 @@ export default function Promotions() {
               </DialogHeader>
               <div className="space-y-4 pt-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
                   <Input 
                     placeholder="Buscar produto..." 
-                    className="pl-9 bg-white/5 border-white/10 text-white"
+                    className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:border-primary/50"
                     value={modalSearchTerm}
                     onChange={e => setModalSearchTerm(e.target.value)}
                   />
@@ -161,8 +161,8 @@ export default function Promotions() {
                              <img src={p.image_url} className="h-10 w-10 rounded-lg object-cover" />
                           )}
                           <div>
-                            <p className="text-sm font-medium">{p.name}</p>
-                            <p className="text-[10px] text-white/40">Preço atual: {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                            <p className="text-sm font-bold text-white">{p.name}</p>
+                            <p className="text-[10px] text-white/60">Preço atual: {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
                           </div>
                         </div>
                         <Button 
@@ -241,10 +241,10 @@ export default function Promotions() {
                     </div>
 
                     {/* Pricing Controls */}
-                    <div className="flex flex-wrap items-center gap-4 sm:gap-8 bg-black/20 p-4 rounded-2xl border border-white/5">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-8 bg-black/40 p-4 rounded-2xl border border-white/10">
                       <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-white/30">Preço Atual</span>
-                        <span className="text-sm font-medium text-white/60 line-through">
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-white/40">Preço Atual</span>
+                        <span className="text-sm font-medium text-white/70 line-through">
                           {Number(p.price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </span>
                       </div>
@@ -252,13 +252,13 @@ export default function Promotions() {
                       <div className="flex flex-col min-w-[120px]">
                         <Label className="text-[10px] uppercase font-extrabold tracking-wider text-primary mb-1">Preço Promo</Label>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/40">R$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/60">R$</span>
                           <Input 
                             type="number"
                             step="0.01"
                             defaultValue={p.promo_price}
                             onBlur={(e) => handleUpdatePrice(p, e.target.value)}
-                            className="pl-8 h-9 bg-white/10 border-white/10 text-white font-bold text-sm focus:ring-primary/50"
+                            className="pl-8 h-9 bg-white/15 border-white/20 text-white font-bold text-sm focus:ring-primary/50"
                           />
                         </div>
                       </div>
