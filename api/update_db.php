@@ -103,6 +103,17 @@ try {
         }
     }
 
+    // 6. Criar tabela bulk_messages se não existir
+    $db->exec("CREATE TABLE IF NOT EXISTS bulk_messages (
+        id INT AUTO_VALUE NOT NULL PRIMARY KEY,
+        scheduled_at DATETIME NOT NULL,
+        media_url TEXT DEFAULT NULL,
+        message TEXT NOT NULL,
+        status VARCHAR(20) DEFAULT 'pending',
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    echo "Tabela bulk_messages verificada/criada.\n";
+
     echo "\nAtualização concluída com sucesso!";
 } catch (Exception $e) {
     echo "\nERRO na atualização: " . $e->getMessage();

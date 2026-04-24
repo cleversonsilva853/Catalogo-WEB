@@ -184,6 +184,11 @@ switch ($resource) {
         require __DIR__ . '/routes/tables.php';
         break;
     
+    case 'bulk-messages':
+    case 'bulk_messages':
+        require __DIR__ . '/routes/bulk_messages.php';
+        break;
+    
     case 'update-db':
     case 'update_db.php':
         require __DIR__ . '/update_db.php';
