@@ -170,25 +170,29 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
 
             {/* Story Button - Skeleton or Content */}
             {(storiesLoading || activeStories.length > 0) && (
-              <div className="flex items-center ml-1">
+              <div className="flex items-center">
                 {storiesLoading ? (
                   /* Skeleton do Story */
-                  <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: '56px', height: '56px' }}>
-                    <div className="w-full h-full rounded-full border-2 border-white/10 p-[2.5px] animate-pulse">
-                      <div className="w-full h-full rounded-full bg-white/5" />
+                  <div className="relative flex items-center justify-center flex-shrink-0" style={{ width: isMobile ? '48px' : '64px', height: isMobile ? '48px' : '64px' }}>
+                    <div className="w-full h-full rounded-full border-2 border-white/20 p-[2px] animate-pulse">
+                      <div className="w-full h-full rounded-full bg-white/10" />
                     </div>
                   </div>
                 ) : (
                   <button
                     onClick={() => setStoryOpen(true)}
-                    className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50"
-                    style={{ width: '56px', height: '56px', minWidth: '56px' }}
+                    className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50 pointer-events-auto"
+                    style={{ 
+                      width: isMobile ? '48px' : '64px', 
+                      height: isMobile ? '48px' : '64px',
+                      minWidth: isMobile ? '48px' : '64px' 
+                    }}
                     aria-label="Ver stories"
                   >
                     {/* Anel gradiente animado com pulso sutil */}
-                    <div className="w-full h-full rounded-full p-[2.5px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center relative">
-                      <span className="absolute inset-0 rounded-full bg-primary/20 animate-ping -z-10" />
-                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-black/40 bg-black">
+                    <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center relative">
+                      <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping -z-10" />
+                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-black bg-black">
                         {activeStories[0].media_type === 'video' ? (
                           <video
                             src={activeStories[0].media_url}
@@ -203,13 +207,14 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
                             src={activeStories[0].media_url}
                             alt={activeStories[0].title || 'story'}
                             className="w-full h-full object-cover"
+                            loading="eager"
                           />
                         )}
                       </div>
                     </div>
                     {/* Badge com número de stories */}
                     {activeStories.length > 1 && (
-                      <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50">
+                      <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50 shadow-md">
                         {activeStories.length}
                       </span>
                     )}
