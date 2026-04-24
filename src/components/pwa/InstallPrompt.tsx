@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { useStore } from '@/hooks/useStore';
 
-const InstallPrompt = () => {
+interface InstallPromptProps {
+  inline?: boolean;
+}
+
+const InstallPrompt = ({ inline = false }: InstallPromptProps) => {
   const { isInstallable, isInstalled, promptInstall, isIOS, showIOSInstructions } = usePWAInstall();
   const { data: store } = useStore();
   const [dismissed, setDismissed] = useState(false);
@@ -12,19 +16,42 @@ const InstallPrompt = () => {
   const [hasScrolled, setHasScrolled] = useState(false);
 
   useEffect(() => {
-    // Show the prompt soon after page load instead of making user wait 4 seconds
-    const timer = setTimeout(() => {
-      setHasScrolled(true);
-    }, 500);
+    if (inline) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+    const handleScroll = () => {
+      // Se for desktop, o floating button pode ficar ativo direto
+      if (window.innerWidth >= 768) {
+        setHasScrolled(true);
+      } else {
+        // No celular, só exibe o floating popup se rolar pra baixo do hero banner
+        if (window.scrollY > 400) {
+          setHasScrolled(true);
+        } else {
+          setHasScrolled(false);
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // checagem inicial
+    
+    // Adicionar listener de redimensionamento também
+    window.addEventListener('resize', handleScroll);
 
-  // Don't show if already installed or dismissed
-  if (isInstalled || dismissed) return null;
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [inline]);
 
-  // Don't show if user hasn't scrolled down yet
-  if (!hasScrolled) return null;
+  // Don't show if already installed
+  if (isInstalled) return null;
+
+  // Don't show floating if dismissed or hasn't scrolled past threshold
+  if (!inline) {
+    if (dismissed) return null;
+    if (!hasScrolled) return null;
+  }
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -42,25 +69,37 @@ const InstallPrompt = () => {
 
   return (
     <>
-      {/* Floating Install Button */}
-      <div className="fixed bottom-6 right-4 sm:bottom-8 sm:right-6 z-40 animate-slide-up">
-        <div className="relative">
+      {inline ? (
+        <div className="flex justify-center px-4 mt-2 mb-4 md:hidden">
           <Button
             onClick={handleInstallClick}
             size="lg"
-            className="rounded-full shadow-lg pr-10 gap-2 bg-primary hover:bg-primary/90"
+            className="w-full sm:max-w-[400px] h-12 rounded-[16px] shadow-sm gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm"
           >
             <Download className="h-5 w-5" />
             Instalar App
           </Button>
-          <button
-            onClick={() => setDismissed(true)}
-            className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center shadow-md"
-          >
-            <X className="h-3 w-3" />
-          </button>
         </div>
-      </div>
+      ) : (
+        <div className="fixed bottom-6 right-4 sm:bottom-8 sm:right-6 z-40 animate-slide-up">
+          <div className="relative">
+            <Button
+              onClick={handleInstallClick}
+              size="lg"
+              className="rounded-full shadow-lg pr-10 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
+            >
+              <Download className="h-5 w-5" />
+              Instalar App
+            </Button>
+            <button
+              onClick={() => setDismissed(true)}
+              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center shadow-md border"
+            >
+              <X className="h-3 w-3 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* iOS Instructions Modal */}
       {showIOSModal && (

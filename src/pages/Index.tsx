@@ -216,6 +216,9 @@ const Index = () => {
           {/* Store Info */}
           <StoreInfo store={store} />
 
+          {/* Inline Install Banner for Mobile */}
+          <InstallPrompt inline />
+
           {isMenuLoading ? (
             <div className="flex justify-center py-20">
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
