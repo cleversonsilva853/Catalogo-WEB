@@ -23,17 +23,18 @@ const InstallPrompt = () => {
   // Don't show if already installed or dismissed
   if (isInstalled || dismissed) return null;
 
-  // Don't show if not installable and not iOS
-  if (!isInstallable && !showIOSInstructions) return null;
-
   // Don't show if user hasn't scrolled down yet
   if (!hasScrolled) return null;
 
   const handleInstallClick = async () => {
     if (isIOS) {
       setShowIOSModal(true);
-    } else {
+    } else if (isInstallable) {
       await promptInstall();
+    } else {
+      // Se o Chrome bloqueou o native prompt (ex: sem HTTPs válido)
+      // Exibiremos o manual de instruções.
+      setShowIOSModal(true);
     }
   };
 
@@ -77,33 +78,51 @@ const InstallPrompt = () => {
             
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Para instalar o app no seu iPhone ou iPad:
+                {isIOS ? "Para instalar o app no seu iPhone ou iPad:" : "Para instalar o app no seu dispositivo:"}
               </p>
               
               <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Share className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">1. Toque em Compartilhar</p>
-                    <p className="text-xs text-muted-foreground">
-                      Na barra do Safari, toque no ícone de compartilhar
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Plus className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm">2. Adicionar à Tela de Início</p>
-                    <p className="text-xs text-muted-foreground">
-                      Role para baixo e toque em "Adicionar à Tela de Início"
-                    </p>
-                  </div>
-                </div>
+                {isIOS ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Share className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">1. Toque em Compartilhar</p>
+                        <p className="text-xs text-muted-foreground">
+                          Na barra do Safari, toque no ícone de compartilhar
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Plus className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">2. Adicionar à Tela de Início</p>
+                        <p className="text-xs text-muted-foreground">
+                          Role para baixo e toque em "Adicionar à Tela de Início"
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Download className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Instalação Manual</p>
+                        <p className="text-xs text-muted-foreground">
+                          Toque no menu do navegador (⋮) e selecione <strong>Instalar aplicativo...</strong> ou <strong>Adicionar à tela inicial</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               
               <Button

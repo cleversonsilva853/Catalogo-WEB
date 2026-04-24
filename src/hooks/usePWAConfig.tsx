@@ -118,40 +118,13 @@ export function usePWAConfig() {
       appleTitleMeta.setAttribute('content', pwaConfig.shortName);
     }
 
-    // Build and apply dynamic manifest based on current page
-    const manifest = {
-      name: pwaConfig.name,
-      short_name: pwaConfig.shortName,
-      description: pwaConfig.description,
-      start_url: pwaConfig.startUrl,
-      display: 'standalone',
-      background_color: '#ffffff',
-      theme_color: themeColor,
-      orientation: 'portrait-primary',
-      icons: store.logo_url
-        ? [
-            { src: store.logo_url, sizes: '192x192', type: 'image/png', purpose: 'any' },
-            { src: store.logo_url, sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-          ]
-        : [
-            { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-            { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
-          ],
-      categories: ['food', 'business'],
-      lang: 'pt-BR',
-    };
-
-    // IMPORTANT: use a data: URL (not blob:) so the browser can reliably fetch it for installation
-    const manifestJson = JSON.stringify(manifest);
-    const manifestUrl = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(manifestJson)}`;
-
-    let manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
-    if (!manifestLink) {
-      manifestLink = document.createElement('link');
-      manifestLink.rel = 'manifest';
-      document.head.appendChild(manifestLink);
+    // We no longer build a dynamic data URI manifest here because Chrome requires the real manifest to trigger installability immediately on load.
+    // Dynamic metadata uses static <link rel="manifest" href="/manifest.json">
+    // Updating meta theme-color directly
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', themeColor);
     }
-    manifestLink.href = manifestUrl;
 
     // Update apple-touch-icon with store logo
     if (store.logo_url) {
