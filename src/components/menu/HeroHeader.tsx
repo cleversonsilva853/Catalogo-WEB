@@ -293,7 +293,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
           <Button
             onClick={scrollToMenu}
             size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 py-4 text-lg rounded-full shadow-lg transition-transform hover:scale-105"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-10 py-4 text-lg rounded-full shadow-lg transition-transform hover:scale-105 sm:hidden"
           >
             Cardápio
           </Button>
