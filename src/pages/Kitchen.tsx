@@ -34,7 +34,21 @@ export default function Kitchen() {
 
   const { data: store } = useStore();
   const { data: items = [], isLoading, error } = useKitchenItems();
-  const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'preparing' | 'ready'>('pending');
+  const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'preparing' | 'ready' | null>(null);
+  
+  const handleTabToggle = (tab: 'pending' | 'accepted' | 'preparing' | 'ready') => {
+    setActiveTab(prev => prev === tab ? null : tab);
+    
+    // Smooth scroll to items section if opening
+    if (activeTab !== tab) {
+      setTimeout(() => {
+        const itemsSection = document.getElementById('kitchen-items-section');
+        if (itemsSection) {
+          itemsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  };
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastItemCount, setLastItemCount] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -108,7 +122,9 @@ export default function Kitchen() {
   const preparingOrders = groupedOrders.filter(o => o.status === 'preparing');
   const readyOrders = groupedOrders.filter(o => o.status === 'ready');
 
-  const currentOrders = activeTab === 'pending' 
+  const currentOrders = !activeTab 
+    ? [] 
+    : activeTab === 'pending' 
     ? pendingOrders 
     : activeTab === 'accepted'
     ? acceptedOrders
@@ -174,62 +190,67 @@ export default function Kitchen() {
         )}
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-4 gap-4 p-4 bg-muted/50">
+        <div className="grid grid-cols-1 gap-4 p-4 bg-muted/50">
           <div 
-            className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
+            className={`rounded-xl py-8 px-6 text-center cursor-pointer transition-all ${
               activeTab === 'pending' 
                 ? 'bg-amber-200 ring-2 ring-amber-500' 
                 : 'bg-amber-100'
             }`}
-            onClick={() => setActiveTab('pending')}
+            onClick={() => handleTabToggle('pending')}
           >
-            <Clock className="h-8 w-8 text-amber-700 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-amber-800">{pendingOrders.length}</p>
-            <p className="text-sm text-amber-700 font-medium">Pendentes</p>
+            <Clock className="h-12 w-12 text-amber-700 mx-auto mb-3" />
+            <p className="text-5xl font-bold text-amber-800">{pendingOrders.length}</p>
+            <p className="text-xl text-amber-700 font-bold mt-1">Pendentes</p>
           </div>
           <div 
-            className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
+            className={`rounded-xl py-8 px-6 text-center cursor-pointer transition-all ${
               activeTab === 'accepted' 
                 ? 'bg-purple-200 ring-2 ring-purple-500' 
                 : 'bg-purple-100'
             }`}
-            onClick={() => setActiveTab('accepted')}
+            onClick={() => handleTabToggle('accepted')}
           >
-            <ChefHat className="h-8 w-8 text-purple-700 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-purple-800">{acceptedOrders.length}</p>
-            <p className="text-sm text-purple-700 font-medium">Aceitos</p>
+            <ChefHat className="h-12 w-12 text-purple-700 mx-auto mb-3" />
+            <p className="text-5xl font-bold text-purple-800">{acceptedOrders.length}</p>
+            <p className="text-xl text-purple-700 font-bold mt-1">Aceitos</p>
           </div>
           <div 
-            className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
+            className={`rounded-xl py-8 px-6 text-center cursor-pointer transition-all ${
               activeTab === 'preparing' 
                 ? 'bg-blue-200 ring-2 ring-blue-500' 
                 : 'bg-blue-100'
             }`}
-            onClick={() => setActiveTab('preparing')}
+            onClick={() => handleTabToggle('preparing')}
           >
-            <ChefHat className="h-8 w-8 text-blue-700 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-blue-800">{preparingOrders.length}</p>
-            <p className="text-sm text-blue-700 font-medium">Preparando</p>
+            <ChefHat className="h-12 w-12 text-blue-700 mx-auto mb-3" />
+            <p className="text-5xl font-bold text-blue-800">{preparingOrders.length}</p>
+            <p className="text-xl text-blue-700 font-bold mt-1">Preparando</p>
           </div>
           <div 
-            className={`rounded-xl p-4 text-center cursor-pointer transition-all ${
+            className={`rounded-xl py-8 px-6 text-center cursor-pointer transition-all ${
               activeTab === 'ready' 
                 ? 'bg-green-200 ring-2 ring-green-500' 
                 : 'bg-green-100'
             }`}
-            onClick={() => setActiveTab('ready')}
+            onClick={() => handleTabToggle('ready')}
           >
-            <CheckCircle className="h-8 w-8 text-green-700 mx-auto mb-2" />
-            <p className="text-3xl font-bold text-green-800">{readyOrders.length}</p>
-            <p className="text-sm text-green-700 font-medium">Prontos</p>
+            <CheckCircle className="h-12 w-12 text-green-700 mx-auto mb-3" />
+            <p className="text-5xl font-bold text-green-800">{readyOrders.length}</p>
+            <p className="text-xl text-green-700 font-bold mt-1">Prontos</p>
           </div>
         </div>
 
         {/* Items Grid */}
-        <div className="p-4">
+        <div id="kitchen-items-section" className="p-4 min-h-[50vh]">
           {isLoading ? (
             <div className="flex justify-center py-16">
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            </div>
+          ) : !activeTab ? (
+            <div className="text-center py-16 opacity-50">
+              <RefreshCw className="h-12 w-12 text-muted-foreground mx-auto mb-4 animate-[spin_3s_linear_infinite]" />
+              <p className="text-xl font-medium text-muted-foreground">Selecione um status acima para visualizar os pedidos</p>
             </div>
           ) : currentOrders.length === 0 ? (
             <div className="text-center py-16">
@@ -245,7 +266,7 @@ export default function Kitchen() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
               {currentOrders.map((order) => (
                 <KitchenOrderCard key={order.orderKey} order={order} />
               ))}
