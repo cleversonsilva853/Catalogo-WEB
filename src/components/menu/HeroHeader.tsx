@@ -133,10 +133,10 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
   const imageWidth = floatingImageSize;
   
   return (
-    <header className="relative w-screen" style={{ marginLeft: 'calc(-50vw + 50%)' }}>
+    <header className="relative w-full overflow-hidden">
       {/* Full Hero Section - Full viewport width and height */}
       <div 
-        className="relative h-screen w-screen overflow-hidden"
+        className="relative h-screen w-full overflow-hidden"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
       >
@@ -256,7 +256,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
           </div>
         </nav>
 
-        <div className="relative z-10 flex flex-col items-start text-left justify-center h-[calc(100%-80px)] px-6 pb-32 sm:pb-0 sm:px-12">
+        <div className="relative z-10 flex flex-col items-start text-left justify-center h-[calc(100%-80px)] px-6 pb-48 sm:pb-0 sm:px-12">
           {/* Slogan */}
           {heroSlogan && (
             <p className="text-lg sm:text-xl lg:text-2xl italic text-white/80 mb-6">
