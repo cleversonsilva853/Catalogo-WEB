@@ -4,10 +4,33 @@
 // ============================================================
 $db = getDB();
 
+// GET /stories/debug-push — Diagnóstico: mostra o que seria enviado na notificação (sem enviar)
+if ($method === 'GET' && $id === 'debug-push') {
+    $store     = $db->query('SELECT id, name FROM store_config LIMIT 1')->fetch();
+    $stories   = $db->query('SELECT id, title, subtitle, media_type, is_active, notification_sent, scheduled_at FROM stories ORDER BY display_order ASC')->fetchAll();
+    $subs      = $db->query('SELECT COUNT(*) FROM push_subscriptions')->fetchColumn();
+
+    respond([
+        'store_name'         => $store['name'] ?? null,
+        'store_id'           => $store['id']   ?? null,
+        'total_subscriptions'=> (int)$subs,
+        'stories'            => $stories,
+        'notification_preview' => array_map(fn($s) => [
+            'story_id'    => $s['id'],
+            'notif_title' => $store['name'] ?? 'Delivery',
+            'notif_body'  => $s['title'] ?: ($s['subtitle'] ?: 'Novo story disponível! Toque para ver.'),
+        ], $stories),
+    ]);
+}
+
 // GET /stories/check-notifications — chamado pelo cron do HostGator (a cada minuto)
 // Verifica stories com scheduled_at <= NOW() e envia push para todos os dispositivos
 if ($method === 'GET' && $id === 'check-notifications') {
     require_once __DIR__ . '/../web_push.php';
+
+    // Busca o nome do restaurante para usar como título da notificação
+    $store = $db->query('SELECT name FROM store_config LIMIT 1')->fetch();
+    $storeName = $store['name'] ?? 'Delivery';
 
     $stmt = $db->prepare("
         SELECT * FROM stories
@@ -21,17 +44,22 @@ if ($method === 'GET' && $id === 'check-notifications') {
 
     $results = [];
     foreach ($pending as $story) {
-        $title    = $story['title'] ?: 'Novo Story';
-        $body     = $story['subtitle'] ?: 'Toque para ver os stories';
-        $url      = '/?open_stories=1'; // Abre o cardápio com stories visíveis
-        $icon     = $story['media_type'] === 'image' ? $story['media_url'] : (defined('BASE_URL') ? BASE_URL . '/icon-192.png' : '/icon-192.png');
-        $sent     = send_push_to_all($title, $body, $url, $icon);
+        // Título da notificação = Nome do Restaurante
+        // Corpo da notificação  = Título do story (o que o usuário criou)
+        $notifTitle = $storeName;
+        $notifBody  = $story['title'] ?: ($story['subtitle'] ?: 'Novo story disponível! Toque para ver.');
+        $url        = '/?open_stories=1';
+        $icon       = $story['media_type'] === 'image'
+                        ? $story['media_url']
+                        : (defined('BASE_URL') ? BASE_URL . '/icon-192.png' : '/icon-192.png');
 
-        // Marca como enviado independente do resultado (evita reenvios infinitos)
+        $sent = send_push_to_all($notifTitle, $notifBody, $url, $icon);
+
+        // Marca como enviado (evita reenvios infinitos)
         $db->prepare('UPDATE stories SET notification_sent = 1 WHERE id = ?')
            ->execute([$story['id']]);
 
-        $results[] = ['id' => $story['id'], 'title' => $title, 'push_sent' => $sent];
+        $results[] = ['id' => $story['id'], 'title' => $notifTitle, 'body' => $notifBody, 'push_sent' => $sent];
     }
 
     // Conta subscriptions para diagnóstico
@@ -39,6 +67,8 @@ if ($method === 'GET' && $id === 'check-notifications') {
 
     respond(['processed' => count($pending), 'results' => $results, 'total_subscriptions' => (int)$total_subs]);
 }
+
+
 
 // GET /stories — Listar todos (público: acesso livre, sem autenticação necessária)
 if ($method === 'GET' && !$id) {

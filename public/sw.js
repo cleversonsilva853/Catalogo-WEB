@@ -1,7 +1,7 @@
 // Service Worker for Web Push Notifications (background/locked screen)
 // IMPORTANT: This file must be at the root scope (/sw.js) to control all pages.
 
-const SW_VERSION = 'v3';
+const SW_VERSION = 'v4';
 
 // ─── INSTALL ───────────────────────────────────────────────────────────────────
 self.addEventListener('install', (event) => {
@@ -53,7 +53,7 @@ self.addEventListener('push', (event) => {
     data: { url: data.url },
     // Actions give the user quick options on the lock screen (Android Chrome)
     actions: [
-      { action: 'open', title: '👀 Ver pedido' },
+      { action: 'open', title: '👀 Ver story' },
       { action: 'dismiss', title: 'Ignorar' },
     ],
   };
