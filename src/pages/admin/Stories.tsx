@@ -48,14 +48,11 @@ function VideoUpload({ currentUrl, onUpload, onRemove }: VideoUploadProps) {
     }
 
     setIsUploading(true);
-    setProgress(10);
+    setProgress(0);
 
     try {
-      // Simula progresso enquanto faz upload
-      const interval = setInterval(() => setProgress(p => Math.min(p + 10, 85)), 400);
-      const url = await uploadFile(file);
-      clearInterval(interval);
-      setProgress(100);
+      // Progresso REAL via XHR — atualiza a cada chunk enviado
+      const url = await uploadFile(file, (pct) => setProgress(pct));
       onUpload(url);
       toast({ title: 'Vídeo enviado com sucesso!' });
     } catch (error: any) {
@@ -90,25 +87,31 @@ function VideoUpload({ currentUrl, onUpload, onRemove }: VideoUploadProps) {
           onClick={() => inputRef.current?.click()}
           disabled={isUploading}
           className={cn(
-            'w-full h-40 rounded-xl border-2 border-dashed border-border',
+            'w-full h-44 rounded-xl border-2 border-dashed border-border',
             'flex flex-col items-center justify-center gap-2',
             'bg-muted/30 hover:bg-muted/50 transition-colors text-muted-foreground',
-            isUploading && 'cursor-not-allowed opacity-80',
+            isUploading && 'cursor-not-allowed opacity-90',
           )}
         >
           {isUploading ? (
             <>
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="text-sm">Enviando vídeo... {progress}%</span>
-              <div className="w-3/4 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="text-sm font-medium text-foreground">Enviando vídeo... {progress}%</span>
+              <div className="w-3/4 h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-150"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
+              <span className="text-xs text-muted-foreground">
+                {progress < 100 ? 'Aguarde, não feche esta página' : 'Finalizando...'}
+              </span>
             </>
           ) : (
             <>
               <Video className="h-8 w-8" />
               <span className="text-sm font-medium">Clique para enviar vídeo</span>
-              <span className="text-xs">MP4, WebM ou MOV até 100MB</span>
+              <span className="text-xs">MP4, WebM ou MOV • máx 100MB</span>
             </>
           )}
         </button>
