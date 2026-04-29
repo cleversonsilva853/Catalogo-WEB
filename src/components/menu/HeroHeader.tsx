@@ -170,21 +170,16 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
 
             {/* Story Button - Only show when we have active stories */}
             {activeStories.length > 0 && (
-              <div className="flex items-center">
+              <div className="flex items-center flex-shrink-0">
                 <button
                   onClick={() => setStoryOpen(true)}
-                  className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50 pointer-events-auto"
-                  style={{ 
-                    width: isMobile ? '48px' : '64px', 
-                    height: isMobile ? '48px' : '64px',
-                    minWidth: isMobile ? '48px' : '64px' 
-                  }}
+                  className="relative flex items-center justify-center flex-shrink-0 group focus:outline-none z-50 pointer-events-auto w-12 h-12 min-w-[48px] sm:w-16 sm:h-16 sm:min-w-[64px]"
                   aria-label="Ver stories"
                 >
                   {/* Anel gradiente animado com pulso sutil */}
                   <div className="w-full h-full rounded-full p-[2px] bg-gradient-to-tr from-primary via-orange-400 to-yellow-300 shadow-xl group-hover:scale-105 transition-transform duration-200 flex items-center justify-center relative">
-                    <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping -z-10" />
-                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-black bg-black">
+                    <span className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ zIndex: 0 }} />
+                    <div className="w-full h-full rounded-full overflow-hidden border-2 border-black bg-black relative z-10">
                       {activeStories[0].media_type === 'video' ? (
                         <video
                           src={activeStories[0].media_url}
@@ -206,7 +201,7 @@ export function HeroHeader({ store, socialMedia, stories, storiesLoading }: Hero
                   </div>
                   {/* Badge com número de stories */}
                   {activeStories.length > 1 && (
-                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50 shadow-md">
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white ring-1 ring-black/50 shadow-md z-20">
                       {activeStories.length}
                     </span>
                   )}
