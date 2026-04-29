@@ -55,3 +55,13 @@ export function useReorderStories() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['stories'] }),
   });
 }
+
+// Envia push notification para um story específico agora (reenvio manual)
+export function useSendStoryNotification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      api.post<{ sent: number; message: string }>(`/stories/${id}/send-notification`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['stories'] }),
+  });
+}

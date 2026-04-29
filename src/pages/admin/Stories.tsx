@@ -9,13 +9,13 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 
-import { useStories, useCreateStory, useUpdateStory, useDeleteStory, useReorderStories, Story } from '@/hooks/useStories';
+import { useStories, useCreateStory, useUpdateStory, useDeleteStory, useReorderStories, useSendStoryNotification, Story } from '@/hooks/useStories';
 import { ImageUpload } from '@/components/admin/ImageUpload';
 import { uploadFile } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
   Plus, Pencil, Trash2, Loader2, Film, Image as ImageIcon,
-  ArrowUp, ArrowDown, BookImage, X, Bell, Calendar, Video
+  ArrowUp, ArrowDown, BookImage, X, Bell, Calendar, Video, Send
 } from 'lucide-react';
 
 
@@ -128,6 +128,7 @@ export default function Stories() {
   const updateMutation = useUpdateStory();
   const deleteMutation = useDeleteStory();
   const reorderMutation = useReorderStories();
+  const sendNotifMutation = useSendStoryNotification();
 
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -204,15 +205,31 @@ export default function Stories() {
     <AdminLayout title="Stories">
       <div className="space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <p className="text-muted-foreground">Gerencie os stories exibidos no cardápio</p>
+          <div className="space-y-0.5">
+            <p className="text-muted-foreground">Gerencie os stories exibidos no cardápio</p>
+            <p className="text-xs text-muted-foreground">
+              <span className={sorted.length >= 10 ? 'text-destructive font-semibold' : ''}>
+                {sorted.length}/10 stories utilizados
+              </span>
+            </p>
+          </div>
           <Button
             className="bg-primary text-primary-foreground"
             onClick={() => { resetForm(); setShowForm(true); }}
+            disabled={sorted.length >= 10}
+            title={sorted.length >= 10 ? 'Limite de 10 stories atingido' : 'Criar novo story'}
           >
             <Plus className="w-4 h-4 mr-2" /> Novo Story
           </Button>
         </div>
 
+        {/* Aviso de limite atingido */}
+        {sorted.length >= 10 && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive flex items-center gap-2">
+            <Bell className="w-4 h-4 flex-shrink-0" />
+            Limite de <strong>10 stories</strong> atingido. Remova um story existente para criar um novo.
+          </div>
+        )}
 
         {/* Form */}
         {showForm && (
@@ -384,6 +401,26 @@ export default function Stories() {
                         onCheckedChange={() => toggleActive(story)}
                         className="mr-1"
                       />
+                      {/* Botão de reenvio de notificação */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary"
+                        title="Enviar notificação agora"
+                        disabled={sendNotifMutation.isPending}
+                        onClick={() =>
+                          sendNotifMutation.mutate(story.id, {
+                            onSuccess: (res) => toast({ title: res.message }),
+                            onError: () => toast({ title: 'Erro ao enviar notificação', variant: 'destructive' }),
+                          })
+                        }
+                      >
+                        {sendNotifMutation.isPending ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Send className="w-3.5 h-3.5" />
+                        )}
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => moveStory(index, 'up')} disabled={index === 0}>
                         <ArrowUp className="w-3.5 h-3.5" />
                       </Button>

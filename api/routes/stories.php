@@ -92,6 +92,11 @@ if ($method === 'POST' && !$id) {
 
     if (empty($b['media_url'])) respond_error('URL da mídia é obrigatória', 422);
 
+    // Limite: máximo de 10 stories
+    $total = $db->query('SELECT COUNT(*) FROM stories')->fetchColumn();
+    if ($total >= 10) {
+        respond_error('Limite de 10 stories atingido. Remova um story antes de criar um novo.', 422);
+    }
     $uuid = sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
         mt_rand(0,0xffff), mt_rand(0,0xffff), mt_rand(0,0xffff),
         mt_rand(0,0x0fff)|0x4000, mt_rand(0,0x3fff)|0x8000,
@@ -172,6 +177,40 @@ if ($method === 'PUT' && $id) {
     $stmt = $db->prepare('SELECT * FROM stories WHERE id = ?');
     $stmt->execute([$id]);
     respond($stmt->fetch());
+}
+
+// POST /stories/{id}/send-notification — Reenvio manual de notificação push para um story
+if ($method === 'POST' && $sub === 'send-notification') {
+    require_auth();
+    require_once __DIR__ . '/../web_push.php';
+
+    $stmt = $db->prepare('SELECT * FROM stories WHERE id = ?');
+    $stmt->execute([$id]);
+    $story = $stmt->fetch();
+    if (!$story) respond_error('Story não encontrado', 404);
+
+    // Busca o nome do restaurante
+    $store     = $db->query('SELECT name FROM store_config LIMIT 1')->fetch();
+    $storeName = $store['name'] ?? 'Delivery';
+
+    $notifTitle = $storeName;
+    $notifBody  = $story['title'] ?: ($story['subtitle'] ?: 'Novo story disponível! Toque para ver.');
+    $url        = '/?open_stories=1';
+    $icon       = $story['media_type'] === 'image'
+                    ? $story['media_url']
+                    : (defined('BASE_URL') ? BASE_URL . '/icon-192.png' : '/icon-192.png');
+
+    $sent = send_push_to_all($notifTitle, $notifBody, $url, $icon);
+
+    // Marca como enviado
+    $db->prepare('UPDATE stories SET notification_sent = 1 WHERE id = ?')->execute([$id]);
+
+    respond([
+        'message'     => $sent > 0 ? "Notificação enviada para $sent dispositivo(s)" : 'Nenhum dispositivo recebeu (verifique as subscriptions)',
+        'sent'        => $sent,
+        'notif_title' => $notifTitle,
+        'notif_body'  => $notifBody,
+    ]);
 }
 
 // DELETE /stories/{id}
