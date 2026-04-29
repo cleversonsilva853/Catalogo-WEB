@@ -136,20 +136,20 @@ function wp_encrypt(string $payload, string $p256dh_b64, string $auth_b64): ?str
 
 /**
  * Envia Web Push para uma subscription individual.
- * Retorna true em sucesso (HTTP 2xx/201).
+ * Retorna o HTTP status code (201 = sucesso, 410 = subscription expirada, etc.)
  */
-function send_web_push(string $endpoint, string $p256dh, string $auth_key, array $notification): bool {
+function send_web_push(string $endpoint, string $p256dh, string $auth_key, array $notification): int {
     // Valida chaves VAPID
     $priv_raw = wp_b64u_decode(VAPID_PRIVATE_KEY);
     if (strlen($priv_raw) !== 32) {
         error_log('[WebPush] Chave VAPID inválida ou placeholder. Configure VAPID_PRIVATE no servidor.');
-        return false;
+        return 0;
     }
 
     $body = wp_encrypt(json_encode($notification), $p256dh, $auth_key);
     if ($body === null) {
         error_log('[WebPush] Falha ao criptografar o payload.');
-        return false;
+        return 0;
     }
 
     $parsed   = parse_url($endpoint);
@@ -157,7 +157,7 @@ function send_web_push(string $endpoint, string $p256dh, string $auth_key, array
     $jwt      = wp_vapid_jwt($audience, VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY);
     if (!$jwt) {
         error_log('[WebPush] Falha ao gerar JWT VAPID.');
-        return false;
+        return 0;
     }
 
     $ch = curl_init($endpoint);
@@ -175,24 +175,29 @@ function send_web_push(string $endpoint, string $p256dh, string $auth_key, array
         CURLOPT_SSL_VERIFYPEER => true,
     ]);
 
-    curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $err  = curl_error($ch);
+    $response = curl_exec($ch);
+    $code     = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err      = curl_error($ch);
     curl_close($ch);
 
-    if ($err) error_log("[WebPush] cURL error: $err");
+    if ($err) error_log("[WebPush] cURL error para $endpoint: $err");
+    if ($code && $code !== 201 && $code !== 200) {
+        error_log("[WebPush] HTTP $code para $endpoint — resposta: " . substr($response, 0, 200));
+    }
 
-    return $code >= 200 && $code < 300;
+    return $code;
 }
 
 /**
  * Envia para TODAS as push_subscriptions cadastradas.
+ * Remove automaticamente subscriptions expiradas (HTTP 410).
  * Retorna o número de envios bem-sucedidos.
  */
 function send_push_to_all(string $title, string $body_text, string $url = '/', string $icon = ''): int {
     $db   = getDB();
     $subs = $db->query('SELECT * FROM push_subscriptions')->fetchAll();
     $sent = 0;
+    $expired = [];
 
     $payload = [
         'title' => $title,
@@ -203,9 +208,23 @@ function send_push_to_all(string $title, string $body_text, string $url = '/', s
     ];
 
     foreach ($subs as $sub) {
-        if (send_web_push($sub['endpoint'], $sub['p256dh'], $sub['auth_key'], $payload)) {
+        $code = send_web_push($sub['endpoint'], $sub['p256dh'], $sub['auth_key'], $payload);
+
+        if ($code >= 200 && $code < 300) {
             $sent++;
+        } elseif ($code === 410 || $code === 404) {
+            // 410 Gone = subscription expirada/cancelada pelo usuário — remove do banco
+            $expired[] = $sub['id'];
+            error_log("[WebPush] Subscription expirada removida: {$sub['endpoint']}");
         }
+        // Outros erros (429 rate limit, 5xx servidor): mantém para tentar depois
     }
+
+    // Remove subscriptions expiradas em lote
+    if (!empty($expired)) {
+        $placeholders = implode(',', array_fill(0, count($expired), '?'));
+        $db->prepare("DELETE FROM push_subscriptions WHERE id IN ($placeholders)")->execute($expired);
+    }
+
     return $sent;
 }
