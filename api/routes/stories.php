@@ -40,17 +40,9 @@ if ($method === 'GET' && $id === 'check-notifications') {
     respond(['processed' => count($pending), 'results' => $results, 'total_subscriptions' => (int)$total_subs]);
 }
 
-// GET /stories — Listar todos (público: só ativos; admin: todos)
+// GET /stories — Listar todos (público: acesso livre, sem autenticação necessária)
 if ($method === 'GET' && !$id) {
-    $isAuthd = false;
-    try { require_auth(); $isAuthd = true; } catch (Exception $e) {}
-
-    if ($isAuthd) {
-        $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
-    } else {
-        // Público vê todos (temporário para restaurar visibilidade)
-        $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
-    }
+    $stmt = $db->query('SELECT * FROM stories ORDER BY display_order ASC, created_at DESC');
     respond($stmt->fetchAll());
 }
 
