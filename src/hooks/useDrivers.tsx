@@ -5,6 +5,7 @@ export interface Driver {
   id: string;
   name: string;
   phone: string | null;
+  password?: string | null;
   is_active: boolean;
   commission_percentage: number;
   created_at: string;
@@ -36,7 +37,7 @@ export function useActiveDrivers() {
 export function useCreateDriver() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: { name: string; phone?: string; commission_percentage?: number }) => 
+    mutationFn: (data: { name: string; phone?: string; commission_percentage?: number; password?: string }) => 
       api.post<Driver>('/drivers', data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['drivers'] }),
   });

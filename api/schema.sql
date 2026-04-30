@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS store_config (
   delivery_fee_mode VARCHAR(20) DEFAULT 'fixed',
   checkout_whatsapp_message TEXT DEFAULT NULL,
   consume_on_site_enabled TINYINT(1) DEFAULT 0,
+  pdv_password     VARCHAR(50)   DEFAULT NULL,
+  kitchen_password VARCHAR(50)   DEFAULT NULL,
   created_at  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
@@ -232,6 +234,7 @@ CREATE TABLE IF NOT EXISTS drivers (
   id                    CHAR(36)     NOT NULL DEFAULT (UUID()),
   name                  VARCHAR(255) NOT NULL,
   phone                 VARCHAR(30)  DEFAULT NULL,
+  password              VARCHAR(50)  DEFAULT NULL,
   commission_percentage DECIMAL(5,2) NOT NULL DEFAULT 0.00,
   is_active             TINYINT(1)   NOT NULL DEFAULT 1,
   created_at            DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -30,8 +30,8 @@ if ($method === 'POST') {
     $b = get_body();
     if (empty($b['name'])) respond_error('Nome é obrigatório', 422);
     $uuid = gen_uuid();
-    $db->prepare('INSERT INTO drivers (id,name,phone,commission_percentage,is_active) VALUES (?,?,?,?,?)')
-       ->execute([$uuid, $b['name'], $b['phone'] ?? null, $b['commission_percentage'] ?? 0, isset($b['is_active']) ? (int)(bool)$b['is_active'] : 1]);
+    $db->prepare('INSERT INTO drivers (id,name,phone,commission_percentage,is_active,password) VALUES (?,?,?,?,?,?)')
+       ->execute([$uuid, $b['name'], $b['phone'] ?? null, $b['commission_percentage'] ?? 0, isset($b['is_active']) ? (int)(bool)$b['is_active'] : 1, $b['password'] ?? null]);
     $stmt = $db->prepare('SELECT * FROM drivers WHERE id = ?');
     $stmt->execute([$uuid]);
     respond($stmt->fetch(), 201);
@@ -40,7 +40,7 @@ if ($method === 'POST') {
 if ($method === 'PUT' && $id) {
     require_auth();
     $b = get_body(); $fields = []; $params = [];
-    foreach (['name','phone','commission_percentage','is_active'] as $f) {
+    foreach (['name','phone','commission_percentage','is_active','password'] as $f) {
         if (array_key_exists($f, $b)) { $fields[] = "$f = ?"; $params[] = $f === 'is_active' ? (int)(bool)$b[$f] : $b[$f]; }
     }
     $params[] = $id;

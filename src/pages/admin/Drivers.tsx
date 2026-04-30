@@ -16,7 +16,7 @@ import { Plus, Pencil, Trash2, Truck, Phone, Loader2, ExternalLink } from 'lucid
 export default function Drivers() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
-  const [formData, setFormData] = useState({ name: '', phone: '', commission_percentage: '5' });
+  const [formData, setFormData] = useState({ name: '', phone: '', commission_percentage: '5', password: '' });
 
   const { toast } = useToast();
   const { data: drivers = [], isLoading } = useDrivers();
@@ -29,24 +29,39 @@ export default function Drivers() {
     if (!formData.name.trim()) return;
 
     if (editingDriver) {
+      const updateData: any = { 
+        name: formData.name, 
+        phone: formData.phone || null, 
+        commission_percentage: parseFloat(formData.commission_percentage) || 5 
+      };
+      
+      if (formData.password) {
+        updateData.password = formData.password;
+      }
+
       updateMutation.mutate(
-        { id: editingDriver.id, data: { name: formData.name, phone: formData.phone || null, commission_percentage: parseFloat(formData.commission_percentage) || 5 } },
+        { id: editingDriver.id, data: updateData },
         {
           onSuccess: () => {
             toast({ title: 'Entregador atualizado!' });
             setIsDialogOpen(false);
             setEditingDriver(null);
-            setFormData({ name: '', phone: '', commission_percentage: '5' });
+            setFormData({ name: '', phone: '', commission_percentage: '5', password: '' });
           },
           onError: () => toast({ title: 'Erro ao atualizar', variant: 'destructive' }),
         }
       );
     } else {
-      createMutation.mutate({ name: formData.name, phone: formData.phone, commission_percentage: parseFloat(formData.commission_percentage) || 5 }, {
+      createMutation.mutate({ 
+        name: formData.name, 
+        phone: formData.phone, 
+        commission_percentage: parseFloat(formData.commission_percentage) || 5,
+        password: formData.password || undefined
+      }, {
         onSuccess: () => {
           toast({ title: 'Entregador cadastrado com sucesso!' });
           setIsDialogOpen(false);
-          setFormData({ name: '', phone: '', commission_percentage: '5' });
+          setFormData({ name: '', phone: '', commission_percentage: '5', password: '' });
         },
         onError: () => toast({ title: 'Erro ao cadastrar', variant: 'destructive' }),
       });
@@ -55,7 +70,12 @@ export default function Drivers() {
 
   const openEditDialog = (driver: Driver) => {
     setEditingDriver(driver);
-    setFormData({ name: driver.name, phone: driver.phone || '', commission_percentage: String(driver.commission_percentage ?? 5) });
+    setFormData({ 
+      name: driver.name, 
+      phone: driver.phone || '', 
+      commission_percentage: String(driver.commission_percentage ?? 5),
+      password: '' 
+    });
     setIsDialogOpen(true);
   };
 
@@ -89,7 +109,7 @@ export default function Drivers() {
                 setIsDialogOpen(open);
                 if (!open) {
                   setEditingDriver(null);
-                  setFormData({ name: '', phone: '', commission_percentage: '5' });
+                  setFormData({ name: '', phone: '', commission_percentage: '5', password: '' });
                 }
               }}
             >
@@ -115,6 +135,15 @@ export default function Drivers() {
                 <div>
                   <Label htmlFor="commission">Valor (R$)</Label>
                   <Input id="commission" type="number" min="0" step="0.50" value={formData.commission_percentage} onChange={(e) => setFormData({ ...formData, commission_percentage: e.target.value })} placeholder="10.00" className="mt-1.5" />
+                </div>
+                <div>
+                  <Label htmlFor="password">Senha de Acesso</Label>
+                  <Input id="password" type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder={editingDriver ? "Deixe em branco para não alterar" : "Senha para o entregador"} className="mt-1.5" />
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    {editingDriver 
+                      ? "Preencha apenas se desejar alterar a senha atual do entregador." 
+                      : "Esta senha será usada pelo entregador para acessar o painel de entregas."}
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={createMutation.isPending || updateMutation.isPending}>
                   {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

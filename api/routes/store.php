@@ -26,7 +26,7 @@ if ($method === 'PUT') {
         'address', 'is_open', 'delivery_fee', 'min_order_value', 'delivery_time_min',
         'delivery_time_max', 'pickup_time_min', 'pickup_time_max', 'primary_color', 'secondary_color', 'accent_color', 'menu_color',
         'pwa_name', 'pwa_short_name', 'pix_message', 'delivery_fee_mode',
-        'checkout_whatsapp_message', 'consume_on_site_enabled', 'pdv_password',
+        'checkout_whatsapp_message', 'consume_on_site_enabled', 'pdv_password', 'kitchen_password',
         'stock_enabled', 'product_stock_enabled', 'menu_layout',
         'hero_banner_enabled', 'hero_text_1', 'hero_text_2', 'hero_text_3', 'hero_text_4', 'hero_slogan',
         'floating_image_enabled', 'floating_image_url', 'floating_image_size', 
