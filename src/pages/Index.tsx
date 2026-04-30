@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { HeroHeader } from '@/components/menu/HeroHeader';
 import { StoreInfo } from '@/components/menu/StoreInfo';
@@ -35,7 +35,8 @@ interface EditingProduct {
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const isDineInMode = searchParams.get('mode') === 'dine_in';
+  const { tableNumber } = useParams();
+  const isDineInMode = searchParams.get('mode') === 'dine_in' || !!tableNumber;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -75,6 +76,23 @@ const Index = () => {
 
   // Handle URL params for editing products from cart/checkout
   useEffect(() => {
+    // Handle Table Parameter
+    const tableParam = searchParams.get('mesa') || tableNumber;
+    const modeParam = searchParams.get('mode');
+
+    if (tableParam) {
+      localStorage.setItem('selected-table', tableParam);
+      // Ensure dine_in mode is active when arriving via table QR
+      if (modeParam !== 'dine_in' && !tableNumber) {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('mode', 'dine_in');
+        setSearchParams(newParams, { replace: true });
+      }
+    } else if (!modeParam) {
+      // ONLY clear if we are NOT in a specific mode (like delivery/pickup arriving from home)
+      localStorage.removeItem('selected-table');
+    }
+
     const productId = searchParams.get('product');
     const rawObservation = searchParams.get('observation') || '';
     const quantity = parseInt(searchParams.get('quantity') || '1', 10);

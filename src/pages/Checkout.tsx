@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { api } from '@/lib/api';
 
 type DisplayPaymentMethod = 'money' | 'debit' | 'credit' | 'pix';
-type DeliveryType = 'delivery' | 'pickup';
+type DeliveryType = 'delivery' | 'pickup' | 'dine_in';
 
 const CHECKOUT_STORAGE_KEY = 'delivery-checkout';
 
@@ -97,6 +97,8 @@ const Checkout = () => {
     if (savedData?.deliveryType && availableTypes[savedData.deliveryType as DeliveryType]) {
       return savedData.deliveryType as DeliveryType;
     }
+    const storedTable = localStorage.getItem('selected-table');
+    if (storedTable) return 'dine_in';
     if (availableTypes.delivery) return 'delivery';
     if (availableTypes.pickup) return 'pickup';
     return 'delivery';
@@ -304,6 +306,7 @@ const Checkout = () => {
           change_for: changeForValue,
           latitude: deliveryType === 'delivery' ? geoCoords?.lat ?? null : null,
           longitude: deliveryType === 'delivery' ? geoCoords?.lng ?? null : null,
+          table_number: deliveryType === 'dine_in' ? Number(localStorage.getItem('selected-table')) : null,
         },
         items: items.map((item) => ({
           product_id: item.product.id,
@@ -432,7 +435,7 @@ const Checkout = () => {
         )}
 
         <div className="flex border-b border-border">
-          {availableTypes.delivery && (
+          {!localStorage.getItem('selected-table') && availableTypes.delivery && (
             <button
               onClick={() => setDeliveryType('delivery')}
               className={cn(
@@ -445,7 +448,7 @@ const Checkout = () => {
               Entrega
             </button>
           )}
-          {availableTypes.pickup && (
+          {!localStorage.getItem('selected-table') && availableTypes.pickup && (
             <button
               onClick={() => setDeliveryType('pickup')}
               className={cn(
@@ -456,6 +459,19 @@ const Checkout = () => {
               )}
             >
               Retirada
+            </button>
+          )}
+          {localStorage.getItem('selected-table') && (
+            <button
+              onClick={() => setDeliveryType('dine_in')}
+              className={cn(
+                "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                deliveryType === 'dine_in' 
+                  ? "text-primary border-b-2 border-primary" 
+                  : "text-muted-foreground"
+              )}
+            >
+              Na Mesa
             </button>
           )}
         </div>
@@ -603,6 +619,24 @@ const Checkout = () => {
                   <p className="text-sm text-foreground">{store.address}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     Previsão: {store.pickup_time_min || 15}-{store.pickup_time_max || 25} min após confirmação
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Dine In Table Info */}
+          {deliveryType === 'dine_in' && (
+            <section className="bg-card sm:rounded-2xl rounded-none p-4 sm:shadow-card shadow-none border-y border-border sm:border-none">
+              <h3 className="font-semibold text-foreground mb-3">Consumo no Local</h3>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <UtensilsCrossed className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-foreground">Você está na <strong>Mesa #{localStorage.getItem('selected-table')}</strong></p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Seu pedido será entregue diretamente na sua mesa.
                   </p>
                 </div>
               </div>

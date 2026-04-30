@@ -19,6 +19,7 @@ export interface Order {
   delivery_fee: number;
   coupon_code: string | null;
   discount_amount: number;
+  table_number?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +52,7 @@ export interface CreateOrderData {
   delivery_fee?: number;
   coupon_code?: string | null;
   discount_amount?: number;
+  table_number?: number | null;
 }
 
 export interface CreateOrderItemData {

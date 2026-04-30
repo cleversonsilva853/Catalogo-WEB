@@ -40,6 +40,7 @@ import AdminQRCodes from "./pages/admin/QRCodes";
 import AdminSocialMedia from "./pages/admin/SocialMedia";
 import AdminStories from "./pages/admin/Stories";
 import AdminComandas from "./pages/admin/Comandas";
+import AdminTables from "./pages/admin/Tables";
 import PDVPublic from "./pages/PDVPublic";
 import NotFound from "./pages/NotFound";
 
@@ -56,6 +57,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/mesa=:tableNumber" element={<Index />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
@@ -85,6 +87,7 @@ const App = () => (
                 <Route path="/admin/social-media" element={<AdminSocialMedia />} />
                 <Route path="/admin/stories" element={<AdminStories />} />
                 <Route path="/admin/comandas" element={<AdminComandas />} />
+                <Route path="/admin/tables" element={<AdminTables />} />
                 <Route path="/pdv" element={<PDVPublic />} />
                 <Route path="/driver" element={<DriverAccess />} />
                 <Route path="/driver/dashboard" element={<DriverDashboard />} />

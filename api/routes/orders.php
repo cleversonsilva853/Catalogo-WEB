@@ -196,8 +196,8 @@ if ($method === 'POST' && !$id) {
                  address_neighborhood, address_complement, address_reference,
                  total_amount, payment_method, change_for,
                  latitude, longitude, delivery_zone_id, delivery_fee,
-                 coupon_code, discount_amount, status)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                 coupon_code, discount_amount, table_number, status)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
         ')->execute([
             $b['customer_name'],
             $b['customer_phone'],
@@ -215,6 +215,7 @@ if ($method === 'POST' && !$id) {
             $b['delivery_fee']        ?? 0,
             $b['coupon_code']         ?? null,
             $b['discount_amount']     ?? 0,
+            $b['table_number']        ?? null,
             'pending',
         ]);
 
@@ -300,7 +301,7 @@ if ($method === 'PUT' && $id) {
     $b = get_body();
 
     $fields = []; $params = [];
-    $allowed = ['status','driver_id','driver_name','payment_method','total_amount'];
+    $allowed = ['status','driver_id','driver_name','payment_method','total_amount','table_number'];
     foreach ($allowed as $f) {
         if (array_key_exists($f, $b)) { $fields[] = "$f = ?"; $params[] = $b[$f]; }
     }

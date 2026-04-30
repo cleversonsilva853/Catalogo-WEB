@@ -205,6 +205,7 @@ CREATE TABLE IF NOT EXISTS orders (
   delivery_fee         DECIMAL(10,2) DEFAULT 0.00,
   coupon_code          VARCHAR(50)   DEFAULT NULL,
   discount_amount      DECIMAL(10,2) DEFAULT 0.00,
+  table_number         INT           DEFAULT NULL,
   created_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
