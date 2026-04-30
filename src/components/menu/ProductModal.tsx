@@ -86,13 +86,24 @@ export function ProductModal({
     return total;
   }, [addonGroups, selectedAddOns]);
 
-  const basePrice = Number(product.price);
+  const basePrice = (product.is_promo_active && product.promo_price) 
+    ? Number(product.promo_price) 
+    : Number(product.price);
+  
+  const originalPrice = Number(product.price);
   const unitPrice = basePrice + addOnsTotal;
+  
   const totalPrice = (unitPrice * quantity).toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   });
+  
   const formattedPrice = basePrice.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+
+  const formattedOriginalPrice = originalPrice.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   });
@@ -222,9 +233,16 @@ export function ProductModal({
           {/* Product Info */}
           <div className="px-5 py-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground text-slate-800 leading-tight">{product.name}</h2>
-            <p className="mt-1.5 text-2xl sm:text-3xl font-bold text-primary">
-              {formattedPrice}
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="mt-1.5 text-2xl sm:text-3xl font-bold text-primary">
+                {formattedPrice}
+              </p>
+              {product.is_promo_active && product.promo_price && (
+                <span className="mt-1.5 text-lg font-medium text-muted-foreground line-through opacity-70">
+                  {formattedOriginalPrice}
+                </span>
+              )}
+            </div>
             
             {product.description && (
               <div className="mt-6">

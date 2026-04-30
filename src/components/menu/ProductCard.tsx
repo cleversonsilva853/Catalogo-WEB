@@ -38,8 +38,23 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
             {product.description}
           </p>
         </div>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-base font-bold text-foreground">{formattedPrice}</span>
+        <div className="mt-2 flex items-center gap-2">
+          {product.is_promo_active && product.promo_price ? (
+            <>
+              <span className="text-base font-bold text-primary">
+                {Number(product.promo_price).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
+              </span>
+              <span className="text-xs text-muted-foreground line-through opacity-70">
+                {formattedPrice}
+              </span>
+            </>
+          ) : (
+            <span className="text-base font-bold text-foreground">{formattedPrice}</span>
+          )}
+        </div>
           {product.is_available && (
             <Button
               size="icon-sm"

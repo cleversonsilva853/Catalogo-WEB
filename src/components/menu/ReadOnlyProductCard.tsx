@@ -43,8 +43,22 @@ export function ReadOnlyProductCard({ product }: ReadOnlyProductCardProps) {
             {product.description}
           </p>
         </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-base font-bold text-primary">{formattedPrice}</span>
+        <div className="flex items-center gap-2 mt-1">
+          {product.is_promo_active && product.promo_price ? (
+            <>
+              <span className="text-base font-bold text-primary">
+                {Number(product.promo_price).toLocaleString('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                })}
+              </span>
+              <span className="text-xs text-muted-foreground line-through opacity-70">
+                {formattedPrice}
+              </span>
+            </>
+          ) : (
+            <span className="text-base font-bold text-primary">{formattedPrice}</span>
+          )}
         </div>
       </div>
     </div>

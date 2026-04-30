@@ -60,7 +60,13 @@ export function ProductSelectorModal({ open, title, onClose, onConfirm, isLoadin
     );
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const getProductPrice = (product: Product) => {
+    return (product.is_promo_active && product.promo_price) 
+      ? Number(product.promo_price) 
+      : Number(product.price || 0);
+  };
+
+  const cartTotal = cart.reduce((sum, i) => sum + getProductPrice(i.product) * i.quantity, 0);
   const totalItems = cart.reduce((s, i) => s + i.quantity, 0);
 
   const handleClose = () => {
@@ -169,7 +175,14 @@ export function ProductSelectorModal({ open, title, onClose, onConfirm, isLoadin
                           )}
                           <p className="font-medium text-sm text-foreground truncate">{product.name}</p>
                           <p className="text-xs text-muted-foreground line-clamp-2 min-h-8">{product.description || 'Sem descrição'}</p>
-                          <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+                          {product.is_promo_active && product.promo_price ? (
+                            <div className="flex flex-col">
+                              <p className="text-sm font-bold text-primary">{formatCurrency(Number(product.promo_price))}</p>
+                              <p className="text-[10px] text-muted-foreground line-through opacity-70">{formatCurrency(Number(product.price))}</p>
+                            </div>
+                          ) : (
+                            <p className="text-sm font-bold text-primary">{formatCurrency(Number(product.price))}</p>
+                          )}
                         </CardContent>
                       </Card>
                     );
@@ -228,7 +241,7 @@ export function ProductSelectorModal({ open, title, onClose, onConfirm, isLoadin
                         </Button>
                       </div>
                       <span className="text-sm font-semibold text-primary">
-                        {formatCurrency(item.product.price * item.quantity)}
+                        {formatCurrency(getProductPrice(item.product) * item.quantity)}
                       </span>
                     </div>
                   </div>

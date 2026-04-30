@@ -137,7 +137,13 @@ const PDVPublic = () => {
     }).filter(i => i.quantity > 0));
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + Number(i.product.price || 0) * i.quantity, 0);
+  const getProductPrice = (product: Product) => {
+    return (product.is_promo_active && product.promo_price) 
+      ? Number(product.promo_price) 
+      : Number(product.price || 0);
+  };
+
+  const cartTotal = cart.reduce((sum, i) => sum + getProductPrice(i.product) * i.quantity, 0);
 
   const handleFinalizarPedido = async () => {
     if (!selectedComanda || cart.length === 0) return;
@@ -150,7 +156,7 @@ const PDVPublic = () => {
             product_id: i.product.id,
             product_name: i.product.name,
             quantity: i.quantity,
-            unit_price: Number(i.product.price || 0),
+            unit_price: getProductPrice(i.product),
             observation: i.observation,
           })),
         });
@@ -196,7 +202,14 @@ const PDVPublic = () => {
         <CardContent className="p-3 space-y-2">
           {product.image_url && <img src={product.image_url} alt={product.name} className="w-full h-24 object-cover rounded-lg" />}
           <p className="font-semibold text-sm text-foreground line-clamp-1">{product.name}</p>
-          <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+          {product.is_promo_active && product.promo_price ? (
+            <div className="flex flex-col">
+              <p className="text-sm font-bold text-primary">{formatCurrency(product.promo_price)}</p>
+              <p className="text-[10px] text-muted-foreground line-through opacity-70">{formatCurrency(product.price)}</p>
+            </div>
+          ) : (
+            <p className="text-sm font-bold text-primary">{formatCurrency(product.price)}</p>
+          )}
         </CardContent>
       </Card>
     ));
@@ -263,7 +276,7 @@ const PDVPublic = () => {
                           <span>{item.quantity}</span>
                           <button onClick={() => updateQuantity(item.product.id, 1)} className="px-1">+</button>
                         </div>
-                        <span className="font-bold text-primary">{formatCurrency(item.product.price * item.quantity)}</span>
+                        <span className="font-bold text-primary">{formatCurrency(getProductPrice(item.product) * item.quantity)}</span>
                         <button onClick={() => removeFromCart(item.product.id)} className="ml-3 text-destructive hover:scale-110 transition-transform"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     ))}
