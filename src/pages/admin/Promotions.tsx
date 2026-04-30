@@ -230,7 +230,7 @@ export default function Promotions() {
                             <Package className="h-8 w-8 text-white/10" />
                           </div>
                         )}
-                        {p.is_promo_active && (
+                        {!!p.is_promo_active && (
                           <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white shadow-lg animate-pulse">
                             <Tag className="h-3 w-3" />
                           </span>
