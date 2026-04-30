@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KitchenOrderCard, groupItemsByOrder, GroupedKitchenOrder } from '@/components/kitchen/KitchenOrderCard';
 import { PWAInstallButton } from '@/components/pwa/PWAInstallButton';
@@ -35,7 +37,29 @@ export default function Kitchen() {
   const { data: store } = useStore();
   const { data: items = [], isLoading, error } = useKitchenItems();
   const [activeTab, setActiveTab] = useState<'pending' | 'accepted' | 'preparing' | 'ready' | null>(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleLogin = () => {
+    if (!store?.kitchen_password) {
+      setAuthenticated(true);
+      return;
+    }
+    if (passwordInput === store.kitchen_password) {
+      setAuthenticated(true);
+      setPasswordError('');
+    } else {
+      setPasswordError('Senha da Cozinha incorreta.');
+    }
+  };
   
+  useEffect(() => {
+    if (store && !store.kitchen_password) {
+      setAuthenticated(true);
+    }
+  }, [store]);
+
   const handleTabToggle = (tab: 'pending' | 'accepted' | 'preparing' | 'ready') => {
     setActiveTab(prev => prev === tab ? null : tab);
     
@@ -131,6 +155,33 @@ export default function Kitchen() {
     : activeTab === 'preparing' 
       ? preparingOrders 
       : readyOrders;
+
+  if (!authenticated && store?.kitchen_password) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F1F5F9] p-4">
+        <Card className="w-full max-w-sm">
+          <CardHeader className="text-center">
+            <div className="mx-auto h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
+              <ChefHat className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle>Acesso à Cozinha</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input 
+              type="password" 
+              placeholder="Senha da Cozinha" 
+              value={passwordInput} 
+              onChange={e => setPasswordInput(e.target.value)} 
+              onKeyDown={e => e.key === 'Enter' && handleLogin()} 
+            />
+            {passwordError && <p className="text-sm text-destructive">{passwordError}</p>}
+            <Button className="w-full" size="lg" onClick={handleLogin}>Entrar</Button>
+            <Button variant="ghost" className="w-full" onClick={() => navigate('/admin')}>Voltar ao Admin</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -14,12 +14,16 @@ export function OperationModes() {
   const updateSystemSettings = useUpdateSystemSettings();
   const { toast } = useToast();
   const [pdvPassword, setPdvPassword] = useState('');
+  const [kitchenPassword, setKitchenPassword] = useState('');
 
   useEffect(() => {
     if (store?.pdv_password) {
       setPdvPassword(store.pdv_password);
     }
-  }, [store?.pdv_password]);
+    if (store?.kitchen_password) {
+      setKitchenPassword(store.kitchen_password);
+    }
+  }, [store?.pdv_password, store?.kitchen_password]);
 
   const handleToggle = async (mode: 'mode_delivery_enabled' | 'mode_pickup_enabled', value: boolean) => {
     if (!store) return;
@@ -110,24 +114,48 @@ export function OperationModes() {
 
       </div>
 
-      {/* Senha PDV */}
-      <div className="border-t border-border pt-4 mt-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <KeyRound className="h-4 w-4 text-primary" />
-          <p className="font-medium text-foreground text-sm">Senha PDV</p>
+      {/* Senhas de Acesso */}
+      <div className="border-t border-border pt-4 mt-4 space-y-6">
+        {/* PDV Password */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <KeyRound className="h-4 w-4 text-primary" />
+            <p className="font-medium text-foreground text-sm">Senha PDV</p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Defina uma senha para acesso ao PDV pela rota /pdv. Máximo de 8 caracteres.
+          </p>
+          <Input
+            type="text"
+            placeholder="Senha do PDV"
+            value={pdvPassword}
+            onChange={(e) => setPdvPassword(e.target.value.slice(0, 8))}
+            maxLength={8}
+            className="max-w-xs"
+          />
+          <p className="text-xs text-muted-foreground">{pdvPassword.length}/8 caracteres</p>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Defina uma senha para acesso ao PDV pela rota /pdv. Máximo de 8 caracteres.
-        </p>
-        <Input
-          type="text"
-          placeholder="Senha do PDV"
-          value={pdvPassword}
-          onChange={(e) => setPdvPassword(e.target.value.slice(0, 8))}
-          maxLength={8}
-          className="max-w-xs"
-        />
-        <p className="text-xs text-muted-foreground">{pdvPassword.length}/8 caracteres</p>
+
+        {/* Kitchen Password */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <UtensilsCrossed className="h-4 w-4 text-primary" />
+            <p className="font-medium text-foreground text-sm">Senha Cozinha</p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Defina uma senha para acesso à Cozinha pela rota /kitchen. Máximo de 8 caracteres.
+          </p>
+          <Input
+            type="text"
+            placeholder="Senha da Cozinha"
+            value={kitchenPassword}
+            onChange={(e) => setKitchenPassword(e.target.value.slice(0, 8))}
+            maxLength={8}
+            className="max-w-xs"
+          />
+          <p className="text-xs text-muted-foreground">{kitchenPassword.length}/8 caracteres</p>
+        </div>
+
         <Button
           size="sm"
           disabled={updateStore.isPending}
@@ -135,12 +163,13 @@ export function OperationModes() {
             if (!store) return;
             try {
               await updateStore.mutateAsync({
-                ...(store.id ? { id: store.id } : {}),
+                id: store.id,
                 pdv_password: pdvPassword || null,
-              } as any);
-              toast({ title: 'Senha PDV salva com sucesso!' });
+                kitchen_password: kitchenPassword || null,
+              });
+              toast({ title: 'Configurações de acesso salvas!' });
             } catch {
-              toast({ title: 'Erro ao salvar senha', variant: 'destructive' });
+              toast({ title: 'Erro ao salvar senhas', variant: 'destructive' });
             }
           }}
         >

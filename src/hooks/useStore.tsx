@@ -46,6 +46,8 @@ export interface StoreConfig {
   floating_image_size_mobile?: number | null;
   floating_image_position_mobile?: number | null;
   floating_image_vertical_position_mobile?: number | null;
+  pdv_password?: string | null;
+  kitchen_password?: string | null;
 }
 
 export function useStore() {
