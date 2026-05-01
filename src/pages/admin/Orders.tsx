@@ -364,8 +364,8 @@ function OrderCardContent({
     }
   }, [order.status, orderTimerKey, order.updated_at]);
 
-  const handleStatusUpdate = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleStatusUpdate = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     const next = getNextStatus(order.status);
     if (next) {
       // Start timer when accepting
