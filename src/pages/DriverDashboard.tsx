@@ -19,10 +19,11 @@ function DriverOrderCard({ order, isNew, onAcknowledge }: { order: any; isNew: b
   const { data: items } = useDriverOrderItems(order.id);
   const aggregatedItems = items?.reduce((acc: any[], item: any) => {
     const existing = acc.find(i => i.product_name === item.product_name && i.observation === item.observation);
+    const qty = Number(item.quantity) || 0;
     if (existing) {
-      existing.quantity += item.quantity;
+      existing.quantity += qty;
     } else {
-      acc.push({ ...item });
+      acc.push({ ...item, quantity: qty });
     }
     return acc;
   }, []);

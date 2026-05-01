@@ -8,10 +8,12 @@ $db = getDB();
 if ($method === 'GET') {
     require_auth();
 
-    if ($id) {
-        // GET /order-items/{orderId} — itens de um pedido específico
+    $order_id = $_GET['order_id'] ?? $id;
+
+    if ($order_id) {
+        // GET /order-items?order_id=X ou GET /order-items/X
         $stmt = $db->prepare('SELECT * FROM order_items WHERE order_id = ? ORDER BY created_at ASC');
-        $stmt->execute([$id]);
+        $stmt->execute([$order_id]);
         respond($stmt->fetchAll());
     }
 
