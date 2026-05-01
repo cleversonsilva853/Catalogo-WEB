@@ -13,13 +13,22 @@ const Cart = () => {
   const formatCurrency = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+  const handleReturnToMenu = () => {
+    const table = localStorage.getItem('selected-table');
+    if (table) {
+      navigate(`/mesa=${table}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   if (items.length === 0) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
         <div className="text-6xl mb-4">🛒</div>
         <h1 className="text-xl font-bold text-foreground">Carrinho vazio</h1>
         <p className="mt-2 text-muted-foreground">Adicione itens do cardápio para continuar</p>
-        <Button onClick={() => navigate('/')} className="mt-6 rounded-full">
+        <Button onClick={handleReturnToMenu} className="mt-6 rounded-full">
           Ver Cardápio
         </Button>
       </div>
@@ -38,7 +47,7 @@ const Cart = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => navigate('/')}
+            onClick={handleReturnToMenu}
             className="text-primary-foreground hover:bg-primary-foreground/10"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -76,7 +85,9 @@ const Cart = () => {
                         const addonsParam = item.selectedAddons 
                           ? encodeURIComponent(JSON.stringify(item.selectedAddons))
                           : '';
-                        const url = `/?product=${item.product.id}&observation=${encodeURIComponent(item.observation || '')}&quantity=${item.quantity}&returnTo=cart${addonsParam ? `&addons=${addonsParam}` : ''}`;
+                        const table = localStorage.getItem('selected-table');
+                        const baseUrl = table ? `/mesa=${table}` : '/';
+                        const url = `${baseUrl}?product=${item.product.id}&observation=${encodeURIComponent(item.observation || '')}&quantity=${item.quantity}&returnTo=cart${addonsParam ? `&addons=${addonsParam}` : ''}`;
                         navigate(url);
                       }}
                       aria-label="Editar produto"
@@ -136,7 +147,7 @@ const Cart = () => {
           {/* Add More Items Button */}
           <div className="px-4">
             <button
-              onClick={() => navigate('/')}
+              onClick={handleReturnToMenu}
               className="w-full py-4 text-center text-muted-foreground font-medium border-2 border-dashed border-border rounded-2xl hover:border-primary hover:text-primary transition-colors"
             >
               + Adicionar mais itens

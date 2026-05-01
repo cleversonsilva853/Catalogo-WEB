@@ -30,6 +30,15 @@ const OrderStatus = () => {
   const formatCurrency = (value: number) =>
     Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+  const handleReturnToMenu = () => {
+    const table = localStorage.getItem('selected-table');
+    if (table) {
+      navigate(`/mesa=${table}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   const whatsappLink = store?.phone_whatsapp 
     ? `https://wa.me/55${store.phone_whatsapp}?text=${encodeURIComponent(
         `Olá! Gostaria de saber sobre meu pedido #${id}`
@@ -57,7 +66,7 @@ const OrderStatus = () => {
         <div className="text-6xl mb-4">🔍</div>
         <h1 className="text-xl font-bold text-foreground">Pedido não encontrado</h1>
         <p className="mt-2 text-muted-foreground">Verifique o número do pedido</p>
-        <Button onClick={() => navigate('/')} className="mt-6">
+        <Button onClick={handleReturnToMenu} className="mt-6">
           Voltar ao Cardápio
         </Button>
       </div>
@@ -139,7 +148,7 @@ const OrderStatus = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            onClick={() => navigate('/')}
+            onClick={handleReturnToMenu}
             className="text-primary-foreground hover:bg-primary-foreground/10"
           >
             <ArrowLeft className="h-5 w-5" />

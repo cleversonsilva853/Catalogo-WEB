@@ -153,6 +153,15 @@ const Checkout = () => {
   const formatCurrency = (value: number) =>
     value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+  const handleReturnToMenu = () => {
+    const table = localStorage.getItem('selected-table');
+    if (table) {
+      navigate(`/mesa=${table}`);
+    } else {
+      navigate('/');
+    }
+  };
+
   
   // Calculate subtotal - product.price already includes addons from ProductModal
   const subtotal = useMemo(() => {
@@ -283,14 +292,17 @@ const Checkout = () => {
     try {
       const getAddressStreet = () => {
         if (deliveryType === 'delivery') return deliveryData.street;
+        if (deliveryType === 'dine_in') return 'Consumir no Local';
         return 'Retirada no local';
       };
       const getAddressNumber = () => {
         if (deliveryType === 'delivery') return deliveryData.number;
+        if (deliveryType === 'dine_in') return localStorage.getItem('selected-table') || '-';
         return '-';
       };
       const getAddressNeighborhood = () => {
         if (deliveryType === 'delivery') return zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood;
+        if (deliveryType === 'dine_in') return '';
         return '-';
       };
 
@@ -340,12 +352,12 @@ const Checkout = () => {
             })),
             totalAmount: finalTotal,
             paymentMethod: paymentMethod,
-            addressStreet: deliveryType === 'delivery' ? deliveryData.street : 'Retirada no local',
-            addressNumber: deliveryType === 'delivery' ? deliveryData.number : '-',
+            addressStreet: deliveryType === 'delivery' ? deliveryData.street : (deliveryType === 'dine_in' ? 'Consumir no Local' : 'Retirada no local'),
+            addressNumber: deliveryType === 'delivery' ? deliveryData.number : (deliveryType === 'dine_in' ? (localStorage.getItem('selected-table') || '-') : '-'),
             addressNeighborhood: deliveryType === 'delivery' ? deliveryData.neighborhood : '-',
             addressComplement: deliveryType === 'delivery' ? deliveryData.complement || null : null,
             changeFor: changeForValue,
-            deliveryType: deliveryType as 'delivery' | 'pickup',
+            deliveryType: deliveryType as 'delivery' | 'pickup' | 'dine_in',
             storePhone: store?.phone_whatsapp || null,
         }).then((response) => {
           console.log('[Checkout] WhatsApp notification sent:', response);
@@ -384,7 +396,7 @@ const Checkout = () => {
         <div className="text-6xl mb-4">🛒</div>
         <h1 className="text-xl font-bold text-foreground">Carrinho vazio</h1>
         <p className="mt-2 text-muted-foreground">Adicione itens do cardápio para continuar</p>
-        <Button onClick={() => navigate('/')} className="mt-6 rounded-full">
+        <Button onClick={handleReturnToMenu} className="mt-6 rounded-full">
           Ver Cardápio
         </Button>
       </div>
@@ -730,7 +742,9 @@ const Checkout = () => {
                           const addonsParam = item.selectedAddons 
                             ? encodeURIComponent(JSON.stringify(item.selectedAddons))
                             : '';
-                          const url = `/?product=${item.product.id}&observation=${encodeURIComponent(item.observation || '')}&quantity=${item.quantity}&returnTo=checkout${addonsParam ? `&addons=${addonsParam}` : ''}`;
+                          const table = localStorage.getItem('selected-table');
+                          const baseUrl = table ? `/mesa=${table}` : '/';
+                          const url = `${baseUrl}?product=${item.product.id}&observation=${encodeURIComponent(item.observation || '')}&quantity=${item.quantity}&returnTo=checkout${addonsParam ? `&addons=${addonsParam}` : ''}`;
                           navigate(url);
                         }}
                         aria-label="Editar produto"
@@ -783,7 +797,7 @@ const Checkout = () => {
 
             {/* Add More Items */}
             <button
-              onClick={() => navigate('/')}
+              onClick={handleReturnToMenu}
               className="flex items-center justify-between w-full p-4 rounded-2xl bg-card shadow-card"
             >
               <div className="flex items-center gap-3">
