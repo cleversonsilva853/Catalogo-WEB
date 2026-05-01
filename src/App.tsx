@@ -60,10 +60,11 @@ const PWAManifestChanger = () => {
   useEffect(() => {
     const manifestLink = document.querySelector('link[rel="manifest"]');
     if (manifestLink) {
+      const apiBase = "https://api.deliverygrill.infornexa.com.br"; // Base da sua API
       if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/auth') || location.pathname.startsWith('/kitchen')) {
-        manifestLink.setAttribute('href', '/manifest-admin.json');
+        manifestLink.setAttribute('href', `${apiBase}/manifest.php?type=admin`);
       } else {
-        manifestLink.setAttribute('href', '/manifest.json');
+        manifestLink.setAttribute('href', `${apiBase}/manifest.php?type=customer`);
       }
     }
   }, [location.pathname]);
