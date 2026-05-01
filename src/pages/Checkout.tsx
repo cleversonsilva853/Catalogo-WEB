@@ -94,11 +94,12 @@ const Checkout = () => {
 
   // Get initial delivery type - use first available
   const getInitialDeliveryType = (): DeliveryType => {
+    const storedTable = localStorage.getItem('selected-table');
+    if (storedTable) return 'dine_in';
+    
     if (savedData?.deliveryType && availableTypes[savedData.deliveryType as DeliveryType]) {
       return savedData.deliveryType as DeliveryType;
     }
-    const storedTable = localStorage.getItem('selected-table');
-    if (storedTable) return 'dine_in';
     if (availableTypes.delivery) return 'delivery';
     if (availableTypes.pickup) return 'pickup';
     return 'delivery';
@@ -434,47 +435,36 @@ const Checkout = () => {
           </div>
         )}
 
-        <div className="flex border-b border-border">
-          {!localStorage.getItem('selected-table') && availableTypes.delivery && (
-            <button
-              onClick={() => setDeliveryType('delivery')}
-              className={cn(
-                "flex-1 py-3 text-center text-sm font-medium transition-colors",
-                deliveryType === 'delivery' 
-                  ? "text-primary border-b-2 border-primary" 
-                  : "text-muted-foreground"
-              )}
-            >
-              Entrega
-            </button>
-          )}
-          {!localStorage.getItem('selected-table') && availableTypes.pickup && (
-            <button
-              onClick={() => setDeliveryType('pickup')}
-              className={cn(
-                "flex-1 py-3 text-center text-sm font-medium transition-colors",
-                deliveryType === 'pickup' 
-                  ? "text-primary border-b-2 border-primary" 
-                  : "text-muted-foreground"
-              )}
-            >
-              Retirada
-            </button>
-          )}
-          {localStorage.getItem('selected-table') && (
-            <button
-              onClick={() => setDeliveryType('dine_in')}
-              className={cn(
-                "flex-1 py-3 text-center text-sm font-medium transition-colors",
-                deliveryType === 'dine_in' 
-                  ? "text-primary border-b-2 border-primary" 
-                  : "text-muted-foreground"
-              )}
-            >
-              Na Mesa
-            </button>
-          )}
-        </div>
+        {!localStorage.getItem('selected-table') && (
+          <div className="flex border-b border-border">
+            {availableTypes.delivery && (
+              <button
+                onClick={() => setDeliveryType('delivery')}
+                className={cn(
+                  "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                  deliveryType === 'delivery' 
+                    ? "text-primary border-b-2 border-primary" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Entrega
+              </button>
+            )}
+            {availableTypes.pickup && (
+              <button
+                onClick={() => setDeliveryType('pickup')}
+                className={cn(
+                  "flex-1 py-3 text-center text-sm font-medium transition-colors",
+                  deliveryType === 'pickup' 
+                    ? "text-primary border-b-2 border-primary" 
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Retirada
+              </button>
+            )}
+          </div>
+        )}
 
         <div className="px-0 sm:px-4 py-4 space-y-6">
           {/* Address Section */}

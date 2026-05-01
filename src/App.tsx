@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { HashRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -44,6 +44,15 @@ import AdminTables from "./pages/admin/Tables";
 import PDVPublic from "./pages/PDVPublic";
 import NotFound from "./pages/NotFound";
 
+// Wrapper customizado para aceitar a URL exata /mesa=X
+const TableOrNotFound = () => {
+  const { tableParam } = useParams();
+  if (tableParam && tableParam.startsWith('mesa=')) {
+    return <Index />;
+  }
+  return <NotFound />;
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -54,10 +63,10 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <HashRouter>
+            <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/mesa=:tableNumber" element={<Index />} />
+                <Route path="/:tableParam" element={<TableOrNotFound />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
@@ -95,7 +104,7 @@ const App = () => (
                 <Route path="/kitchen" element={<Kitchen />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </HashRouter>
+            </BrowserRouter>
           </TooltipProvider>
         </CartProvider>
       </AuthProvider>

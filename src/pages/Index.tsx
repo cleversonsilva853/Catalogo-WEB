@@ -35,7 +35,8 @@ interface EditingProduct {
 
 const Index = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { tableNumber } = useParams();
+  const { tableParam } = useParams();
+  const tableNumber = tableParam?.replace('mesa=', '');
   const isDineInMode = searchParams.get('mode') === 'dine_in' || !!tableNumber;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);

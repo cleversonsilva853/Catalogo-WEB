@@ -46,9 +46,10 @@ if ($method === 'GET' && $id === 'kitchen') {
         SELECT 
             oi.*, 
             o.customer_name, 
+            o.table_number,
             o.created_at as ordered_at,
             c.numero_comanda,
-            (CASE WHEN c.id IS NOT NULL THEN 'table' ELSE 'delivery' END) as order_type
+            (CASE WHEN c.id IS NOT NULL OR o.table_number IS NOT NULL THEN 'table' ELSE 'delivery' END) as order_type
         FROM order_items oi
         JOIN orders o ON oi.order_id = o.id
         LEFT JOIN comanda_pedidos cp ON o.id = cp.pedido_id

@@ -64,7 +64,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
         complement: order.address_complement || undefined,
         reference: order.address_reference || undefined,
       } : undefined,
-      tableName: order.type === 'table' ? order.customer_name : undefined,
+      tableName: order.type === 'table' ? (order.table_number ? `Mesa ${order.table_number}` : order.customer_name) : undefined,
       waiterName: order.waiter_name || undefined,
       items: items.map(item => ({
         name: item.product_name,

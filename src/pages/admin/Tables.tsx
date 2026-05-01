@@ -124,7 +124,7 @@ const AdminTables = () => {
   const generatePDF = async (table: Table) => {
     setGeneratingPDF(table.id);
     const baseUrl = getBaseUrl();
-    const tableUrl = `${baseUrl}/#/mesa=${table.number}`;
+    const tableUrl = `${baseUrl}/mesa=${table.number}`;
 
     try {
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
@@ -304,7 +304,7 @@ const AdminTables = () => {
                   <div className="flex flex-col items-center gap-3 p-4 bg-white rounded-xl border border-border">
                     <QRCodeCanvas
                       id={`qr-canvas-${table.id}`}
-                      value={`${getBaseUrl()}/#/mesa=${table.number}`}
+                      value={`${getBaseUrl()}/mesa=${table.number}`}
                       size={140}
                       level="H"
                       includeMargin
@@ -314,7 +314,7 @@ const AdminTables = () => {
                         variant="secondary" 
                         size="sm" 
                         className="flex-1 text-[10px] h-8"
-                        onClick={() => window.open(`${getBaseUrl()}/#/mesa=${table.number}`, '_blank')}
+                        onClick={() => window.open(`${getBaseUrl()}/mesa=${table.number}`, '_blank')}
                       >
                         <ExternalLink className="h-3 w-3 mr-1" />
                         Ver Link
