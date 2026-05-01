@@ -193,9 +193,15 @@ function send_web_push(string $endpoint, string $p256dh, string $auth_key, array
  * Remove automaticamente subscriptions expiradas (HTTP 410).
  * Retorna o número de envios bem-sucedidos.
  */
-function send_push_to_all(string $title, string $body_text, string $url = '/', string $icon = ''): int {
+function send_push_to_all(string $title, string $body_text, string $url = '/', string $icon = '', ?string $user_type = null): int {
     $db   = getDB();
-    $subs = $db->query('SELECT * FROM push_subscriptions')->fetchAll();
+    if ($user_type) {
+        $stmt = $db->prepare('SELECT * FROM push_subscriptions WHERE user_type = ?');
+        $stmt->execute([$user_type]);
+        $subs = $stmt->fetchAll();
+    } else {
+        $subs = $db->query('SELECT * FROM push_subscriptions')->fetchAll();
+    }
     $sent = 0;
     $expired = [];
 

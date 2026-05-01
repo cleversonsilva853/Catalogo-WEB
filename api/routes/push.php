@@ -36,15 +36,15 @@ if ($method === 'POST' && ($id === 'subscribe' || $id === null)) {
     $existing = $stmt->fetch();
 
     if ($existing) {
-        // Atualiza p256dh e auth_key caso o browser tenha renovado
-        $db->prepare('UPDATE push_subscriptions SET p256dh = ?, auth_key = ? WHERE endpoint = ?')
-           ->execute([$b['p256dh'], $b['auth'], $b['endpoint']]);
+        // Atualiza p256dh, auth_key e user_type caso o browser tenha renovado
+        $db->prepare('UPDATE push_subscriptions SET p256dh = ?, auth_key = ?, user_type = ?, user_identifier = ? WHERE endpoint = ?')
+           ->execute([$b['p256dh'], $b['auth'], $b['user_type'] ?? 'customer', $b['user_identifier'] ?? null, $b['endpoint']]);
         respond(['message' => 'Subscription atualizada', 'id' => $existing['id']]);
     }
 
     $uuid = push_uuid();
-    $db->prepare('INSERT INTO push_subscriptions (id, endpoint, p256dh, auth_key) VALUES (?,?,?,?)')
-       ->execute([$uuid, $b['endpoint'], $b['p256dh'], $b['auth']]);
+    $db->prepare('INSERT INTO push_subscriptions (id, endpoint, p256dh, auth_key, user_type, user_identifier) VALUES (?,?,?,?,?,?)')
+       ->execute([$uuid, $b['endpoint'], $b['p256dh'], $b['auth'], $b['user_type'] ?? 'customer', $b['user_identifier'] ?? null]);
 
     respond(['message' => 'Subscription registrada com sucesso', 'id' => $uuid], 201);
 }

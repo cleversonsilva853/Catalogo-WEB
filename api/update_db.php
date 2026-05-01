@@ -114,6 +114,18 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
     echo "Tabela bulk_messages verificada/criada.\n";
 
+    // 7. Forçar conversão de charset para garantir emojis
+    echo "Convertendo tabelas para utf8mb4...\n";
+    $tables = ['store_config', 'products', 'orders', 'order_items', 'categories', 'addons', 'comandas', 'ingredients'];
+    foreach ($tables as $t) {
+        try {
+            $db->exec("ALTER TABLE $t CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            echo "Tabela $t convertida.\n";
+        } catch (Exception $e) {
+            // Ignorar erro se a tabela não existir
+        }
+    }
+
     echo "\nAtualização concluída com sucesso!";
 } catch (Exception $e) {
     echo "\nERRO na atualização: " . $e->getMessage();

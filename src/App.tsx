@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { CartProvider } from "@/hooks/useCart";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -53,6 +54,23 @@ const TableOrNotFound = () => {
   return <NotFound />;
 };
 
+const PWAManifestChanger = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) {
+      if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/auth') || location.pathname.startsWith('/kitchen')) {
+        manifestLink.setAttribute('href', '/manifest-admin.json');
+      } else {
+        manifestLink.setAttribute('href', '/manifest.json');
+      }
+    }
+  }, [location.pathname]);
+
+  return null;
+};
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -64,6 +82,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <PWAManifestChanger />
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/:tableParam" element={<TableOrNotFound />} />
