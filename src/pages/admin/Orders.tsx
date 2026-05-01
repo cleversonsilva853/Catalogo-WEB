@@ -323,12 +323,12 @@ function OrderCardContent({
   };
 
   const getNextStatusLabel = (status: UnifiedOrder['status']) => {
-    if (order.type === 'table' || isComanda || isDineIn) {
+    if (orderType === 'table' || isComanda || isDineIn) {
       const labels: Record<string, string> = {
         pending: 'Aceitar',
         accepted: 'Preparar',
         preparing: 'Pronto',
-        ready: 'Finalizar',
+        ready: 'Entregar',
       };
       return labels[status];
     }
@@ -463,7 +463,7 @@ function OrderCardContent({
 
         {!isCompleted && getNextStatus(order.status) && (() => {
           const isPreparing = order.status === 'preparing';
-          const isReadyForDispatch = orderType === 'delivery' && !isComanda && order.status === 'ready';
+          const isReadyForDispatch = orderType === 'delivery' && !isComanda && !isDineIn && order.status === 'ready';
           
           if (isReadyForDispatch) return null;
 
@@ -496,7 +496,7 @@ function OrderCardContent({
         {!isCompleted && (
           <div className="space-y-2">
             {/* Driver selection button for "ready" orders */}
-            {orderType === 'delivery' && !isComanda && order.status === 'ready' && (
+            {orderType === 'delivery' && !isComanda && !isDineIn && order.status === 'ready' && (
               <div onClick={(e) => e.stopPropagation()} className="mt-2 space-y-2">
 
 

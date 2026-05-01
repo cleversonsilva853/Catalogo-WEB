@@ -264,7 +264,7 @@ export function generateReceiptText(data: PrintOrderData): string {
   const GS_T = '\x1D';
   
   const isPDVOrder = data.customerName?.startsWith('Comanda #');
-  const typeLabel = data.orderType === 'delivery' ? (isPDVOrder ? 'Consumidor Local' : 'DELIVERY') : 'COMANDA';
+  const typeLabel = data.orderType === 'delivery' ? (isPDVOrder ? 'Consumo no local' : 'DELIVERY') : 'COMANDA';
   
   receipt += ESC_T + '@'; // Init
   receipt += ESC_T + 'a\x01'; // Center
@@ -430,7 +430,7 @@ export function printReceiptBrowser(data: PrintOrderData): void {
       </style>
     </head>
     <body>
-      <div class="center double">${data.orderType === 'delivery' ? (data.customerName?.startsWith('Comanda #') ? 'Consumo no local' : 'DELIVERY') : 'COMANDA'}</div>
+      <div class="center double">${data.orderType === 'table' || (data.orderType === 'delivery' && data.customerName?.startsWith('Comanda #')) ? 'Consumo no local' : (data.orderType === 'delivery' ? 'DELIVERY' : 'RETIRADA')}</div>
       <div class="center bold">#${data.orderNumber}</div>
       <br>
       ${data.orderType === 'table' && data.tableName ? `
@@ -517,11 +517,11 @@ export function generatePrintableText(data: PrintOrderData): string {
   let orderTypeLabel = 'DELIVERY';
   
   if (data.orderType === 'table') {
-    orderTypeLabel = 'Consumidor Local';
+    orderTypeLabel = 'Consumo no local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
   } else if (isPDVOrder) {
-    orderTypeLabel = 'Consumidor Local';
+    orderTypeLabel = 'Consumo no local';
   }
   text += centerText(orderTypeLabel) + '\n';
   
@@ -815,11 +815,11 @@ export function generateThermalPDF(data: PrintOrderData): void {
   let orderTypeLabel = 'DELIVERY';
   
   if (data.orderType === 'table') {
-    orderTypeLabel = 'Consumidor Local';
+    orderTypeLabel = 'Consumo no local';
   } else if (data.orderType === 'pickup') {
     orderTypeLabel = 'RETIRAR NO LOCAL';
   } else if (isPDVOrder) {
-    orderTypeLabel = 'Consumidor Local';
+    orderTypeLabel = 'Consumo no local';
   }
   addText(orderTypeLabel, fontSize.large, 'center', true);
   
@@ -1015,9 +1015,9 @@ export function generateOrderPDF(data: PrintOrderData): void {
   // Get order type label
   const getOrderTypeLabel = () => {
     switch (data.orderType) {
-      case 'delivery': return isPDVOrder ? 'Consumidor Local' : 'Delivery';
+      case 'delivery': return isPDVOrder ? 'Consumo no local' : 'Delivery';
       case 'pickup': return 'Retirar no Local';
-      case 'table': return 'Consumidor Local';
+      case 'table': return 'Consumo no local';
       default: return 'Pedido';
     }
   };
@@ -1337,7 +1337,7 @@ export function generateOrderPDF(data: PrintOrderData): void {
   
   // Download PDF
   const fileName = data.orderType === 'table' 
-    ? `comanda-${data.tableName?.replace(/\s/g, '-')}-${data.orderNumber}.pdf`
+    ? `Nota-${data.tableName?.replace(/\s/g, '-')}-${data.orderNumber}.pdf`
     : `pedido-${data.orderNumber}.pdf`;
   doc.save(fileName);
 }

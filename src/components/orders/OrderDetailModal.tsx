@@ -45,7 +45,9 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
     
     // Determine order type
     let orderType: 'delivery' | 'table' | 'pickup' = 'delivery';
-    if (order.type === 'table') {
+    const isTable = order.type === 'table' || order.address_street === 'Consumir no Local';
+    
+    if (isTable) {
       orderType = 'table';
     }
     // Note: pickup type would need to be determined from order data if available
@@ -57,14 +59,14 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
       customerName: order.customer_name,
       customerPhone: order.customer_phone || undefined,
       customerCount: order.customer_count || undefined,
-      address: order.type === 'delivery' && order.address_street ? {
+      address: !isTable && order.address_street ? {
         street: order.address_street,
         number: order.address_number || '',
         neighborhood: order.address_neighborhood || '',
         complement: order.address_complement || undefined,
         reference: order.address_reference || undefined,
       } : undefined,
-      tableName: order.type === 'table' ? (order.table_number ? `Mesa ${order.table_number}` : order.customer_name) : undefined,
+      tableName: isTable ? (order.table_number || order.address_number ? `Mesa ${order.table_number || order.address_number}` : order.customer_name) : undefined,
       waiterName: order.waiter_name || undefined,
       items: items.map(item => ({
         name: item.product_name,
@@ -89,6 +91,7 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
   const payment = order.payment_method ? (paymentConfig[order.payment_method] || { label: order.payment_method, icon: '💰' }) : null;
 
   const isPDVOrder = order.customer_name?.startsWith('Comanda #') || order.address_street === 'Consumir no Local';
+  const isTableOrder = order.type === 'table' || order.address_street === 'Consumir no Local';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -96,11 +99,11 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl">
-              {order.type === 'table' ? order.customer_name : `Pedido #${order.id}`}
+              {isTableOrder ? `Pedido Mesa ${order.table_number || order.address_number} - ${order.customer_name}` : `Pedido #${order.id}`}
             </DialogTitle>
             <div className="flex gap-2">
               <Badge variant="outline" className="text-xs">
-                {order.type === 'table' || isPDVOrder ? '🍽️ Comanda' : '🛵 Delivery'}
+                {isTableOrder ? `🍽️ Mesa ${order.table_number || order.address_number}` : (order.customer_name?.startsWith('Comanda #') ? '🍽️ Comanda' : '🛵 Delivery')}
               </Badge>
               <Badge className={status.color}>{status.label}</Badge>
             </div>
@@ -121,14 +124,14 @@ export function OrderDetailModal({ order, open, onOpenChange }: OrderDetailModal
           {/* Customer/Table Info */}
           <div className="space-y-3">
             <h3 className="font-semibold text-sm text-muted-foreground">
-              {order.type === 'table' ? 'MESA' : 'CLIENTE'}
+              {isTableOrder ? 'MESA' : 'CLIENTE'}
             </h3>
             <div className="space-y-2">
-              {order.type === 'table' ? (
+              {isTableOrder ? (
                 <>
                   <div className="flex items-center gap-2">
                     <Utensils className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{order.customer_name}</span>
+                    <span className="font-medium">Mesa {order.table_number || order.address_number} - {order.customer_name}</span>
                   </div>
                   {order.waiter_name && (
                     <div className="flex items-center gap-2">

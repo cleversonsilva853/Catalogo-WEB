@@ -302,7 +302,7 @@ const Checkout = () => {
       };
       const getAddressNeighborhood = () => {
         if (deliveryType === 'delivery') return zoneAsNeighborhood && selectedZone ? selectedZone.name : deliveryData.neighborhood;
-        if (deliveryType === 'dine_in') return '';
+        if (deliveryType === 'dine_in') return '-';
         return '-';
       };
 

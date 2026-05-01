@@ -191,6 +191,11 @@ if ($method === 'POST' && !$id) {
 
     $db->beginTransaction();
     try {
+        $table_num = $b['table_number'] ?? null;
+        if ($b['address_street'] === 'Consumir no Local' && !$table_num) {
+            $table_num = (int)$b['address_number'];
+        }
+
         $db->prepare('
             INSERT INTO orders
                 (customer_name, customer_phone, address_street, address_number,
@@ -216,7 +221,7 @@ if ($method === 'POST' && !$id) {
             $b['delivery_fee']        ?? 0,
             $b['coupon_code']         ?? null,
             $b['discount_amount']     ?? 0,
-            $b['table_number']        ?? null,
+            $table_num,
             'pending',
         ]);
 
